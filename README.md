@@ -37,6 +37,13 @@ Features are stored as markdown files with YAML frontmatter — version-controll
 
 ## Features
 
+### Multiple Kanban Boards
+
+You can create and open multiple independent kanban boards inside the same workspace:
+- **Open any folder**: Right-click any folder in the VS Code Explorer file tree and select **Open as Kanban Board**. A dedicated board tab will open for that directory path.
+- **Select Board**: Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and choose **Select Kanban Board** to pick from a list of previously opened boards.
+- **Run multiple simultaneously**: You can open two or more kanban boards side-by-side! Each tab will dynamically track and update cards for its specific directory path.
+
 ### Board & Workflow
 
 - 5-column workflow — Backlog, To Do, In Progress, Review, Done (customizable)
