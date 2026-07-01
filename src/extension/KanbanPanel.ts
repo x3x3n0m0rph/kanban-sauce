@@ -1102,7 +1102,11 @@ export class KanbanPanel {
       defaultStatus: config.get<FeatureStatus>('defaultStatus', 'backlog'),
       fontSizeColumnHeader: config.get<string>('fontSizeColumnHeader', '14px'),
       fontSizeCardTitle: config.get<string>('fontSizeCardTitle', '13px'),
-      fontSizeCardMeta: config.get<string>('fontSizeCardMeta', '11px')
+      fontSizeCardDescription: config.get<string>('fontSizeCardDescription', '12px'),
+      fontSizeCardLabel: config.get<string>('fontSizeCardLabel', '11px'),
+      fontSizeCardMeta: config.get<string>('fontSizeCardMeta', '11px'),
+      fontSizeEditorHeader: config.get<string>('fontSizeEditorHeader', '20px'),
+      fontSizeEditorBody: config.get<string>('fontSizeEditorBody', '13px')
     }
 
     const collapsedColumns: string[] = this._context.workspaceState.get('kanban-markdown.collapsedColumns', [])

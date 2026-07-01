@@ -84,7 +84,11 @@ export interface CardDisplaySettings {
   defaultStatus: FeatureStatus
   fontSizeColumnHeader?: string
   fontSizeCardTitle?: string
+  fontSizeCardDescription?: string
+  fontSizeCardLabel?: string
   fontSizeCardMeta?: string
+  fontSizeEditorHeader?: string
+  fontSizeEditorBody?: string
 }
 
 // Messages between extension and webview

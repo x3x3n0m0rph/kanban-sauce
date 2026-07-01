@@ -208,12 +208,40 @@ function App(): React.JSX.Element {
     } else {
       root.style.removeProperty('--kanban-font-size-card-title')
     }
+    if (cardSettings.fontSizeCardDescription) {
+      root.style.setProperty('--kanban-font-size-card-description', cardSettings.fontSizeCardDescription)
+    } else {
+      root.style.removeProperty('--kanban-font-size-card-description')
+    }
+    if (cardSettings.fontSizeCardLabel) {
+      root.style.setProperty('--kanban-font-size-card-label', cardSettings.fontSizeCardLabel)
+    } else {
+      root.style.removeProperty('--kanban-font-size-card-label')
+    }
     if (cardSettings.fontSizeCardMeta) {
       root.style.setProperty('--kanban-font-size-card-meta', cardSettings.fontSizeCardMeta)
     } else {
       root.style.removeProperty('--kanban-font-size-card-meta')
     }
-  }, [cardSettings.fontSizeColumnHeader, cardSettings.fontSizeCardTitle, cardSettings.fontSizeCardMeta])
+    if (cardSettings.fontSizeEditorHeader) {
+      root.style.setProperty('--kanban-font-size-editor-header', cardSettings.fontSizeEditorHeader)
+    } else {
+      root.style.removeProperty('--kanban-font-size-editor-header')
+    }
+    if (cardSettings.fontSizeEditorBody) {
+      root.style.setProperty('--kanban-font-size-editor-body', cardSettings.fontSizeEditorBody)
+    } else {
+      root.style.removeProperty('--kanban-font-size-editor-body')
+    }
+  }, [
+    cardSettings.fontSizeColumnHeader,
+    cardSettings.fontSizeCardTitle,
+    cardSettings.fontSizeCardDescription,
+    cardSettings.fontSizeCardLabel,
+    cardSettings.fontSizeCardMeta,
+    cardSettings.fontSizeEditorHeader,
+    cardSettings.fontSizeEditorBody
+  ])
 
   // Listen for messages from extension
   useEffect(() => {

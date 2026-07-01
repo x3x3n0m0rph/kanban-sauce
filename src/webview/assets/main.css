@@ -288,13 +288,38 @@ input:focus-visible {
 }
 
 .kanban-card-description {
-  font-size: var(--kanban-font-size-card-meta, 0.75rem) !important;
+  font-size: var(--kanban-font-size-card-description, 0.75rem) !important;
 }
 
 .kanban-card-label {
-  font-size: var(--kanban-font-size-card-meta, 0.75rem) !important;
+  font-size: var(--kanban-font-size-card-label, 0.75rem) !important;
 }
 
 .kanban-card-meta {
   font-size: var(--kanban-font-size-card-meta, 0.75rem) !important;
+}
+
+/* Editor / Preview Markdown font size overrides */
+.prose h1 {
+  font-size: calc(1.5 * var(--kanban-font-size-editor-header, 20px)) !important;
+}
+
+.prose h2 {
+  font-size: calc(1.2 * var(--kanban-font-size-editor-header, 20px)) !important;
+}
+
+.prose h3 {
+  font-size: var(--kanban-font-size-editor-header, 20px) !important;
+}
+
+.prose h4 {
+  font-size: calc(0.9 * var(--kanban-font-size-editor-header, 20px)) !important;
+}
+
+.prose p,
+.prose li,
+.prose blockquote,
+.prose td,
+.prose th {
+  font-size: var(--kanban-font-size-editor-body, 13px) !important;
 }
