@@ -220,6 +220,9 @@ function App(): React.JSX.Element {
             }
             setCardSettings(message.settings)
           }
+          if (message.boardPath) {
+            vscode.setState({ boardPath: message.boardPath })
+          }
           break
         case 'featuresUpdated':
           setFeatures(message.features)
