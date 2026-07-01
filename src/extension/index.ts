@@ -105,6 +105,16 @@ async function createFeatureFromPrompts(): Promise<void> {
   vscode.window.showInformationMessage(t('ext.createdFeature', { title }))
 }
 
+async function registerKnownBoard(context: vscode.ExtensionContext, boardPath: string) {
+  const boards = new Set(context.workspaceState.get<string[]>('kanban-markdown.knownBoards', []))
+  boards.add(boardPath)
+  await context.workspaceState.update('kanban-markdown.knownBoards', Array.from(boards))
+}
+
+interface BoardQuickPickItem extends vscode.QuickPickItem {
+  boardPath: string
+}
+
 export function activate(context: vscode.ExtensionContext) {
   loadBundle(context.extensionPath)
   // Sidebar webview in the activity bar
@@ -115,13 +125,89 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('kanban-markdown.open', () => {
-      const wasOpen = !!KanbanPanel.currentPanel
-      KanbanPanel.createOrShow(context.extensionUri, context)
-      if (!wasOpen && KanbanPanel.currentPanel) {
+      const workspaceFolders = vscode.workspace.workspaceFolders
+      if (!workspaceFolders || workspaceFolders.length === 0) {
+        vscode.window.showErrorMessage(t('ext.noWorkspace'))
+        return
+      }
+      const config = vscode.workspace.getConfiguration('kanban-markdown')
+      const defaultDir = config.get<string>('featuresDirectory') || '.devtool/features'
+      const boardPath = path.join(workspaceFolders[0].uri.fsPath, defaultDir)
+
+      const wasOpen = KanbanPanel.openPanels.size > 0
+      KanbanPanel.createOrShow(context.extensionUri, context, boardPath)
+      if (!wasOpen) {
         sidebarProvider.setBoardOpen(true)
-        KanbanPanel.currentPanel.onDispose(() => {
-          sidebarProvider.setBoardOpen(false)
+      }
+      const panel = KanbanPanel.openPanels.get(boardPath)
+      if (panel) {
+        panel.onDispose(() => {
+          if (KanbanPanel.openPanels.size === 0) {
+            sidebarProvider.setBoardOpen(false)
+          }
         })
+      }
+    })
+  )
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('kanban-markdown.openDirectory', async (uri: vscode.Uri) => {
+      if (uri && uri.scheme === 'file') {
+        const boardPath = uri.fsPath
+        const wasOpen = KanbanPanel.openPanels.size > 0
+        KanbanPanel.createOrShow(context.extensionUri, context, boardPath)
+        if (!wasOpen) {
+          sidebarProvider.setBoardOpen(true)
+        }
+        await registerKnownBoard(context, boardPath)
+        const panel = KanbanPanel.openPanels.get(boardPath)
+        if (panel) {
+          panel.onDispose(() => {
+            if (KanbanPanel.openPanels.size === 0) {
+              sidebarProvider.setBoardOpen(false)
+            }
+          })
+        }
+      }
+    })
+  )
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('kanban-markdown.selectBoard', async () => {
+      const boardPaths = context.workspaceState.get<string[]>('kanban-markdown.knownBoards', [])
+      if (boardPaths.length === 0) {
+        vscode.window.showInformationMessage("No kanban boards registered yet. Right-click a folder to open one!")
+        return
+      }
+
+      const items: BoardQuickPickItem[] = boardPaths.map(p => {
+        const relativePath = vscode.workspace.asRelativePath(p)
+        return {
+          label: path.basename(p),
+          description: relativePath,
+          boardPath: p
+        }
+      })
+
+      const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: "Select a Kanban Board to open"
+      })
+
+      if (selected) {
+        const fullPath = selected.boardPath
+        const wasOpen = KanbanPanel.openPanels.size > 0
+        KanbanPanel.createOrShow(context.extensionUri, context, fullPath)
+        if (!wasOpen) {
+          sidebarProvider.setBoardOpen(true)
+        }
+        const panel = KanbanPanel.openPanels.get(fullPath)
+        if (panel) {
+          panel.onDispose(() => {
+            if (KanbanPanel.openPanels.size === 0) {
+              sidebarProvider.setBoardOpen(false)
+            }
+          })
+        }
       }
     })
   )
@@ -135,12 +221,31 @@ export function activate(context: vscode.ExtensionContext) {
   // If a panel already exists, revive it
   if (vscode.window.registerWebviewPanelSerializer) {
     vscode.window.registerWebviewPanelSerializer(KanbanPanel.viewType, {
-      async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel) {
-        KanbanPanel.revive(webviewPanel, context.extensionUri, context)
-        sidebarProvider.setBoardOpen(true)
-        KanbanPanel.currentPanel?.onDispose(() => {
-          sidebarProvider.setBoardOpen(false)
-        })
+      async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
+        const boardPath = state?.boardPath
+        if (boardPath) {
+          KanbanPanel.revive(webviewPanel, context.extensionUri, context, boardPath)
+          sidebarProvider.setBoardOpen(true)
+          const panel = KanbanPanel.openPanels.get(boardPath)
+          panel?.onDispose(() => {
+            if (KanbanPanel.openPanels.size === 0) {
+              sidebarProvider.setBoardOpen(false)
+            }
+          })
+        } else {
+          const config = vscode.workspace.getConfiguration('kanban-markdown')
+          const defaultDir = config.get<string>('featuresDirectory') || '.devtool/features'
+          const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+          const fullPath = workspaceRoot ? path.join(workspaceRoot, defaultDir) : defaultDir
+          KanbanPanel.revive(webviewPanel, context.extensionUri, context, fullPath)
+          sidebarProvider.setBoardOpen(true)
+          const panel = KanbanPanel.openPanels.get(fullPath)
+          panel?.onDispose(() => {
+            if (KanbanPanel.openPanels.size === 0) {
+              sidebarProvider.setBoardOpen(false)
+            }
+          })
+        }
       }
     })
   }
