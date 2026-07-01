@@ -166,21 +166,71 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('kanban-markdown.open', () => {
+    vscode.commands.registerCommand('kanban-markdown.open', async () => {
       const workspaceFolders = vscode.workspace.workspaceFolders
       if (!workspaceFolders || workspaceFolders.length === 0) {
         vscode.window.showErrorMessage(t('ext.noWorkspace'))
         return
       }
-      const config = vscode.workspace.getConfiguration('kanban-markdown')
-      const defaultDir = config.get<string>('featuresDirectory') || '.devtool/features'
-      const boardPath = path.join(workspaceFolders[0].uri.fsPath, defaultDir)
+
+      // If active panel is already defined, just reveal it
+      if (KanbanPanel.activePanel) {
+        KanbanPanel.activePanel._panel.reveal()
+        return
+      }
+      // If we have open panels, reveal the first one
+      if (KanbanPanel.openPanels.size > 0) {
+        Array.from(KanbanPanel.openPanels.values())[0]._panel.reveal()
+        return
+      }
+
+      // Let the user choose a board to open
+      const boardPaths = context.workspaceState.get<string[]>('kanban-markdown.knownBoards', [])
+      let boardPath: string
+      if (boardPaths.length > 0) {
+        const items = boardPaths.map(p => ({
+          label: path.basename(p),
+          description: vscode.workspace.asRelativePath(p),
+          path: p
+        }))
+        items.push({
+          label: "$(folder-opened) Open folder...",
+          description: "Select another folder in the workspace to open as a board",
+          path: "CHOOSE_FOLDER"
+        })
+        const selected = await vscode.window.showQuickPick(items, {
+          placeHolder: "Select a Kanban Board to open"
+        })
+        if (!selected) return
+        if (selected.path === 'CHOOSE_FOLDER') {
+          const uris = await vscode.window.showOpenDialog({
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            openLabel: "Open Board"
+          })
+          if (!uris || uris.length === 0) return
+          boardPath = uris[0].fsPath
+        } else {
+          boardPath = selected.path
+        }
+      } else {
+        const uris = await vscode.window.showOpenDialog({
+          canSelectFiles: false,
+          canSelectFolders: true,
+          canSelectMany: false,
+          openLabel: "Open Board"
+        })
+        if (!uris || uris.length === 0) return
+        boardPath = uris[0].fsPath
+      }
 
       const wasOpen = KanbanPanel.openPanels.size > 0
       KanbanPanel.createOrShow(context.extensionUri, context, boardPath)
       if (!wasOpen) {
         sidebarProvider.setBoardOpen(true)
       }
+      await registerKnownBoard(context, boardPath)
       const panel = KanbanPanel.openPanels.get(boardPath)
       if (panel) {
         panel.onDispose(() => {
@@ -280,10 +330,8 @@ export function activate(context: vscode.ExtensionContext) {
           if (boardPaths.length > 0) {
             fullPath = boardPaths[0]
           } else {
-            const config = vscode.workspace.getConfiguration('kanban-markdown')
-            const defaultDir = config.get<string>('featuresDirectory') || '.devtool/features'
-            const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
-            fullPath = workspaceRoot ? path.join(workspaceRoot, defaultDir) : defaultDir
+            webviewPanel.dispose()
+            return
           }
           KanbanPanel.revive(webviewPanel, context.extensionUri, context, fullPath)
           sidebarProvider.setBoardOpen(true)

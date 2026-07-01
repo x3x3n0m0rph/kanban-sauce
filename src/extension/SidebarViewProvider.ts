@@ -76,18 +76,9 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
       }
     }, null, this._disposables)
 
-    webviewView.onDidChangeVisibility(() => {
-      if (webviewView.visible) {
-        vscode.commands.executeCommand('kanban-markdown.open')
-      }
-    }, null, this._disposables)
-
     webviewView.onDidDispose(() => {
       this._view = undefined
     })
-
-    // Auto-open the board when the sidebar first loads
-    vscode.commands.executeCommand('kanban-markdown.open')
 
     webviewView.webview.html = this._getHtml()
   }
@@ -156,11 +147,10 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
       const activeDir = KanbanPanel.activePanel._getWorkspaceFeaturesDir()
       if (activeDir) return activeDir
     }
-    const workspaceFolders = vscode.workspace.workspaceFolders
-    if (!workspaceFolders || workspaceFolders.length === 0) return null
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
-    const dir = config.get<string>('featuresDirectory') || '.devtool/features'
-    return path.join(workspaceFolders[0].uri.fsPath, dir)
+    if (KanbanPanel.openPanels.size === 1) {
+      return Array.from(KanbanPanel.openPanels.values())[0]._boardPath
+    }
+    return null
   }
 
   private _getColumns(): KanbanColumn[] {
