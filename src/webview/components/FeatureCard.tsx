@@ -116,7 +116,7 @@ export function FeatureCard({ feature, onClick, isDragging }: FeatureCardProps) 
         )}
 
         <div className={`flex items-start gap-2 ${description ? 'mb-1' : cardSettings.compactMode ? 'mb-1' : 'mb-2'}`}>
-          <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 line-clamp-2 flex-1">
+          <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 line-clamp-2 flex-1 kanban-card-title">
             {title}
           </h3>
           {cardSettings.showPriorityBadges && !(cardSettings.showFileName && fileName) && (
@@ -130,14 +130,14 @@ export function FeatureCard({ feature, onClick, isDragging }: FeatureCardProps) 
 
         {/* Description */}
         {description && !cardSettings.compactMode && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-2">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-2 kanban-card-description">
             {description}
           </p>
         )}
 
         {/* Epic */}
         {cardSettings.showEpic && epicTrimmed && epicTheme && (
-          <div className="flex items-center gap-1 mb-1.5 text-[10px]">
+          <div className="flex items-center gap-1 mb-1.5 text-[10px] kanban-card-meta">
             <Layers size={10} className="shrink-0" style={{ color: epicTheme.foreground }} />
             <span className="truncate font-medium" style={{ color: epicTheme.foreground }}>
               {epicTrimmed}
@@ -151,7 +151,7 @@ export function FeatureCard({ feature, onClick, isDragging }: FeatureCardProps) 
             {feature.labels.slice(0, 3).map((label) => (
               <span
                 key={label}
-                className="text-xs px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                className="text-xs px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 kanban-card-label"
               >
                 {label}
               </span>
@@ -164,7 +164,7 @@ export function FeatureCard({ feature, onClick, isDragging }: FeatureCardProps) 
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between text-xs mt-auto">
+      <div className="flex items-center justify-between text-xs mt-auto kanban-card-meta">
         <div className="flex items-center gap-1">
           {cardSettings.showAssignee && feature.assignee && feature.assignee !== 'null' && (
             <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">

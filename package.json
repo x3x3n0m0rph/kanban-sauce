@@ -99,10 +99,20 @@
           ],
           "description": "%config.language.description%"
         },
-        "kanban-markdown.featuresDirectory": {
+        "kanban-markdown.fontSizeColumnHeader": {
           "type": "string",
-          "default": ".devtool/features",
-          "description": "%config.featuresDirectory.description%"
+          "default": "14px",
+          "description": "%config.fontSizeColumnHeader.description%"
+        },
+        "kanban-markdown.fontSizeCardTitle": {
+          "type": "string",
+          "default": "13px",
+          "description": "%config.fontSizeCardTitle.description%"
+        },
+        "kanban-markdown.fontSizeCardMeta": {
+          "type": "string",
+          "default": "11px",
+          "description": "%config.fontSizeCardMeta.description%"
         },
         "kanban-markdown.filenamePattern": {
           "type": "string",

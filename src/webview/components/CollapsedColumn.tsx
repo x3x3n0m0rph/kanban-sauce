@@ -29,7 +29,7 @@ export function CollapsedColumn({
         className="flex items-center gap-2 px-3 py-2 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700/60 transition-colors cursor-pointer"
       >
         <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: column.color }} />
-        <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{column.name}</span>
+        <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 kanban-column-header-title">{column.name}</span>
         <span className="text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-200 dark:bg-zinc-700 px-1.5 py-0.5 rounded-full">
           {featureCount}
         </span>
@@ -49,7 +49,7 @@ export function CollapsedColumn({
         {featureCount}
       </span>
       <span
-        className="text-sm font-medium text-zinc-900 dark:text-zinc-100"
+        className="text-sm font-medium text-zinc-900 dark:text-zinc-100 kanban-column-header-title"
         style={{ writingMode: 'vertical-rl' }}
       >
         {column.name}

@@ -16,10 +16,10 @@ export class FeatureHeaderProvider implements vscode.WebviewViewProvider {
   private _currentDocument?: vscode.TextDocument
   private _disposables: vscode.Disposable[] = []
 
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(private readonly _extensionUri: vscode.Uri, private readonly _context: vscode.ExtensionContext) {}
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
-    const provider = new FeatureHeaderProvider(context.extensionUri)
+    const provider = new FeatureHeaderProvider(context.extensionUri, context)
 
     const disposables: vscode.Disposable[] = []
 
@@ -121,12 +121,10 @@ export class FeatureHeaderProvider implements vscode.WebviewViewProvider {
     const uri = editor.document.uri
     const boardPaths = new Set<string>()
 
-    // Default featuresDirectory path
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
-    const featuresDirectory = config.get<string>('featuresDirectory') || '.devtool/features'
-    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
-    if (workspaceRoot) {
-      boardPaths.add(path.join(workspaceRoot, featuresDirectory))
+    // Known boards paths from history
+    const knownBoards = this._context.workspaceState.get<string[]>('kanban-markdown.knownBoards', [])
+    for (const p of knownBoards) {
+      boardPaths.add(p)
     }
 
     // Open panels paths

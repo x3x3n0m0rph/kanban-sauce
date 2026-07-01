@@ -277,3 +277,24 @@ input:focus-visible {
   text-decoration: line-through;
   opacity: 0.7;
 }
+
+/* Custom font size overrides */
+.kanban-column-header-title {
+  font-size: var(--kanban-font-size-column-header, 0.875rem) !important;
+}
+
+.kanban-card-title {
+  font-size: var(--kanban-font-size-card-title, 0.875rem) !important;
+}
+
+.kanban-card-description {
+  font-size: var(--kanban-font-size-card-meta, 0.75rem) !important;
+}
+
+.kanban-card-label {
+  font-size: var(--kanban-font-size-card-meta, 0.75rem) !important;
+}
+
+.kanban-card-meta {
+  font-size: var(--kanban-font-size-card-meta, 0.75rem) !important;
+}

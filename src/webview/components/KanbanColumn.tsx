@@ -74,7 +74,7 @@ export function KanbanColumn({
       <div className="flex items-center justify-between w-full px-3 py-2 border-b border-zinc-200 dark:border-zinc-700">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: column.color }} />
-          <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{column.name}</h3>
+          <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 kanban-column-header-title">{column.name}</h3>
           <span className="text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-200 dark:bg-zinc-700 px-1.5 py-0.5 rounded-full">
             {features.length}
           </span>

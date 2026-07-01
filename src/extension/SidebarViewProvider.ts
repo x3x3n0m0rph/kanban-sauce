@@ -33,9 +33,6 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
 
     vscode.workspace.onDidChangeConfiguration(e => {
       if (e.affectsConfiguration('kanban-markdown')) {
-        if (e.affectsConfiguration('kanban-markdown.featuresDirectory')) {
-          this._setupFileWatcher()
-        }
         this._refresh()
       }
     }, null, this._disposables)

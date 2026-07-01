@@ -82,6 +82,9 @@ export interface CardDisplaySettings {
   hideScrollbar: boolean
   defaultPriority: Priority
   defaultStatus: FeatureStatus
+  fontSizeColumnHeader?: string
+  fontSizeCardTitle?: string
+  fontSizeCardMeta?: string
 }
 
 // Messages between extension and webview

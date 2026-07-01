@@ -195,6 +195,26 @@ function App(): React.JSX.Element {
     document.documentElement.classList.toggle('hide-scrollbar', cardSettings.hideScrollbar)
   }, [cardSettings.hideScrollbar])
 
+  // Update CSS custom properties for font sizes based on user settings
+  useEffect(() => {
+    const root = document.documentElement
+    if (cardSettings.fontSizeColumnHeader) {
+      root.style.setProperty('--kanban-font-size-column-header', cardSettings.fontSizeColumnHeader)
+    } else {
+      root.style.removeProperty('--kanban-font-size-column-header')
+    }
+    if (cardSettings.fontSizeCardTitle) {
+      root.style.setProperty('--kanban-font-size-card-title', cardSettings.fontSizeCardTitle)
+    } else {
+      root.style.removeProperty('--kanban-font-size-card-title')
+    }
+    if (cardSettings.fontSizeCardMeta) {
+      root.style.setProperty('--kanban-font-size-card-meta', cardSettings.fontSizeCardMeta)
+    } else {
+      root.style.removeProperty('--kanban-font-size-card-meta')
+    }
+  }, [cardSettings.fontSizeColumnHeader, cardSettings.fontSizeCardTitle, cardSettings.fontSizeCardMeta])
+
   // Listen for messages from extension
   useEffect(() => {
     const handleMessage = (event: MessageEvent<ExtensionMessage>) => {

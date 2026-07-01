@@ -235,27 +235,19 @@ export class KanbanPanel {
         if (e.affectsConfiguration('kanban-markdown.language')) {
           reloadBundle()
         }
-        if (e.affectsConfiguration('kanban-markdown.featuresDirectory')) {
-          // Features directory changed - need to reload everything
-          this._setupFileWatcher()
-          this._loadFeatures().then(() => this._sendFeaturesToWebview())
-        } else {
-          this._sendFeaturesToWebview()
-          if (e.affectsConfiguration('kanban-markdown.filenamePattern')) {
-            this._promptFilenamePatternMigration()
-          }
-          if (e.affectsConfiguration('kanban-markdown.language')) {
-            this._promptColumnLanguageMigration()
-          }
-        }
-      } else if (e.affectsConfiguration('chat.disableAIFeatures')) {
         this._sendFeaturesToWebview()
+        if (e.affectsConfiguration('kanban-markdown.filenamePattern')) {
+          this._promptFilenamePatternMigration()
+        }
+        if (e.affectsConfiguration('kanban-markdown.language')) {
+          this._promptColumnLanguageMigration()
+        }
       }
     }, null, this._disposables)
   }
 
   private _setupFileWatcher(): void {
-    // Dispose old watcher if re-setting up (e.g. featuresDirectory changed)
+    // Dispose old watcher if re-setting up
     if (this._fileWatcher) {
       this._fileWatcher.dispose()
     }
@@ -1107,7 +1099,10 @@ export class KanbanPanel {
       markdownEditorMode: config.get<boolean>('markdownEditorMode', false),
       hideScrollbar: config.get<boolean>('hideScrollbar', false),
       defaultPriority: config.get<Priority>('defaultPriority', 'medium'),
-      defaultStatus: config.get<FeatureStatus>('defaultStatus', 'backlog')
+      defaultStatus: config.get<FeatureStatus>('defaultStatus', 'backlog'),
+      fontSizeColumnHeader: config.get<string>('fontSizeColumnHeader', '14px'),
+      fontSizeCardTitle: config.get<string>('fontSizeCardTitle', '13px'),
+      fontSizeCardMeta: config.get<string>('fontSizeCardMeta', '11px')
     }
 
     const collapsedColumns: string[] = this._context.workspaceState.get('kanban-markdown.collapsedColumns', [])
