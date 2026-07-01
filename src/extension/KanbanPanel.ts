@@ -3,7 +3,7 @@ import * as crypto from 'crypto'
 import * as path from 'path'
 import { generateKeyBetween, generateNKeysBetween } from 'fractional-indexing'
 import { getTitleFromContent, generateFeatureFilename } from '../shared/types'
-import type { Feature, FeatureStatus, Priority, KanbanColumn, FeatureFrontmatter, CardDisplaySettings, FilenamePattern, AIAgent, AIPermissionMode, BoardViewMode } from '../shared/types'
+import type { Feature, FeatureStatus, Priority, KanbanColumn, FeatureFrontmatter, CardDisplaySettings, FilenamePattern, BoardViewMode } from '../shared/types'
 import { ensureStatusSubfolders, moveFeatureFile, getFeatureFilePath, getStatusFromPath, fileExists } from './featureFileUtils'
 import { parseFeatureFile, serializeFeature } from '../shared/featureFrontmatter'
 import { featureMatchesEpicLane } from '../shared/epicLane'
@@ -196,9 +196,6 @@ export class KanbanPanel {
             break
           case 'deleteLabel':
             await this._deleteLabel(message.labelName)
-            break
-          case 'startWithAI':
-            await this._startWithAI(message.agent, message.permissionMode)
             break
         }
       },
@@ -903,80 +900,6 @@ export class KanbanPanel {
     this._sendFeaturesToWebview()
   }
 
-  private async _startWithAI(
-    agent?: AIAgent,
-    permissionMode?: AIPermissionMode
-  ): Promise<void> {
-    // Find the currently editing feature
-    const feature = this._features.find(f => f.id === this._currentEditingFeatureId)
-    if (!feature) {
-      vscode.window.showErrorMessage(t('panel.noFeatureSelected'))
-      return
-    }
-
-    // Parse title from the first # heading in content
-    const titleMatch = feature.content.match(/^#\s+(.+)$/m)
-    const title = titleMatch ? titleMatch[1].trim() : getTitleFromContent(feature.content)
-
-    const labels = feature.labels.length > 0 ? ` [${feature.labels.join(', ')}]` : ''
-    const description = feature.content.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
-    const shortDesc = description.length > 200 ? description.substring(0, 200) + '...' : description
-
-    const prompt = `Implement this feature: "${title}" (${feature.priority} priority)${labels}. ${shortDesc} See full details in: ${feature.filePath}`
-
-    // Use provided agent or fall back to config
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
-    const selectedAgent = agent || config.get<string>('aiAgent') || 'claude'
-    const selectedPermissionMode = permissionMode || 'default'
-
-    let args: string[]
-
-    switch (selectedAgent) {
-      case 'claude': {
-        args = []
-        if (selectedPermissionMode !== 'default') {
-          args.push('--permission-mode', selectedPermissionMode)
-        }
-        args.push(prompt)
-        break
-      }
-      case 'codex': {
-        const approvalMap: Record<string, string> = {
-          'default': 'ask',
-          'plan': 'ask',
-          'acceptEdits': 'auto',
-          'bypassPermissions': 'full-auto'
-        }
-        const approvalMode = approvalMap[selectedPermissionMode] || 'suggest'
-        args = ['--ask-for-approval', approvalMode, prompt]
-        break
-      }
-      case 'copilot': {
-        args = [prompt]
-        break
-      }
-      case 'opencode': {
-        args = [prompt]
-        break
-      }
-      default:
-        args = [prompt]
-    }
-
-    const agentNames: Record<string, string> = {
-      'claude': 'Claude Code',
-      'codex': 'Codex',
-      'copilot': 'GitHub Copilot',
-      'opencode': 'OpenCode'
-    }
-    const terminal = vscode.window.createTerminal({
-      name: agentNames[selectedAgent] || 'AI Agent',
-      cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
-    })
-    terminal.show()
-    terminal.sendText([this._shellQuote(selectedAgent), ...args.map(a => this._shellQuote(a))].join(' '))
-  }
-
   private async _deleteLabel(labelName: string): Promise<void> {
     const trimmed = labelName.trim()
     if (!trimmed) return
@@ -1158,7 +1081,6 @@ export class KanbanPanel {
       showDueDate: config.get<boolean>('showDueDate', true),
       showLabels: config.get<boolean>('showLabels', true),
       showEpic: config.get<boolean>('showEpic', true),
-      showBuildWithAI: config.get<boolean>('showBuildWithAI', true) && !vscode.workspace.getConfiguration('chat').get<boolean>('disableAIFeatures', false),
       showFileName: config.get<boolean>('showFileName', false),
       compactMode: config.get<boolean>('compactMode', false),
       markdownEditorMode: config.get<boolean>('markdownEditorMode', false),
