@@ -1,6 +1,6 @@
 {
-  "viewContainer.title": "Resumen de Kanban Markdown",
-  "view.board.name": "Tablero",
+  "viewContainer.title": "Resumen de Kanban",
+  "view.board.name": "Resumen",
   "command.open.title": "Abrir tablero Kanban",
   "command.addFeature.title": "Añadir función",
   "command.openDirectory.title": "Abrir como tablero Kanban",
