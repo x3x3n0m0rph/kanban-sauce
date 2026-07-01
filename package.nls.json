@@ -2,6 +2,8 @@
   "viewContainer.title": "Kanban Markdown",
   "view.board.name": "Board",
   "command.open.title": "Open Kanban Board",
+  "command.openDirectory.title": "Open as Kanban Board",
+  "command.selectBoard.title": "Select Kanban Board",
   "command.addFeature.title": "Add Feature",
   "command.category": "Kanban Markdown",
   "config.title": "Kanban Markdown",

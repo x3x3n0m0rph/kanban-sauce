@@ -2,6 +2,8 @@
   "viewContainer.title": "Kanban Markdown",
   "view.board.name": "Tablero",
   "command.open.title": "Abrir tablero Kanban",
+  "command.openDirectory.title": "Abrir como tablero Kanban",
+  "command.selectBoard.title": "Seleccionar tablero Kanban",
   "command.addFeature.title": "Añadir función",
   "command.category": "Kanban Markdown",
   "config.title": "Kanban Markdown",
