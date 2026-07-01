@@ -149,19 +149,15 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
       const activePanel = KanbanPanel.activePanel || (KanbanPanel.openPanels.size === 1 ? Array.from(KanbanPanel.openPanels.values())[0] : undefined)
       if (activePanel) {
         const boardName = path.basename(activePanel._boardPath)
-        this._view.title = `Kanban Summary: ${boardName}`
+        this._view.title = boardName
       } else {
-        this._view.title = "Kanban Summary"
+        this._view.title = ""
       }
 
       this._view.webview.postMessage({
         type: 'update',
         features: this._features,
         columns: this._getColumns()
-      })
-      this._view.webview.postMessage({
-        type: 'boardOpenChanged',
-        open: KanbanPanel.openPanels.size > 0
       })
     }
   }
@@ -463,8 +459,6 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
           columns = msg.columns;
           features = msg.features;
           render();
-        } else if (msg.type === 'boardOpenChanged') {
-          document.getElementById('openBoard').style.display = msg.open ? 'none' : '';
         }
       });
 
