@@ -26,11 +26,14 @@ interface CreateFeatureData {
 
 export class KanbanPanel {
   public static readonly viewType = 'kanban-markdown.panel'
-  public static currentPanel: KanbanPanel | undefined
+  public static openPanels = new Map<string, KanbanPanel>()
+  public static activePanel: KanbanPanel | undefined
+  public static onActivePanelChangedCallbacks = new Set<(panel: KanbanPanel | undefined) => void>()
 
   private readonly _panel: vscode.WebviewPanel
   private readonly _extensionUri: vscode.Uri
   private readonly _context: vscode.ExtensionContext
+  public readonly _boardPath: string
   private _features: Feature[] = []
   private _disposables: vscode.Disposable[] = []
   private _fileWatcher: vscode.FileSystemWatcher | undefined
@@ -39,21 +42,21 @@ export class KanbanPanel {
   private _migrating = false
   private _onDisposeCallbacks: (() => void)[] = []
 
-  public static createOrShow(extensionUri: vscode.Uri, context: vscode.ExtensionContext) {
+  public static createOrShow(extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn
       : undefined
 
-    // If we already have a panel, show it
-    if (KanbanPanel.currentPanel) {
-      KanbanPanel.currentPanel._panel.reveal(column)
+    const existingPanel = KanbanPanel.openPanels.get(boardPath)
+    if (existingPanel) {
+      existingPanel._panel.reveal(column)
       return
     }
 
-    // Otherwise, create a new panel
+    const folderName = path.basename(boardPath)
     const panel = vscode.window.createWebviewPanel(
       KanbanPanel.viewType,
-      t('panel.title'),
+      `Kanban: ${folderName}`,
       column || vscode.ViewColumn.One,
       {
         enableScripts: true,
@@ -65,23 +68,43 @@ export class KanbanPanel {
       }
     )
 
-    // Set the tab icon
     panel.iconPath = {
       light: vscode.Uri.joinPath(extensionUri, 'resources', 'kanban-light.svg'),
       dark: vscode.Uri.joinPath(extensionUri, 'resources', 'kanban-dark.svg')
     }
 
-    KanbanPanel.currentPanel = new KanbanPanel(panel, extensionUri, context)
+    const newPanel = new KanbanPanel(panel, extensionUri, context, boardPath)
+    KanbanPanel.openPanels.set(boardPath, newPanel)
   }
 
-  public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext) {
-    KanbanPanel.currentPanel = new KanbanPanel(panel, extensionUri, context)
+  public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
+    const folderName = path.basename(boardPath)
+    panel.title = `Kanban: ${folderName}`
+    const newPanel = new KanbanPanel(panel, extensionUri, context, boardPath)
+    KanbanPanel.openPanels.set(boardPath, newPanel)
   }
 
-  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext) {
+  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
     this._panel = panel
     this._extensionUri = extensionUri
     this._context = context
+    this._boardPath = boardPath
+
+    if (this._panel.active) {
+      KanbanPanel.activePanel = this
+      KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(this))
+    }
+
+    this._panel.onDidChangeViewState(
+      e => {
+        if (this._panel.active) {
+          KanbanPanel.activePanel = this
+          KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(this))
+        }
+      },
+      null,
+      this._disposables
+    )
 
     // Ensure webview options are set (critical for deserialization after reload)
     this._panel.webview.options = {
@@ -280,7 +303,11 @@ export class KanbanPanel {
   }
 
   public dispose() {
-    KanbanPanel.currentPanel = undefined
+    KanbanPanel.openPanels.delete(this._boardPath)
+    if (KanbanPanel.activePanel === this) {
+      KanbanPanel.activePanel = undefined
+      KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(undefined))
+    }
 
     for (const cb of this._onDisposeCallbacks) {
       cb()
@@ -336,13 +363,7 @@ export class KanbanPanel {
   }
 
   private _getWorkspaceFeaturesDir(): string | null {
-    const workspaceFolders = vscode.workspace.workspaceFolders
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-      return null
-    }
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
-    const featuresDirectory = config.get<string>('featuresDirectory') || '.devtool/features'
-    return path.join(workspaceFolders[0].uri.fsPath, featuresDirectory)
+    return this._boardPath
   }
 
   private async _ensureFeaturesDir(): Promise<string | null> {
@@ -1108,7 +1129,8 @@ export class KanbanPanel {
       boardViewMode,
       collapsedEpics,
       locale: getEffectiveLocale(),
-      translations: getBundle()
+      translations: getBundle(),
+      boardPath: this._boardPath
     })
   }
 }

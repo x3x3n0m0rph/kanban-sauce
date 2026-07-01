@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import * as crypto from 'crypto'
 import * as path from 'path'
 import type { FeatureFrontmatter, EditorExtensionMessage, EditorWebviewMessage } from '../shared/editorTypes'
+import { KanbanPanel } from './KanbanPanel'
 import type { FeatureStatus, Priority } from '../shared/types'
 
 /**
@@ -116,13 +117,32 @@ export class FeatureHeaderProvider implements vscode.WebviewViewProvider {
       return
     }
 
-    // Only track .md files in the features directory (including status subfolders)
+    // Only track .md files in the features directory (including status subfolders) of any open/known board
     const uri = editor.document.uri
+    const boardPaths = new Set<string>()
+
+    // Default featuresDirectory path
     const config = vscode.workspace.getConfiguration('kanban-markdown')
     const featuresDirectory = config.get<string>('featuresDirectory') || '.devtool/features'
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
-    const fullFeaturesDir = workspaceRoot ? path.join(workspaceRoot, featuresDirectory) : featuresDirectory
-    if (uri.fsPath.endsWith('.md') && uri.fsPath.startsWith(fullFeaturesDir + path.sep)) {
+    if (workspaceRoot) {
+      boardPaths.add(path.join(workspaceRoot, featuresDirectory))
+    }
+
+    // Open panels paths
+    for (const p of KanbanPanel.openPanels.keys()) {
+      boardPaths.add(p)
+    }
+
+    let isFeatureFile = false
+    for (const boardPath of boardPaths) {
+      if (uri.fsPath.endsWith('.md') && uri.fsPath.startsWith(boardPath + path.sep)) {
+        isFeatureFile = true
+        break
+      }
+    }
+
+    if (isFeatureFile) {
       this._currentDocument = editor.document
       this._updateViewForCurrentEditor()
     } else {

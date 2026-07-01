@@ -17,7 +17,7 @@ interface PriorityQuickPickItem extends vscode.QuickPickItem {
   priorityValue: Priority
 }
 
-async function createFeatureFromPrompts(): Promise<void> {
+async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promise<void> {
   const workspaceFolders = vscode.workspace.workspaceFolders
   if (!workspaceFolders || workspaceFolders.length === 0) {
     vscode.window.showErrorMessage(t('ext.noWorkspace'))
@@ -67,9 +67,51 @@ async function createFeatureFromPrompts(): Promise<void> {
   })
 
   // Create the feature file
-  const config = vscode.workspace.getConfiguration('kanban-markdown')
-  const featuresDirectory = config.get<string>('featuresDirectory') || '.devtool/features'
-  const featuresDir = path.join(workspaceFolders[0].uri.fsPath, featuresDirectory)
+  let featuresDir: string
+  if (KanbanPanel.activePanel) {
+    featuresDir = KanbanPanel.activePanel._boardPath
+  } else if (KanbanPanel.openPanels.size === 1) {
+    featuresDir = Array.from(KanbanPanel.openPanels.values())[0]._boardPath
+  } else {
+    const boardPaths = context.workspaceState.get<string[]>('kanban-markdown.knownBoards', [])
+    if (boardPaths.length > 0) {
+      const items = boardPaths.map(p => ({
+        label: path.basename(p),
+        description: vscode.workspace.asRelativePath(p),
+        path: p
+      }))
+      items.push({
+        label: "$(folder-opened) Choose folder...",
+        description: "Select another folder in the workspace",
+        path: "CHOOSE_FOLDER"
+      })
+      const selectedBoard = await vscode.window.showQuickPick(items, {
+        placeHolder: "Select which Kanban Board to add the feature to"
+      })
+      if (!selectedBoard) return
+      if (selectedBoard.path === 'CHOOSE_FOLDER') {
+        const uris = await vscode.window.showOpenDialog({
+          canSelectFiles: false,
+          canSelectFolders: true,
+          canSelectMany: false,
+          openLabel: "Select Board Folder"
+        })
+        if (!uris || uris.length === 0) return
+        featuresDir = uris[0].fsPath
+      } else {
+        featuresDir = selectedBoard.path
+      }
+    } else {
+      const uris = await vscode.window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        openLabel: "Select Board Folder"
+      })
+      if (!uris || uris.length === 0) return
+      featuresDir = uris[0].fsPath
+    }
+  }
   await vscode.workspace.fs.createDirectory(vscode.Uri.file(featuresDir))
   await ensureStatusSubfolders(featuresDir)
 
@@ -214,7 +256,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('kanban-markdown.addFeature', () => {
-      createFeatureFromPrompts()
+      createFeatureFromPrompts(context)
     })
   )
 
@@ -233,10 +275,16 @@ export function activate(context: vscode.ExtensionContext) {
             }
           })
         } else {
-          const config = vscode.workspace.getConfiguration('kanban-markdown')
-          const defaultDir = config.get<string>('featuresDirectory') || '.devtool/features'
-          const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
-          const fullPath = workspaceRoot ? path.join(workspaceRoot, defaultDir) : defaultDir
+          const boardPaths = context.workspaceState.get<string[]>('kanban-markdown.knownBoards', [])
+          let fullPath: string
+          if (boardPaths.length > 0) {
+            fullPath = boardPaths[0]
+          } else {
+            const config = vscode.workspace.getConfiguration('kanban-markdown')
+            const defaultDir = config.get<string>('featuresDirectory') || '.devtool/features'
+            const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+            fullPath = workspaceRoot ? path.join(workspaceRoot, defaultDir) : defaultDir
+          }
           KanbanPanel.revive(webviewPanel, context.extensionUri, context, fullPath)
           sidebarProvider.setBoardOpen(true)
           const panel = KanbanPanel.openPanels.get(fullPath)

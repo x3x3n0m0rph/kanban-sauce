@@ -15,6 +15,7 @@ interface SidebarFeature {
 
 export class SidebarViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'kanban-markdown.boardView'
+  public static currentProvider: SidebarViewProvider | undefined
 
   private _view?: vscode.WebviewView
   private _features: SidebarFeature[] = []
@@ -23,7 +24,12 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
   private _disposables: vscode.Disposable[] = []
 
   constructor(private readonly _extensionUri: vscode.Uri, private readonly _context: vscode.ExtensionContext) {
+    SidebarViewProvider.currentProvider = this
     this._setupFileWatcher()
+
+    KanbanPanel.onActivePanelChangedCallbacks.add(() => {
+      this.refresh()
+    })
 
     vscode.workspace.onDidChangeConfiguration(e => {
       if (e.affectsConfiguration('kanban-markdown')) {
@@ -125,6 +131,11 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
     this._fileWatcher.onDidDelete(handleChange, null, this._disposables)
   }
 
+  public refresh(): void {
+    this._setupFileWatcher()
+    this._refresh()
+  }
+
   private async _refresh(): Promise<void> {
     await this._loadFeatures()
     if (this._view) {
@@ -141,6 +152,10 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
   }
 
   private _getFeaturesDir(): string | null {
+    if (KanbanPanel.activePanel) {
+      const activeDir = KanbanPanel.activePanel._getWorkspaceFeaturesDir()
+      if (activeDir) return activeDir
+    }
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders || workspaceFolders.length === 0) return null
     const config = vscode.workspace.getConfiguration('kanban-markdown')
