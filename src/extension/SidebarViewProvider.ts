@@ -61,11 +61,27 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
           vscode.commands.executeCommand('kanban-markdown.open')
           break
         case 'newFeature':
-          vscode.commands.executeCommand('kanban-markdown.open')
-          // Wait for the panel to be ready, then trigger create dialog
-          setTimeout(() => {
-            KanbanPanel.activePanel?.triggerCreateDialog()
-          }, 500)
+          if (KanbanPanel.activePanel) {
+            KanbanPanel.activePanel.triggerCreateDialog()
+          } else {
+            // Register a one-time listener to trigger the dialog as soon as a board opens and focuses
+            const listener = (panel: KanbanPanel | undefined) => {
+              if (panel) {
+                setTimeout(() => {
+                  panel.triggerCreateDialog()
+                }, 800)
+                KanbanPanel.onActivePanelChangedCallbacks.delete(listener)
+              }
+            }
+            KanbanPanel.onActivePanelChangedCallbacks.add(listener)
+            
+            // Clean up the listener after 60 seconds if the user cancels opening the board
+            setTimeout(() => {
+              KanbanPanel.onActivePanelChangedCallbacks.delete(listener)
+            }, 60000)
+
+            vscode.commands.executeCommand('kanban-markdown.open')
+          }
           break
         case 'openFeature':
           vscode.commands.executeCommand('kanban-markdown.open')
