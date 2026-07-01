@@ -111,28 +111,33 @@
         },
         "kanban-markdown.fontSizeCardDescription": {
           "type": "string",
-          "default": "12px",
+          "default": "14px",
           "description": "%config.fontSizeCardDescription.description%"
         },
         "kanban-markdown.fontSizeCardLabel": {
           "type": "string",
-          "default": "11px",
+          "default": "12px",
           "description": "%config.fontSizeCardLabel.description%"
         },
         "kanban-markdown.fontSizeCardMeta": {
           "type": "string",
-          "default": "11px",
+          "default": "13px",
           "description": "%config.fontSizeCardMeta.description%"
         },
         "kanban-markdown.fontSizeEditorHeader": {
           "type": "string",
-          "default": "20px",
+          "default": "18px",
           "description": "%config.fontSizeEditorHeader.description%"
         },
         "kanban-markdown.fontSizeEditorBody": {
           "type": "string",
-          "default": "13px",
+          "default": "16px",
           "description": "%config.fontSizeEditorBody.description%"
+        },
+        "kanban-markdown.fontSizeEditorMeta": {
+          "type": "string",
+          "default": "14px",
+          "description": "%config.fontSizeEditorMeta.description%"
         },
         "kanban-markdown.filenamePattern": {
           "type": "string",

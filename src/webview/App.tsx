@@ -233,6 +233,11 @@ function App(): React.JSX.Element {
     } else {
       root.style.removeProperty('--kanban-font-size-editor-body')
     }
+    if (cardSettings.fontSizeEditorMeta) {
+      root.style.setProperty('--kanban-font-size-editor-meta', cardSettings.fontSizeEditorMeta)
+    } else {
+      root.style.removeProperty('--kanban-font-size-editor-meta')
+    }
   }, [
     cardSettings.fontSizeColumnHeader,
     cardSettings.fontSizeCardTitle,
@@ -240,7 +245,8 @@ function App(): React.JSX.Element {
     cardSettings.fontSizeCardLabel,
     cardSettings.fontSizeCardMeta,
     cardSettings.fontSizeEditorHeader,
-    cardSettings.fontSizeEditorBody
+    cardSettings.fontSizeEditorBody,
+    cardSettings.fontSizeEditorMeta
   ])
 
   // Listen for messages from extension

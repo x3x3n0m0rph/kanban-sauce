@@ -323,3 +323,25 @@ input:focus-visible {
 .prose th {
   font-size: var(--kanban-font-size-editor-body, 13px) !important;
 }
+
+/* Editor Metadata Block font size overrides */
+.kanban-editor-meta-block {
+  font-size: var(--kanban-font-size-editor-meta, 12px) !important;
+}
+
+.kanban-editor-meta-block .text-\[11px\],
+.kanban-editor-meta-block .w-\[90px\] span {
+  font-size: calc(var(--kanban-font-size-editor-meta, 12px) - 1px) !important;
+}
+
+.kanban-editor-meta-block button,
+.kanban-editor-meta-block input,
+.kanban-editor-meta-block select,
+.kanban-editor-meta-block .text-xs {
+  font-size: var(--kanban-font-size-editor-meta, 12px) !important;
+}
+
+.kanban-editor-meta-block .text-\[10px\],
+.kanban-editor-meta-block .text-\[9px\] {
+  font-size: calc(var(--kanban-font-size-editor-meta, 12px) - 2px) !important;
+}

@@ -13,6 +13,7 @@
   "config.fontSizeCardMeta.description": "Tamanho da fonte para metadados dos cartões como responsável, data de vencimento, épica, nome de arquivo e prioridades (p. ex., '11px', '0.75rem').",
   "config.fontSizeEditorHeader.description": "Tamanho da fonte para cabeçalhos no painel do editor/visualização de markdown (p. ex. '20px', '1.5rem').",
   "config.fontSizeEditorBody.description": "Tamanho da fonte para o texto do corpo, listas e tabelas no painel do editor/visualização de markdown (p. ex. '13px', '1rem').",
+  "config.fontSizeEditorMeta.description": "Tamanho da fonte para os elementos no bloco de metadados acima do painel do editor/visualização (p. ex. '12px', '0.75rem').",
   "config.filenamePattern.description": "Padrão utilizado para gerar nomes de ficheiro para novos cartões de funcionalidades. Alterar esta definição oferecerá renomear todos os ficheiros de funcionalidades existentes.",
   "config.filenamePattern.nameDate": "Nome e depois data, p. ex. minha-funcionalidade-2026-02-23",
   "config.filenamePattern.dateName": "Data e depois nome, p. ex. 2026-02-23-minha-funcionalidade",

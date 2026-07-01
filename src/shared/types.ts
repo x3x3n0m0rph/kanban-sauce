@@ -89,6 +89,7 @@ export interface CardDisplaySettings {
   fontSizeCardMeta?: string
   fontSizeEditorHeader?: string
   fontSizeEditorBody?: string
+  fontSizeEditorMeta?: string
 }
 
 // Messages between extension and webview

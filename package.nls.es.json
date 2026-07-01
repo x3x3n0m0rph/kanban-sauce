@@ -13,6 +13,7 @@
   "config.fontSizeCardMeta.description": "Tamaño de la fuente para metadatos de tarjetas como responsable, fecha de vencimiento, épica, nombre de archivo y prioridades (p. ej., '11px', '0.75rem').",
   "config.fontSizeEditorHeader.description": "Tamaño de fuente para los encabezados en el panel del editor/vista previa de markdown (p. ej. '20px', '1.5rem').",
   "config.fontSizeEditorBody.description": "Tamaño de fuente para el texto del cuerpo, listas y tablas en el panel del editor/vista previa de markdown (p. ej. '13px', '1rem').",
+  "config.fontSizeEditorMeta.description": "Tamaño de fuente para los elementos en el bloque de metadatos encima del panel del editor/vista previa (p. ej. '12px', '0.75rem').",
   "config.filenamePattern.description": "Patrón utilizado para generar nombres de archivo para nuevas tarjetas de funciones. Cambiar este ajuste ofrecerá renombrar todos los archivos de funciones existentes.",
   "config.filenamePattern.nameDate": "Nombre y luego fecha, p. ej. mi-funcion-2026-02-23",
   "config.filenamePattern.dateName": "Fecha y luego nombre, p. ej. 2026-02-23-mi-funcion",

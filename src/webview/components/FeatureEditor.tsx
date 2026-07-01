@@ -517,7 +517,7 @@ export function FeatureEditor({
 
       {/* Metadata */}
       <div
-        className="flex flex-col py-0.5"
+        className="flex flex-col py-0.5 kanban-editor-meta-block"
         style={{ borderBottom: '1px solid var(--vscode-panel-border)' }}
       >
         <PropertyRow label={t('property.status')} icon={<CircleDot size={13} />}>

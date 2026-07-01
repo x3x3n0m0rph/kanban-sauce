@@ -13,6 +13,7 @@
   "config.fontSizeCardMeta.description": "Font size for card metadata like assignee, due date, epic, filename, and badges (e.g. '11px', '0.75rem').",
   "config.fontSizeEditorHeader.description": "Font size for headings in the markdown editor/preview panel (e.g. '20px', '1.5rem').",
   "config.fontSizeEditorBody.description": "Font size for body text, lists, and tables in the markdown editor/preview panel (e.g. '13px', '1rem').",
+  "config.fontSizeEditorMeta.description": "Font size for elements in the metadata block above the editor/preview panel (e.g. '12px', '0.75rem').",
   "config.filenamePattern.description": "Pattern used to generate filenames for new feature cards. Changing this setting will offer to rename all existing feature files to match.",
   "config.filenamePattern.nameDate": "Name then date — e.g. my-feature-2026-02-23",
   "config.filenamePattern.dateName": "Date then name — e.g. 2026-02-23-my-feature",
