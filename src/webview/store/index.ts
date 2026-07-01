@@ -107,7 +107,6 @@ export const useStore = create<KanbanState>((set, get) => ({
     showDueDate: true,
     showLabels: true,
     showEpic: true,
-    showBuildWithAI: true,
     showFileName: false,
     compactMode: false,
     markdownEditorMode: false,

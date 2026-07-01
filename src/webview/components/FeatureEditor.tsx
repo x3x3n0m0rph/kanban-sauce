@@ -7,7 +7,6 @@ import {
   X,
   User,
   ChevronDown,
-  Wand2,
   Tag,
   Plus,
   Check,
@@ -21,9 +20,7 @@ import {
 import type {
   FeatureFrontmatter,
   Priority,
-  FeatureStatus,
-  AIAgent,
-  AIPermissionMode
+  FeatureStatus
 } from '../../shared/types'
 import { cn } from '../lib/utils'
 import { t } from '../lib/i18n'
@@ -48,7 +45,6 @@ interface FeatureEditorProps {
   onClose: () => void
   onDelete: () => void
   onOpenFile: () => void
-  onStartWithAI: (agent: AIAgent, permissionMode: AIPermissionMode) => void
 }
 
 function getPriorityLabels(): Record<Priority, string> {
@@ -88,125 +84,7 @@ const statusDots: Record<FeatureStatus, string> = {
   done: 'bg-emerald-400'
 }
 
-function getAiAgentTabs(): { agent: AIAgent; label: string; color: string; activeColor: string }[] {
-  return [
-    {
-      agent: 'claude',
-      label: t('ai.claude'),
-      color: 'hover:bg-amber-100 dark:hover:bg-amber-900/30',
-      activeColor: 'bg-amber-700 text-white'
-    },
-    {
-      agent: 'codex',
-      label: t('ai.codex'),
-      color: 'hover:bg-emerald-100 dark:hover:bg-emerald-900/30',
-      activeColor: 'bg-emerald-500 text-white'
-    },
-    {
-      agent: 'copilot',
-      label: t('ai.copilot'),
-      color: 'hover:bg-sky-100 dark:hover:bg-sky-900/30',
-      activeColor: 'bg-sky-600 text-white'
-    },
-    {
-      agent: 'opencode',
-      label: t('ai.opencode'),
-      color: 'hover:bg-slate-100 dark:hover:bg-slate-700/30',
-      activeColor: 'bg-slate-500 text-white'
-    }
-  ]
-}
 
-const agentButtonColors: Record<
-  AIAgent,
-  { bg: string; hover: string; shadow: string; border: string }
-> = {
-  claude: {
-    bg: 'bg-amber-700',
-    hover: 'hover:bg-amber-800',
-    shadow: 'shadow-sm',
-    border: 'border border-amber-800/50'
-  },
-  codex: {
-    bg: 'bg-emerald-600',
-    hover: 'hover:bg-emerald-700',
-    shadow: 'shadow-sm',
-    border: 'border border-emerald-700/50'
-  },
-  copilot: {
-    bg: 'bg-sky-600',
-    hover: 'hover:bg-sky-700',
-    shadow: 'shadow-sm',
-    border: 'border border-sky-700/50'
-  },
-  opencode: {
-    bg: 'bg-slate-600',
-    hover: 'hover:bg-slate-700',
-    shadow: 'shadow-sm',
-    border: 'border border-slate-700/50'
-  }
-}
-
-function getAiModesByAgent(): Record<
-  AIAgent,
-  { permissionMode: AIPermissionMode; label: string; description: string }[]
-> {
-  return {
-    claude: [
-      {
-        permissionMode: 'default',
-        label: t('ai.mode.default'),
-        description: t('ai.mode.claude.default.description')
-      },
-      {
-        permissionMode: 'plan',
-        label: t('ai.mode.plan'),
-        description: t('ai.mode.claude.plan.description')
-      },
-      {
-        permissionMode: 'acceptEdits',
-        label: t('ai.mode.autoEdit'),
-        description: t('ai.mode.claude.autoEdit.description')
-      },
-      {
-        permissionMode: 'bypassPermissions',
-        label: t('ai.mode.fullAuto'),
-        description: t('ai.mode.claude.fullAuto.description')
-      }
-    ],
-    codex: [
-      {
-        permissionMode: 'default',
-        label: t('ai.mode.suggest'),
-        description: t('ai.mode.codex.suggest.description')
-      },
-      {
-        permissionMode: 'acceptEdits',
-        label: t('ai.mode.autoEdit'),
-        description: t('ai.mode.codex.autoEdit.description')
-      },
-      {
-        permissionMode: 'bypassPermissions',
-        label: t('ai.mode.fullAuto'),
-        description: t('ai.mode.codex.fullAuto.description')
-      }
-    ],
-    copilot: [
-      {
-        permissionMode: 'default',
-        label: t('ai.mode.default'),
-        description: t('ai.mode.copilot.default.description')
-      }
-    ],
-    opencode: [
-      {
-        permissionMode: 'default',
-        label: t('ai.mode.default'),
-        description: t('ai.mode.opencode.default.description')
-      }
-    ]
-  }
-}
 
 interface DropdownProps {
   value: string
@@ -307,86 +185,7 @@ function PropertyRow({
   )
 }
 
-interface AIDropdownProps {
-  onSelect: (agent: AIAgent, permissionMode: AIPermissionMode) => void
-}
 
-function AIDropdown({ onSelect }: AIDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedTab, setSelectedTab] = useState<AIAgent>('claude')
-
-  const aiAgentTabs = getAiAgentTabs()
-  const aiModesByAgent = getAiModesByAgent()
-  const modes = aiModesByAgent[selectedTab]
-  const buttonColors = agentButtonColors[selectedTab]
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={cn(
-          'flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white rounded-md transition-colors',
-          buttonColors.bg,
-          buttonColors.hover,
-          buttonColors.shadow,
-          buttonColors.border
-        )}
-      >
-        <Wand2 size={13} />
-        <span>{t('editor.buildWithAI')}</span>
-        <kbd className="ml-0.5 text-[9px] opacity-60 font-mono">⌘B</kbd>
-        <ChevronDown
-          size={11}
-          className={cn('ml-0.5 opacity-60 transition-transform', isOpen && 'rotate-180')}
-        />
-      </button>
-      {isOpen && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute top-full right-0 mt-1 z-20 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl min-w-[260px] overflow-hidden">
-            {/* Tabs */}
-            <div className="flex">
-              {aiAgentTabs.map((tab) => (
-                <button
-                  key={tab.agent}
-                  onClick={() => setSelectedTab(tab.agent)}
-                  className={cn(
-                    'flex-1 px-3 py-2.5 text-xs font-medium transition-all',
-                    selectedTab === tab.agent
-                      ? tab.activeColor
-                      : cn('text-zinc-600 dark:text-zinc-400', tab.color)
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-            {/* Options */}
-            <div className="p-2 space-y-1">
-              {modes.map((mode) => (
-                <button
-                  key={mode.permissionMode}
-                  onClick={() => {
-                    onSelect(selectedTab, mode.permissionMode)
-                    setIsOpen(false)
-                  }}
-                  className="w-full text-left px-3 py-2.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors"
-                >
-                  <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
-                    {mode.label}
-                  </div>
-                  <div className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    {mode.description}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  )
-}
 
 function LabelEditor({
   labels,
@@ -531,8 +330,7 @@ export function FeatureEditor({
   onSave,
   onClose,
   onDelete,
-  onOpenFile,
-  onStartWithAI
+  onOpenFile
 }: FeatureEditorProps) {
   const { cardSettings } = useStore()
   const [currentFrontmatter, setCurrentFrontmatter] = useState(frontmatter)
@@ -623,10 +421,6 @@ export function FeatureEditor({
         if (debounceRef.current) clearTimeout(debounceRef.current)
         save()
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'b' && cardSettings.showBuildWithAI) {
-        e.preventDefault()
-        onStartWithAI('claude', 'default')
-      }
       if (e.key === 'Escape') {
         // Flush any pending save before closing
         if (debounceRef.current) {
@@ -638,7 +432,7 @@ export function FeatureEditor({
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [save, onClose, onStartWithAI, cardSettings.showBuildWithAI])
+  }, [save, onClose])
 
   return (
     <div
@@ -711,7 +505,6 @@ export function FeatureEditor({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {cardSettings.showBuildWithAI && <AIDropdown onSelect={onStartWithAI} />}
           <button
             onClick={onClose}
             className="p-1.5 rounded transition-colors vscode-hover-bg"

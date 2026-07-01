@@ -7,7 +7,7 @@ import { CreateFeatureDialog } from './components/CreateFeatureDialog'
 import { FeatureEditor } from './components/FeatureEditor'
 import { Toolbar } from './components/Toolbar'
 import { UndoToast } from './components/UndoToast'
-import type { Feature, FeatureStatus, Priority, ExtensionMessage, FeatureFrontmatter, AIAgent, AIPermissionMode, BoardViewMode } from '../shared/types'
+import type { Feature, FeatureStatus, Priority, ExtensionMessage, FeatureFrontmatter, BoardViewMode } from '../shared/types'
 import { getTitleFromContent } from '../shared/types'
 import { vscode } from './vscodeApi'
 import { initLocale, t } from './lib/i18n'
@@ -284,10 +284,6 @@ function App(): React.JSX.Element {
     vscode.postMessage({ type: 'openFile', featureId: editingFeature.id })
   }
 
-  const handleStartWithAI = (agent: AIAgent, permissionMode: AIPermissionMode): void => {
-    vscode.postMessage({ type: 'startWithAI', agent, permissionMode })
-  }
-
   const handleAddFeatureInColumn = (status: string): void => {
     setCreateFeatureStatus(status as FeatureStatus)
     setCreateFeatureOpen(true)
@@ -390,7 +386,6 @@ function App(): React.JSX.Element {
               onClose={handleCloseEditor}
               onDelete={handleDeleteFeature}
               onOpenFile={handleOpenFile}
-              onStartWithAI={handleStartWithAI}
             />
           </div>
         )}
