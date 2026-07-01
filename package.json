@@ -77,11 +77,6 @@
         "command": "kanban-markdown.openDirectory",
         "title": "%command.openDirectory.title%",
         "category": "%command.category%"
-      },
-      {
-        "command": "kanban-markdown.selectBoard",
-        "title": "%command.selectBoard.title%",
-        "category": "%command.category%"
       }
     ],
     "configuration": {
@@ -279,6 +274,12 @@
           "command": "kanban-markdown.openDirectory",
           "when": "explorerResourceIsFolder",
           "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "kanban-markdown.openDirectory",
+          "when": "false"
         }
       ]
     }

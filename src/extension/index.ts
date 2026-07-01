@@ -173,18 +173,7 @@ export function activate(context: vscode.ExtensionContext) {
         return
       }
 
-      // If active panel is already defined, just reveal it
-      if (KanbanPanel.activePanel) {
-        KanbanPanel.activePanel._panel.reveal()
-        return
-      }
-      // If we have open panels, reveal the first one
-      if (KanbanPanel.openPanels.size > 0) {
-        Array.from(KanbanPanel.openPanels.values())[0]._panel.reveal()
-        return
-      }
-
-      // Let the user choose a board to open
+      // Let the user choose a board to open (allowing multiple panels open)
       const boardPaths = context.workspaceState.get<string[]>('kanban-markdown.knownBoards', [])
       let boardPath: string
       if (boardPaths.length > 0) {
@@ -265,50 +254,12 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('kanban-markdown.selectBoard', async () => {
-      const boardPaths = context.workspaceState.get<string[]>('kanban-markdown.knownBoards', [])
-      if (boardPaths.length === 0) {
-        vscode.window.showInformationMessage("No kanban boards registered yet. Right-click a folder to open one!")
-        return
-      }
-
-      const items: BoardQuickPickItem[] = boardPaths.map(p => {
-        const relativePath = vscode.workspace.asRelativePath(p)
-        return {
-          label: path.basename(p),
-          description: relativePath,
-          boardPath: p
-        }
-      })
-
-      const selected = await vscode.window.showQuickPick(items, {
-        placeHolder: "Select a Kanban Board to open"
-      })
-
-      if (selected) {
-        const fullPath = selected.boardPath
-        const wasOpen = KanbanPanel.openPanels.size > 0
-        KanbanPanel.createOrShow(context.extensionUri, context, fullPath)
-        if (!wasOpen) {
-          sidebarProvider.setBoardOpen(true)
-        }
-        const panel = KanbanPanel.openPanels.get(fullPath)
-        if (panel) {
-          panel.onDispose(() => {
-            if (KanbanPanel.openPanels.size === 0) {
-              sidebarProvider.setBoardOpen(false)
-            }
-          })
-        }
-      }
-    })
-  )
-
-  context.subscriptions.push(
     vscode.commands.registerCommand('kanban-markdown.addFeature', () => {
       createFeatureFromPrompts(context)
     })
   )
+
+
 
   // If a panel already exists, revive it
   if (vscode.window.registerWebviewPanelSerializer) {
