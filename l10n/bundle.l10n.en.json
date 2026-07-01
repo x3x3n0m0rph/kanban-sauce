@@ -29,7 +29,6 @@
   "property.labels": "Labels",
   "property.epic": "Epic",
 
-  "editor.buildWithAI": "Build with AI",
   "editor.delete": "DELETE",
   "editor.open": "OPEN",
   "editor.deleteConfirm": "Delete?",
@@ -129,25 +128,6 @@
 
   "app.loading": "Loading...",
   "app.deleted": "Deleted \"{title}\"",
-
-  "ai.claude": "Claude",
-  "ai.codex": "Codex",
-  "ai.copilot": "Copilot",
-  "ai.opencode": "OpenCode",
-  "ai.mode.default": "Default",
-  "ai.mode.plan": "Plan",
-  "ai.mode.autoEdit": "Auto-edit",
-  "ai.mode.fullAuto": "Full Auto",
-  "ai.mode.suggest": "Suggest",
-  "ai.mode.claude.default.description": "With confirmations",
-  "ai.mode.claude.plan.description": "Creates a plan first",
-  "ai.mode.claude.autoEdit.description": "Auto-accepts file edits",
-  "ai.mode.claude.fullAuto.description": "Bypasses all prompts",
-  "ai.mode.codex.suggest.description": "Suggests changes",
-  "ai.mode.codex.autoEdit.description": "Auto-accepts edits",
-  "ai.mode.codex.fullAuto.description": "Full automation",
-  "ai.mode.copilot.default.description": "Standard mode",
-  "ai.mode.opencode.default.description": "Standard mode",
 
   "ext.noWorkspace": "No workspace folder open",
   "ext.featureTitle": "Feature title",

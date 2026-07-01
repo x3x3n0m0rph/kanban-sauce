@@ -25,7 +25,6 @@ const defaultSettings: CardDisplaySettings = {
   showDueDate: true,
   showLabels: true,
   showEpic: true,
-  showBuildWithAI: true,
   showFileName: false,
   compactMode: false,
   markdownEditorMode: false,
