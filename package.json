@@ -205,23 +205,6 @@
             ]
           }
         },
-        "kanban-markdown.aiAgent": {
-          "type": "string",
-          "default": "claude",
-          "enum": [
-            "claude",
-            "codex",
-            "copilot",
-            "opencode"
-          ],
-          "enumDescriptions": [
-            "%config.aiAgent.claude%",
-            "%config.aiAgent.codex%",
-            "%config.aiAgent.copilot%",
-            "%config.aiAgent.opencode%"
-          ],
-          "description": "%config.aiAgent.description%"
-        },
         "kanban-markdown.showPriorityBadges": {
           "type": "boolean",
           "default": true,
@@ -246,11 +229,6 @@
           "type": "boolean",
           "default": true,
           "description": "%config.showEpic.description%"
-        },
-        "kanban-markdown.showBuildWithAI": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.showBuildWithAI.description%"
         },
         "kanban-markdown.showFileName": {
           "type": "boolean",
