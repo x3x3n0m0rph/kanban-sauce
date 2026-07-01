@@ -280,14 +280,6 @@
         {
           "command": "kanban-markdown.openDirectory",
           "when": "false"
-        },
-        {
-          "command": "workbench.view.extension.kanban-markdown",
-          "when": "false"
-        },
-        {
-          "command": "kanban-markdown.boardView.focus",
-          "when": "false"
         }
       ]
     }
