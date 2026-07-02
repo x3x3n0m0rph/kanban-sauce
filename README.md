@@ -6,20 +6,13 @@
 
 *"Now your backlog can have merge conflicts too."*
 
-**An agent native kanban board for VS Code, backed by markdown files.**
+**A folder-focused kanban board for VS Code, backed by markdown files.**
 
 [![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/LachyFS.kanban-markdown?label=VS%20Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=LachyFS.kanban-markdown)
 [![Open VSX](https://img.shields.io/open-vsx/v/LachyFS/kanban-markdown?label=Open%20VSX&logo=vscodium)](https://open-vsx.org/extension/LachyFS/kanban-markdown)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/LachyFS/kanban-markdown?label=Downloads&logo=vscodium)](https://open-vsx.org/extension/LachyFS/kanban-markdown)
 [![GitHub Stars](https://img.shields.io/github/stars/LachyFS/kanban-markdown-vscode-extension?style=flat&logo=github)](https://github.com/LachyFS/kanban-markdown-vscode-extension)
-[![CI](https://img.shields.io/github/actions/workflow/status/LachyFS/kanban-markdown-vscode-extension/ci.yml?label=CI&logo=github)](https://github.com/LachyFS/kanban-markdown-vscode-extension/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-
-[![Claude Code](https://img.shields.io/badge/Claude_Code-supported-f97316?logo=anthropic&logoColor=white)](https://docs.anthropic.com/en/docs/claude-code)
-[![Codex](https://img.shields.io/badge/Codex-supported-10a37f?logo=openai&logoColor=white)](https://github.com/openai/codex)
-[![GitHub Copilot](https://img.shields.io/badge/Copilot-supported-2b6cb0?logo=githubcopilot&logoColor=white)](https://github.com/features/copilot)
-[![OpenCode](https://img.shields.io/badge/OpenCode-supported-64748b)](https://github.com/opencode-ai/opencode)
-[![skills.sh](https://img.shields.io/badge/skills.sh-compatible-a855f7)](https://skills.sh)
 
 <img src="https://raw.githubusercontent.com/LachyFS/kanban-markdown-vscode-extension/main/docs/images/editor-view.png" alt="Editor View" width="800" />
 
@@ -32,16 +25,16 @@ Features are stored as markdown files with YAML frontmatter — version-controll
 ## Quick Start
 
 1. **Install** — search "Kanban Markdown" in the Extensions view ([VS Marketplace](https://marketplace.visualstudio.com/items?itemName=LachyFS.kanban-markdown) / [Open VSX](https://open-vsx.org/extension/LachyFS/kanban-markdown))
-2. **Open** — run `Open Kanban Board` from the command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
-3. **Create** — press `N` to add your first feature card
+2. **Open** — run `Open Kanban Board` from the command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and choose any folder to open as a board
+3. **Create** — click `+ New Feature` in the sidebar or click the `+` sign next to column headers
 
 ## Features
 
 ### Multiple Kanban Boards
 
 You can create and open multiple independent kanban boards inside the same workspace:
-- **Open any folder**: Right-click any folder in the VS Code Explorer file tree and select **Open as Kanban Board**. A dedicated board tab will open for that directory path.
-- **Select Board**: Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and choose **Select Kanban Board** to pick from a list of previously opened boards.
+- **Open any folder**: Right-click any folder in the VS Code Explorer file tree and select **Open as Kanban Board**. Or run **Open Kanban Board** from the command palette to select from your history or pick a new folder.
+- **No automatic/hidden folders**: Features are stored exactly inside the chosen directory in subfolders named after their status (`backlog`, `todo`, `in-progress`, `review`, `done`).
 - **Run multiple simultaneously**: You can open two or more kanban boards side-by-side! Each tab will dynamically track and update cards for its specific directory path.
 
 ### Board & Workflow
@@ -84,30 +77,20 @@ Each card is a markdown file with YAML frontmatter.
 - Native markdown mode — open files in VS Code's built-in editor instead
 - Follows your VS Code/Cursor theme (light & dark)
 
-## AI Agent Integration
+## Differences from the Original Repository
 
-Cards include a "Build with AI" action that passes full feature context (title, priority, labels, description) to your preferred agent.
+This fork introduces major architectural improvements and UI enhancements:
 
-| Agent | Modes |
-|-------|-------|
-| Claude Code | Default, Plan, Auto-edit, Full Auto |
-| Codex | Suggest, Auto-edit, Full Auto |
-| GitHub Copilot | Default |
-| OpenCode | Default |
-
-### Kanban Skill
-
-Give agents read/write access to your board from the terminal:
-
-```bash
-npx skills add https://github.com/LachyFS/kanban-skill
-```
-
-Compatible with Claude Code, Codex, OpenCode, and [skills.sh](https://skills.sh)-compatible agents. See [kanban-skill](https://github.com/LachyFS/kanban-skill) for details.
+- **Dynamic Board Folder Selection**: You are no longer restricted to a single `.devtool/features` directory at the root of your workspace. You can open *any* folder as an independent Kanban board.
+- **Multiple Concurrent Boards**: Fully supports running multiple Kanban board panels side-by-side. The Sidebar Summary view automatically tracks and switches to whichever board is active.
+- **Persistent History Pruning**: Remembers your previously opened boards. It automatically filters out board directories that were deleted or moved, and includes a **Clear Board History...** picker to manually remove entries.
+- **Granular Font Size Settings**: Extensive settings let you customize the font size of almost every component (column headers, card titles, card description previews, label tags, card metadata, editor headings, editor body, and the editor metadata block).
+- **Cleaned Command Palette**: Obsolete/redundant commands like `selectBoard` or auto-generated focus actions are hidden or removed to prevent command palette clutter.
+- **Telemetry & AI Removal**: Legacy "Build with AI" prompt integrations and telemetry are completely stripped, making the extension 100% private, local, and exceptionally lightweight.
 
 ## File Format
 
-Features live in `.devtool/features/` by default, organized into subfolders by status.
+Features live inside your selected board folder, organized into subfolders by status.
 
 ```markdown
 ---
@@ -129,25 +112,30 @@ Add a toggle in settings to switch between light and dark themes...
 
 ## Configuration
 
-Settings live under `kanban-markdown.*` in your VS Code/Cursor preferences.
+Settings live under `kanban-markdown.*` in your VS Code preferences.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `featuresDirectory` | `.devtool/features` | Directory for feature files (relative to workspace root) |
 | `filenamePattern` | `name-date` | Filename pattern for new cards (`name-date`, `date-name`, `name-datetime`, `datetime-name`) |
 | `defaultPriority` | `medium` | Default priority for new features |
 | `defaultStatus` | `backlog` | Default status for new features |
 | `columns` | *see below* | Customize column IDs, names, and colors |
-| `aiAgent` | `claude` | AI agent for "Build with AI" (`claude`, `codex`, `copilot`, `opencode`) |
 | `showPriorityBadges` | `true` | Show priority badges on cards |
 | `showAssignee` | `true` | Show assignee on cards |
 | `showDueDate` | `true` | Show due date on cards |
 | `showLabels` | `true` | Show labels on cards and in editors |
-| `showBuildWithAI` | `true` | Show "Build with AI" button on cards |
 | `showFileName` | `false` | Show the source markdown filename on cards |
 | `compactMode` | `false` | Use compact card layout |
 | `addNewCardsToTop` | `false` | Add new cards to the top of the column |
 | `markdownEditorMode` | `false` | Open files in VS Code's native text editor instead of the inline rich-text editor |
+| `fontSizeColumnHeader` | `16px` | Font size for column headers in the Kanban board (e.g. `16px`, `1.1rem`) |
+| `fontSizeCardTitle` | `14px` | Font size for card titles in the Kanban board (e.g. `14px`, `1rem`) |
+| `fontSizeCardDescription` | `14px` | Font size for the feature card body/description text in the Kanban board (e.g. `14px`, `0.9rem`) |
+| `fontSizeCardLabel` | `12px` | Font size for custom label tags on cards (e.g. `12px`, `0.8rem`) |
+| `fontSizeCardMeta` | `13px` | Font size for card metadata like assignee, due date, epic, filename, and priority (e.g. `13px`, `0.8rem`) |
+| `fontSizeEditorHeader` | `18px` | Font size for headings in the markdown editor/preview panel (e.g. `18px`, `1.5rem`) |
+| `fontSizeEditorBody` | `16px` | Font size for body text, lists, and tables in the editor/preview panel (e.g. `16px`, `1.1rem`) |
+| `fontSizeEditorMeta` | `14px` | Font size for elements in the metadata block above the editor/preview (e.g. `14px`, `0.9rem`) |
 
 Default columns:
 
