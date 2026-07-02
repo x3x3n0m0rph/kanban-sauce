@@ -1,19 +1,19 @@
 {
-  "name": "kanban-markdown",
-  "displayName": "Kanban Markdown",
+  "name": "kanban-sauce",
+  "displayName": "Kanban Sauce",
   "description": "A kanban board for your codebase. Features stored as markdown.",
   "version": "1.14.1",
   "packageManager": "pnpm@9.15.9",
-  "publisher": "LachyFS",
+  "publisher": "salsa-lab",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LachyFS/kanban-markdown-vscode-extension"
+    "url": "https://github.com/salsa-lab/kanban-sauce"
   },
   "bugs": {
-    "url": "https://github.com/LachyFS/kanban-markdown-vscode-extension/issues"
+    "url": "https://github.com/salsa-lab/kanban-sauce/issues"
   },
-  "homepage": "https://github.com/LachyFS/kanban-markdown-vscode-extension#readme",
+  "homepage": "https://github.com/salsa-lab/kanban-sauce#readme",
   "icon": "resources/icon.png",
   "galleryBanner": {
     "color": "#1e1e1e",
@@ -34,8 +34,8 @@
     "board"
   ],
   "activationEvents": [
-    "onWebviewPanel:kanban-markdown.panel",
-    "onView:kanban-markdown.boardView"
+    "onWebviewPanel:kanban-sauce.panel",
+    "onView:kanban-sauce.boardView"
   ],
   "main": "./dist/extension.js",
   "l10n": "./l10n",
@@ -43,16 +43,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "kanban-markdown",
+          "id": "kanban-sauce",
           "title": "%viewContainer.title%",
           "icon": "resources/kanban.svg"
         }
       ]
     },
     "views": {
-      "kanban-markdown": [
+      "kanban-sauce": [
         {
-          "id": "kanban-markdown.boardView",
+          "id": "kanban-sauce.boardView",
           "name": "%view.board.name%",
           "type": "webview"
         }
@@ -60,7 +60,7 @@
     },
     "commands": [
       {
-        "command": "kanban-markdown.open",
+        "command": "kanban-sauce.open",
         "title": "%command.open.title%",
         "category": "%command.category%",
         "icon": {
@@ -69,12 +69,12 @@
         }
       },
       {
-        "command": "kanban-markdown.addFeature",
+        "command": "kanban-sauce.addFeature",
         "title": "%command.addFeature.title%",
         "category": "%command.category%"
       },
       {
-        "command": "kanban-markdown.openDirectory",
+        "command": "kanban-sauce.openDirectory",
         "title": "%command.openDirectory.title%",
         "category": "%command.category%"
       }
@@ -82,7 +82,7 @@
     "configuration": {
       "title": "%config.title%",
       "properties": {
-        "kanban-markdown.language": {
+        "kanban-sauce.language": {
           "type": "string",
           "default": "auto",
           "enum": [
@@ -99,47 +99,47 @@
           ],
           "description": "%config.language.description%"
         },
-        "kanban-markdown.fontSizeColumnHeader": {
+        "kanban-sauce.fontSizeColumnHeader": {
           "type": "string",
           "default": "16px",
           "description": "%config.fontSizeColumnHeader.description%"
         },
-        "kanban-markdown.fontSizeCardTitle": {
+        "kanban-sauce.fontSizeCardTitle": {
           "type": "string",
           "default": "14px",
           "description": "%config.fontSizeCardTitle.description%"
         },
-        "kanban-markdown.fontSizeCardDescription": {
+        "kanban-sauce.fontSizeCardDescription": {
           "type": "string",
           "default": "14px",
           "description": "%config.fontSizeCardDescription.description%"
         },
-        "kanban-markdown.fontSizeCardLabel": {
+        "kanban-sauce.fontSizeCardLabel": {
           "type": "string",
           "default": "12px",
           "description": "%config.fontSizeCardLabel.description%"
         },
-        "kanban-markdown.fontSizeCardMeta": {
+        "kanban-sauce.fontSizeCardMeta": {
           "type": "string",
           "default": "13px",
           "description": "%config.fontSizeCardMeta.description%"
         },
-        "kanban-markdown.fontSizeEditorHeader": {
+        "kanban-sauce.fontSizeEditorHeader": {
           "type": "string",
           "default": "18px",
           "description": "%config.fontSizeEditorHeader.description%"
         },
-        "kanban-markdown.fontSizeEditorBody": {
+        "kanban-sauce.fontSizeEditorBody": {
           "type": "string",
           "default": "16px",
           "description": "%config.fontSizeEditorBody.description%"
         },
-        "kanban-markdown.fontSizeEditorMeta": {
+        "kanban-sauce.fontSizeEditorMeta": {
           "type": "string",
           "default": "14px",
           "description": "%config.fontSizeEditorMeta.description%"
         },
-        "kanban-markdown.filenamePattern": {
+        "kanban-sauce.filenamePattern": {
           "type": "string",
           "default": "name-date",
           "enum": [
@@ -156,7 +156,7 @@
           ],
           "description": "%config.filenamePattern.description%"
         },
-        "kanban-markdown.defaultPriority": {
+        "kanban-sauce.defaultPriority": {
           "type": "string",
           "default": "medium",
           "enum": [
@@ -173,7 +173,7 @@
           ],
           "description": "%config.defaultPriority.description%"
         },
-        "kanban-markdown.defaultStatus": {
+        "kanban-sauce.defaultStatus": {
           "type": "string",
           "default": "backlog",
           "enum": [
@@ -192,7 +192,7 @@
           ],
           "description": "%config.defaultStatus.description%"
         },
-        "kanban-markdown.columns": {
+        "kanban-sauce.columns": {
           "type": "array",
           "default": [
             {
@@ -245,52 +245,52 @@
             ]
           }
         },
-        "kanban-markdown.showPriorityBadges": {
+        "kanban-sauce.showPriorityBadges": {
           "type": "boolean",
           "default": true,
           "description": "%config.showPriorityBadges.description%"
         },
-        "kanban-markdown.showAssignee": {
+        "kanban-sauce.showAssignee": {
           "type": "boolean",
           "default": true,
           "description": "%config.showAssignee.description%"
         },
-        "kanban-markdown.showDueDate": {
+        "kanban-sauce.showDueDate": {
           "type": "boolean",
           "default": true,
           "description": "%config.showDueDate.description%"
         },
-        "kanban-markdown.showLabels": {
+        "kanban-sauce.showLabels": {
           "type": "boolean",
           "default": true,
           "description": "%config.showLabels.description%"
         },
-        "kanban-markdown.showEpic": {
+        "kanban-sauce.showEpic": {
           "type": "boolean",
           "default": true,
           "description": "%config.showEpic.description%"
         },
-        "kanban-markdown.showFileName": {
+        "kanban-sauce.showFileName": {
           "type": "boolean",
           "default": false,
           "description": "%config.showFileName.description%"
         },
-        "kanban-markdown.compactMode": {
+        "kanban-sauce.compactMode": {
           "type": "boolean",
           "default": false,
           "description": "%config.compactMode.description%"
         },
-        "kanban-markdown.addNewCardsToTop": {
+        "kanban-sauce.addNewCardsToTop": {
           "type": "boolean",
           "default": false,
           "description": "%config.addNewCardsToTop.description%"
         },
-        "kanban-markdown.markdownEditorMode": {
+        "kanban-sauce.markdownEditorMode": {
           "type": "boolean",
           "default": false,
           "description": "%config.markdownEditorMode.description%"
         },
-        "kanban-markdown.hideScrollbar": {
+        "kanban-sauce.hideScrollbar": {
           "type": "boolean",
           "default": false,
           "description": "%config.hideScrollbar.description%"
@@ -300,20 +300,20 @@
     "menus": {
       "editor/title/run": [
         {
-          "command": "kanban-markdown.open",
+          "command": "kanban-sauce.open",
           "when": "resourceLangId == markdown"
         }
       ],
       "explorer/context": [
         {
-          "command": "kanban-markdown.openDirectory",
+          "command": "kanban-sauce.openDirectory",
           "when": "explorerResourceIsFolder",
           "group": "navigation"
         }
       ],
       "commandPalette": [
         {
-          "command": "kanban-markdown.openDirectory",
+          "command": "kanban-sauce.openDirectory",
           "when": "false"
         }
       ]
