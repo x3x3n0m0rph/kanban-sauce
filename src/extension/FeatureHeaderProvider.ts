@@ -10,7 +10,7 @@ import type { FeatureStatus, Priority } from '../shared/types'
  * The actual markdown editing is done by VSCode's native text editor.
  */
 export class FeatureHeaderProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'kanban-markdown.featureHeader'
+  public static readonly viewType = 'kanban-sauce.featureHeader'
 
   private _view?: vscode.WebviewView
   private _currentDocument?: vscode.TextDocument
@@ -53,7 +53,7 @@ export class FeatureHeaderProvider implements vscode.WebviewViewProvider {
     // Listen for settings changes
     disposables.push(
       vscode.workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration('kanban-markdown')) {
+        if (e.affectsConfiguration('kanban-sauce')) {
           // Re-evaluate current editor against fresh config
           // (e.g. featuresDirectory may have changed)
           provider._onActiveEditorChanged(vscode.window.activeTextEditor)

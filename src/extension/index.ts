@@ -148,7 +148,7 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
 }
 
 async function getValidKnownBoards(context: vscode.ExtensionContext): Promise<string[]> {
-  const rawBoardPaths = context.workspaceState.get<string[]>('kanban-markdown.knownBoards', [])
+  const rawBoardPaths = context.workspaceState.get<string[]>('kanban-sauce.knownBoards', [])
   const checks = await Promise.all(
     rawBoardPaths.map(async p => {
       try {
@@ -161,15 +161,15 @@ async function getValidKnownBoards(context: vscode.ExtensionContext): Promise<st
   )
   const valid = checks.filter(item => item.exists).map(item => item.path)
   if (valid.length !== rawBoardPaths.length) {
-    await context.workspaceState.update('kanban-markdown.knownBoards', valid)
+    await context.workspaceState.update('kanban-sauce.knownBoards', valid)
   }
   return valid
 }
 
 async function registerKnownBoard(context: vscode.ExtensionContext, boardPath: string) {
-  const boards = new Set(context.workspaceState.get<string[]>('kanban-markdown.knownBoards', []))
+  const boards = new Set(context.workspaceState.get<string[]>('kanban-sauce.knownBoards', []))
   boards.add(boardPath)
-  await context.workspaceState.update('kanban-markdown.knownBoards', Array.from(boards))
+  await context.workspaceState.update('kanban-sauce.knownBoards', Array.from(boards))
 }
 
 interface BoardQuickPickItem extends vscode.QuickPickItem {
@@ -185,7 +185,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('kanban-markdown.open', async () => {
+    vscode.commands.registerCommand('kanban-sauce.open', async () => {
       const workspaceFolders = vscode.workspace.workspaceFolders
       if (!workspaceFolders || workspaceFolders.length === 0) {
         vscode.window.showErrorMessage(t('ext.noWorkspace'))
@@ -227,7 +227,7 @@ export function activate(context: vscode.ExtensionContext) {
           if (toRemove && toRemove.length > 0) {
             const pathsToRemove = new Set(toRemove.map(item => item.path))
             const updatedPaths = boardPaths.filter(p => !pathsToRemove.has(p))
-            await context.workspaceState.update('kanban-markdown.knownBoards', updatedPaths)
+            await context.workspaceState.update('kanban-sauce.knownBoards', updatedPaths)
             vscode.window.showInformationMessage("Selected boards removed from history.")
           }
           return
@@ -273,7 +273,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('kanban-markdown.openDirectory', async (uri: vscode.Uri) => {
+    vscode.commands.registerCommand('kanban-sauce.openDirectory', async (uri: vscode.Uri) => {
       if (uri && uri.scheme === 'file') {
         const boardPath = uri.fsPath
         const wasOpen = KanbanPanel.openPanels.size > 0
@@ -295,7 +295,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('kanban-markdown.addFeature', () => {
+    vscode.commands.registerCommand('kanban-sauce.addFeature', () => {
       createFeatureFromPrompts(context)
     })
   )

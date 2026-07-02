@@ -14,7 +14,7 @@ interface SidebarFeature {
 }
 
 export class SidebarViewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'kanban-markdown.boardView'
+  public static readonly viewType = 'kanban-sauce.boardView'
   public static currentProvider: SidebarViewProvider | undefined
 
   private _view?: vscode.WebviewView
@@ -32,7 +32,7 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
     })
 
     vscode.workspace.onDidChangeConfiguration(e => {
-      if (e.affectsConfiguration('kanban-markdown')) {
+      if (e.affectsConfiguration('kanban-sauce')) {
         this._refresh()
       }
     }, null, this._disposables)
@@ -55,7 +55,7 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
           this._refresh()
           break
         case 'openBoard':
-          vscode.commands.executeCommand('kanban-markdown.open')
+          vscode.commands.executeCommand('kanban-sauce.open')
           break
         case 'newFeature':
           if (KanbanPanel.activePanel) {
@@ -77,11 +77,11 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
               KanbanPanel.onActivePanelChangedCallbacks.delete(listener)
             }, 60000)
 
-            vscode.commands.executeCommand('kanban-markdown.open')
+            vscode.commands.executeCommand('kanban-sauce.open')
           }
           break
         case 'openFeature':
-          vscode.commands.executeCommand('kanban-markdown.open')
+          vscode.commands.executeCommand('kanban-sauce.open')
           setTimeout(() => {
             KanbanPanel.activePanel?.openFeature(message.featureId)
           }, 500)
@@ -170,7 +170,7 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
   }
 
   private _getColumns(): KanbanColumn[] {
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
+    const config = vscode.workspace.getConfiguration('kanban-sauce')
     const defaultColumns: KanbanColumn[] = [
       { id: 'backlog', name: 'Backlog', color: '#6b7280' },
       { id: 'todo', name: 'To Do', color: '#3b82f6' },

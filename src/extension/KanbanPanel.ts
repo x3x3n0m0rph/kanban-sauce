@@ -25,7 +25,7 @@ interface CreateFeatureData {
 }
 
 export class KanbanPanel {
-  public static readonly viewType = 'kanban-markdown.panel'
+  public static readonly viewType = 'kanban-sauce.panel'
   public static openPanels = new Map<string, KanbanPanel>()
   public static activePanel: KanbanPanel | undefined
   public static onActivePanelChangedCallbacks = new Set<(panel: KanbanPanel | undefined) => void>()
@@ -131,7 +131,7 @@ export class KanbanPanel {
             break
           case 'createFeature': {
             await this._createFeature(message.data)
-            const createConfig = vscode.workspace.getConfiguration('kanban-markdown')
+            const createConfig = vscode.workspace.getConfiguration('kanban-sauce')
             if (createConfig.get<boolean>('markdownEditorMode', false)) {
               // Open the newly created feature in native editor
               const created = this._features[this._features.length - 1]
@@ -151,7 +151,7 @@ export class KanbanPanel {
             await this._updateFeature(message.featureId, message.updates)
             break
           case 'openFeature': {
-            const openConfig = vscode.workspace.getConfiguration('kanban-markdown')
+            const openConfig = vscode.workspace.getConfiguration('kanban-sauce')
             if (openConfig.get<boolean>('markdownEditorMode', false)) {
               this._openFeatureInNativeEditor(message.featureId)
             } else {
@@ -174,7 +174,7 @@ export class KanbanPanel {
             break
           }
           case 'openSettings':
-            vscode.commands.executeCommand('workbench.action.openSettings', '@ext:LachyFS.kanban-markdown')
+            vscode.commands.executeCommand('workbench.action.openSettings', '@ext:salsa-lab.kanban-sauce')
             break
           case 'focusMenuBar':
             // Focus must leave the webview before focusMenuBar works (VS Code limitation).
@@ -183,29 +183,29 @@ export class KanbanPanel {
             await vscode.commands.executeCommand('workbench.action.focusMenuBar')
             break
           case 'toggleColumnCollapsed': {
-            const collapsed: string[] = this._context.workspaceState.get('kanban-markdown.collapsedColumns', [])
+            const collapsed: string[] = this._context.workspaceState.get('kanban-sauce.collapsedColumns', [])
             const idx = collapsed.indexOf(message.columnId)
             if (idx >= 0) {
               collapsed.splice(idx, 1)
             } else {
               collapsed.push(message.columnId)
             }
-            await this._context.workspaceState.update('kanban-markdown.collapsedColumns', collapsed)
+            await this._context.workspaceState.update('kanban-sauce.collapsedColumns', collapsed)
             break
           }
           case 'setBoardViewMode': {
-            await this._context.workspaceState.update('kanban-markdown.boardViewMode', message.mode)
+            await this._context.workspaceState.update('kanban-sauce.boardViewMode', message.mode)
             break
           }
           case 'toggleEpicCollapsed': {
-            const collapsedEpics: string[] = this._context.workspaceState.get('kanban-markdown.collapsedEpics', [])
+            const collapsedEpics: string[] = this._context.workspaceState.get('kanban-sauce.collapsedEpics', [])
             const idx = collapsedEpics.indexOf(message.epicKey)
             if (idx >= 0) {
               collapsedEpics.splice(idx, 1)
             } else {
               collapsedEpics.push(message.epicKey)
             }
-            await this._context.workspaceState.update('kanban-markdown.collapsedEpics', collapsedEpics)
+            await this._context.workspaceState.update('kanban-sauce.collapsedEpics', collapsedEpics)
             break
           }
           case 'moveAllCards':
@@ -231,15 +231,15 @@ export class KanbanPanel {
 
     // Listen for settings changes and push updates to webview
     vscode.workspace.onDidChangeConfiguration(e => {
-      if (e.affectsConfiguration('kanban-markdown')) {
-        if (e.affectsConfiguration('kanban-markdown.language')) {
+      if (e.affectsConfiguration('kanban-sauce')) {
+        if (e.affectsConfiguration('kanban-sauce.language')) {
           reloadBundle()
         }
         this._sendFeaturesToWebview()
-        if (e.affectsConfiguration('kanban-markdown.filenamePattern')) {
+        if (e.affectsConfiguration('kanban-sauce.filenamePattern')) {
           this._promptFilenamePatternMigration()
         }
-        if (e.affectsConfiguration('kanban-markdown.language')) {
+        if (e.affectsConfiguration('kanban-sauce.language')) {
           this._promptColumnLanguageMigration()
         }
       }
@@ -546,7 +546,7 @@ export class KanbanPanel {
   }
 
   public openFeature(featureId: string): void {
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
+    const config = vscode.workspace.getConfiguration('kanban-sauce')
     if (config.get<boolean>('markdownEditorMode', false)) {
       this._openFeatureInNativeEditor(featureId)
     } else {
@@ -562,7 +562,7 @@ export class KanbanPanel {
     }
 
     const title = getTitleFromContent(data.content)
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
+    const config = vscode.workspace.getConfiguration('kanban-sauce')
     const pattern = config.get<FilenamePattern>('filenamePattern', 'name-date')
     const filename = generateFeatureFilename(title, pattern)
     const now = new Date().toISOString()
@@ -994,7 +994,7 @@ export class KanbanPanel {
   }
 
   private async _promptColumnLanguageMigration(): Promise<void> {
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
+    const config = vscode.workspace.getConfiguration('kanban-sauce')
     const columns = config.get<KanbanColumn[]>('columns')
     if (!columns || columns.length === 0) return
 
@@ -1028,7 +1028,7 @@ export class KanbanPanel {
     const featuresDir = this._getWorkspaceFeaturesDir()
     if (!featuresDir) return
 
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
+    const config = vscode.workspace.getConfiguration('kanban-sauce')
     const pattern = config.get<FilenamePattern>('filenamePattern', 'name-date')
 
     let renamed = 0
@@ -1074,11 +1074,11 @@ export class KanbanPanel {
     const msg = skipped > 0
       ? t('panel.renameResultWithSkipped', { renamed, skipped })
       : t('panel.renameResult', { renamed })
-    vscode.window.showInformationMessage(`Kanban Markdown: ${msg}`)
+    vscode.window.showInformationMessage(`Kanban Sauce: ${msg}`)
   }
 
   private _sendFeaturesToWebview(): void {
-    const config = vscode.workspace.getConfiguration('kanban-markdown')
+    const config = vscode.workspace.getConfiguration('kanban-sauce')
 
     const defaultColumns: KanbanColumn[] = [
       { id: 'backlog', name: 'Backlog', color: '#6b7280' },
@@ -1110,9 +1110,9 @@ export class KanbanPanel {
       fontSizeEditorMeta: config.get<string>('fontSizeEditorMeta', '12px')
     }
 
-    const collapsedColumns: string[] = this._context.workspaceState.get('kanban-markdown.collapsedColumns', [])
-    const boardViewMode: BoardViewMode = this._context.workspaceState.get('kanban-markdown.boardViewMode', 'standard')
-    const collapsedEpics: string[] = this._context.workspaceState.get('kanban-markdown.collapsedEpics', [])
+    const collapsedColumns: string[] = this._context.workspaceState.get('kanban-sauce.collapsedColumns', [])
+    const boardViewMode: BoardViewMode = this._context.workspaceState.get('kanban-sauce.boardViewMode', 'standard')
+    const collapsedEpics: string[] = this._context.workspaceState.get('kanban-sauce.collapsedEpics', [])
 
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
     const features = this._features.map(f => ({
