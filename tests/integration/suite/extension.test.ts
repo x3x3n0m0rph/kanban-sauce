@@ -326,7 +326,7 @@ suite('Integration: frontmatter round-trip with vscode.workspace.fs', () => {
 
 suite('Integration: extension activation', () => {
   test('the extension is available in the extension host', async () => {
-    const ext = vscode.extensions.getExtension('LachyFS.kanban-markdown')
+    const ext = vscode.extensions.getExtension('salsa-lab.kanban-sauce')
     // The extension may or may not auto-activate in this minimal workspace;
     // the important thing is it can be found and activated without throwing.
     assert.ok(ext !== undefined, 'Extension should be registered in the host')

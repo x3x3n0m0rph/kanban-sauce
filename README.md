@@ -1,20 +1,20 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/LachyFS/kanban-markdown-vscode-extension/main/resources/icon.png" alt="Kanban Markdown" width="60" />
+<img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/resources/icon.png" alt="Kanban Sauce" width="60" />
 
-# Kanban Markdown
+# Kanban Sauce
 
 *"Now your backlog can have merge conflicts too."*
 
 **A folder-focused kanban board for VS Code, backed by markdown files.**
 
-[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/LachyFS.kanban-markdown?label=VS%20Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=LachyFS.kanban-markdown)
-[![Open VSX](https://img.shields.io/open-vsx/v/LachyFS/kanban-markdown?label=Open%20VSX&logo=vscodium)](https://open-vsx.org/extension/LachyFS/kanban-markdown)
-[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/LachyFS/kanban-markdown?label=Downloads&logo=vscodium)](https://open-vsx.org/extension/LachyFS/kanban-markdown)
-[![GitHub Stars](https://img.shields.io/github/stars/LachyFS/kanban-markdown-vscode-extension?style=flat&logo=github)](https://github.com/LachyFS/kanban-markdown-vscode-extension)
+[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/salsa-lab.kanban-sauce?label=VS%20Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce)
+[![Open VSX](https://img.shields.io/open-vsx/v/salsa-lab/kanban-sauce?label=Open%20VSX&logo=vscodium)](https://open-vsx.org/extension/salsa-lab/kanban-sauce)
+[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/salsa-lab/kanban-sauce?label=Downloads&logo=vscodium)](https://open-vsx.org/extension/salsa-lab/kanban-sauce)
+[![GitHub Stars](https://img.shields.io/github/stars/salsa-lab/kanban-sauce?style=flat&logo=github)](https://github.com/salsa-lab/kanban-sauce)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-<img src="https://raw.githubusercontent.com/LachyFS/kanban-markdown-vscode-extension/main/docs/images/editor-view.png" alt="Editor View" width="800" />
+<img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/editor-view.png" alt="Editor View" width="800" />
 
 </div>
 
@@ -24,7 +24,7 @@ Features are stored as markdown files with YAML frontmatter — version-controll
 
 ## Quick Start
 
-1. **Install** — search "Kanban Markdown" in the Extensions view ([VS Marketplace](https://marketplace.visualstudio.com/items?itemName=LachyFS.kanban-markdown) / [Open VSX](https://open-vsx.org/extension/LachyFS/kanban-markdown))
+1. **Install** — search "Kanban Sauce" in the Extensions view ([VS Marketplace](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce) / [Open VSX](https://open-vsx.org/extension/salsa-lab/kanban-sauce))
 2. **Open** — run `Open Kanban Board` from the command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and choose any folder to open as a board
 3. **Create** — click `+ New Feature` in the sidebar or click the `+` sign next to column headers
 
@@ -52,7 +52,7 @@ You can create and open multiple independent kanban boards inside the same works
 Each card is a markdown file with YAML frontmatter.
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/LachyFS/kanban-markdown-vscode-extension/main/docs/images/board-overview.png" alt="Kanban Board Overview" width="800" />
+<img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/board-overview.png" alt="Kanban Board Overview" width="800" />
 </div>
 
 - Priority levels — Critical, High, Medium, Low with color-coded badges
@@ -112,7 +112,7 @@ Add a toggle in settings to switch between light and dark themes...
 
 ## Configuration
 
-Settings live under `kanban-markdown.*` in your VS Code preferences.
+Settings live under `kanban-sauce.*` in your VS Code preferences.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -153,15 +153,15 @@ Default columns:
 
 ### VS Code Marketplace
 
-Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=LachyFS.kanban-markdown) or search "Kanban Markdown" in the Extensions view.
+Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce) or search "Kanban Sauce" in the Extensions view.
 
 ### Open VSX (VSCodium, Cursor, etc.)
 
-Install from [Open VSX](https://open-vsx.org/extension/LachyFS/kanban-markdown) or search "Kanban Markdown" in the Extensions view.
+Install from [Open VSX](https://open-vsx.org/extension/salsa-lab/kanban-sauce) or search "Kanban Sauce" in the Extensions view.
 
 ### From VSIX
 
-1. Download the `.vsix` from [Releases](https://github.com/LachyFS/kanban-markdown-vscode-extension/releases)
+1. Download the `.vsix` from [Releases](https://github.com/salsa-lab/kanban-sauce/releases)
 2. In VS Code: Extensions > `...` > Install from VSIX
 3. Select the downloaded file
 
