@@ -11,7 +11,7 @@
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/salsa-lab/kanban-sauce?label=Downloads&logo=vscodium)](https://open-vsx.org/extension/salsa-lab/kanban-sauce)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-<img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/editor-view.png" alt="Editor View" width="800" />
+![Board Overview](https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/board-overview.png)
 
 </div>
 
@@ -49,7 +49,9 @@ You can create and open multiple independent kanban boards inside the same works
 Each card is a markdown file with YAML frontmatter.
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/board-overview.png" alt="Kanban Board Overview" width="800" />
+
+![Editor View](https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/editor-view.png)
+
 </div>
 
 - Priority levels — Critical, High, Medium, Low with color-coded badges
@@ -87,24 +89,26 @@ This project is a fork of [Kanban Markdown](https://github.com/LachyFS/kanban-ma
 
 ## File Format
 
-Features live inside your selected board folder, organized into subfolders by status.
+Features live inside your selected board folder as Markdown files with YAML formatter, organized into subfolders by status.
 
 ```markdown
 ---
-id: "implement-dark-mode-toggle-2026-01-25"
-status: "todo"
-priority: "high"
-assignee: "john"
-dueDate: "2026-01-25"
-created: "2026-01-25T10:30:00.000Z"
-modified: "2026-01-25T14:20:00.000Z"
-labels: ["feature", "ui"]
-order: 0
+id: "remove-ai-integration-2026-07-04"
+status: "done"
+priority: "critical"
+assignee: "peppe"
+epic: null
+dueDate: "2026-07-04"
+created: "2026-07-04T09:27:55.052Z"
+modified: "2026-07-04T09:27:55.052Z"
+completedAt: "2026-07-04T09:27:55.052Z"
+labels: ["enhancement"]
+order: "Zz"
 ---
+# Remove AI integration
 
-# Implement dark mode toggle
+Remove completely the AI integration, so that humans can waste a bit more time
 
-Add a toggle in settings to switch between light and dark themes...
 ```
 
 ## Configuration
@@ -225,6 +229,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Contributors
 
+Contributors to the main repository [Kanban Markdown](https://github.com/LachyFS/kanban-markdown-vscode-extension):
+
+- [@LachyFS](https://github.com/LachyFS) — lead developer
 - [@luciopaiva](https://github.com/luciopaiva) — sidebar view and layout improvements
 - [@ungive](https://github.com/ungive) — file organization and status subfolders
 - [@hodanli](https://github.com/hodanli) — label management enhancements
