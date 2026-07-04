@@ -1,9 +1,24 @@
 # Changelog
 
-All notable changes to the Kanban Markdown extension will be documented in this file.
+All notable changes to the Kanban Sauce extension will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.0.0] - 2026-07-04
+
+This release marks the transition to **Kanban Sauce** (version 2.0.0), a rebranded and enhanced fork of the original extension. It incorporates all major architectural upgrades, UI improvements, and privacy modifications introduced in this fork.
+
+### Added
+- **Rebranding**: Complete rebranding to **Kanban Sauce** under the publisher `salsa-lab` and repository `salsa-lab/kanban-sauce`.
+- **Dynamic Board Folder Selection**: You are no longer restricted to a single `.devtool/features` directory at the root of your workspace. You can open *any* folder as an independent Kanban board.
+- **Multiple Concurrent Boards**: Fully supports running multiple Kanban board panels side-by-side. The Sidebar Summary view automatically tracks and switches to whichever board is active.
+- **Persistent History Pruning**: Remembers previously opened boards. It automatically filters out board directories that were deleted or moved, and includes a **Clear Board History...** picker to manually remove entries.
+- **Granular Font Size Settings**: Extensive settings to customize the font size of almost every component (column headers, card titles, card description previews, label tags, card metadata, editor headings, editor body, and the editor metadata block).
+- **Cleaned Command Palette**: Obsolete/redundant commands are hidden or removed to prevent command palette clutter.
+
+### Changed
+- **AI Integration & Telemetry Removal**: Completely stripped the legacy "Build with AI" prompt integrations and telemetry code, making the extension 100% private, local, and lightweight.
 
 ## [1.11.0] - 2026-03-01
 
