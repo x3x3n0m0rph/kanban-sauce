@@ -45,7 +45,7 @@
         {
           "id": "kanban-sauce",
           "title": "%viewContainer.title%",
-          "icon": "resources/kanban.svg"
+          "icon": "resources/icon.png"
         }
       ]
     },
@@ -64,8 +64,8 @@
         "title": "%command.open.title%",
         "category": "%command.category%",
         "icon": {
-          "light": "resources/kanban-light.svg",
-          "dark": "resources/kanban-dark.svg"
+          "light": "resources/icon.png",
+          "dark": "resources/icon.png"
         }
       },
       {

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/resources/icon.png" alt="Kanban Sauce" width="60" />
+<img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/resources/icon.png" alt="Kanban Sauce" width="150" />
 
 # Kanban Sauce
 

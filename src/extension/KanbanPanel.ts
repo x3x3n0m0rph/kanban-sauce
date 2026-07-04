@@ -69,8 +69,8 @@ export class KanbanPanel {
     )
 
     panel.iconPath = {
-      light: vscode.Uri.joinPath(extensionUri, 'resources', 'kanban-light.svg'),
-      dark: vscode.Uri.joinPath(extensionUri, 'resources', 'kanban-dark.svg')
+      light: vscode.Uri.joinPath(extensionUri, 'resources', 'icon.png'),
+      dark: vscode.Uri.joinPath(extensionUri, 'resources', 'icon.png')
     }
 
     const newPanel = new KanbanPanel(panel, extensionUri, context, boardPath)
