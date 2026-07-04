@@ -172,10 +172,6 @@ async function registerKnownBoard(context: vscode.ExtensionContext, boardPath: s
   await context.workspaceState.update('kanban-sauce.knownBoards', Array.from(boards))
 }
 
-interface BoardQuickPickItem extends vscode.QuickPickItem {
-  boardPath: string
-}
-
 export function activate(context: vscode.ExtensionContext) {
   loadBundle(context.extensionPath)
   // Sidebar webview in the activity bar
@@ -305,7 +301,7 @@ export function activate(context: vscode.ExtensionContext) {
   // If a panel already exists, revive it
   if (vscode.window.registerWebviewPanelSerializer) {
     vscode.window.registerWebviewPanelSerializer(KanbanPanel.viewType, {
-      async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
+      async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: { boardPath?: string }) {
         const boardPath = state?.boardPath
         if (boardPath) {
           KanbanPanel.revive(webviewPanel, context.extensionUri, context, boardPath)

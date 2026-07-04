@@ -96,7 +96,7 @@ export class KanbanPanel {
     }
 
     this._panel.onDidChangeViewState(
-      e => {
+      _e => {
         if (this._panel.active) {
           KanbanPanel.activePanel = this
           KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(this))
