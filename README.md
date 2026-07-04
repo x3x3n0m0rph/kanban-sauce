@@ -4,14 +4,11 @@
 
 # Kanban Sauce
 
-*"Now your backlog can have merge conflicts too."*
+**A folder-focused kanban board for VS Code, backed by markdown files**
 
-**A folder-focused kanban board for VS Code, backed by markdown files.**
-
-[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/salsa-lab.kanban-sauce?label=VS%20Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version/salsa-lab.kanban-sauce.svg?&colorB=orange)](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce)
 [![Open VSX](https://img.shields.io/open-vsx/v/salsa-lab/kanban-sauce?label=Open%20VSX&logo=vscodium)](https://open-vsx.org/extension/salsa-lab/kanban-sauce)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/salsa-lab/kanban-sauce?label=Downloads&logo=vscodium)](https://open-vsx.org/extension/salsa-lab/kanban-sauce)
-[![GitHub Stars](https://img.shields.io/github/stars/salsa-lab/kanban-sauce?style=flat&logo=github)](https://github.com/salsa-lab/kanban-sauce)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 <img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/editor-view.png" alt="Editor View" width="800" />
@@ -26,7 +23,7 @@ Features are stored as markdown files with YAML frontmatter — version-controll
 
 1. **Install** — search "Kanban Sauce" in the Extensions view ([VS Marketplace](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce) / [Open VSX](https://open-vsx.org/extension/salsa-lab/kanban-sauce))
 2. **Open** — run `Open Kanban Board` from the command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and choose any folder to open as a board
-3. **Create** — click `+ New Feature` in the sidebar or click the `+` sign next to column headers
+3. **Create** — click `+ New Feature` in the sidebar or click the `+` sign next to column headers to add a new card
 
 ## Features
 
@@ -79,14 +76,14 @@ Each card is a markdown file with YAML frontmatter.
 
 ## Differences from the Original Repository
 
-This fork introduces major architectural improvements and UI enhancements:
+This project is a fork of [Kanban Markdown](https://github.com/LachyFS/kanban-markdown-vscode-extension) extension. This fork introduces major architectural improvements and UI enhancements:
 
 - **Dynamic Board Folder Selection**: You are no longer restricted to a single `.devtool/features` directory at the root of your workspace. You can open *any* folder as an independent Kanban board.
 - **Multiple Concurrent Boards**: Fully supports running multiple Kanban board panels side-by-side. The Sidebar Summary view automatically tracks and switches to whichever board is active.
 - **Persistent History Pruning**: Remembers your previously opened boards. It automatically filters out board directories that were deleted or moved, and includes a **Clear Board History...** picker to manually remove entries.
 - **Granular Font Size Settings**: Extensive settings let you customize the font size of almost every component (column headers, card titles, card description previews, label tags, card metadata, editor headings, editor body, and the editor metadata block).
 - **Cleaned Command Palette**: Obsolete/redundant commands like `selectBoard` or auto-generated focus actions are hidden or removed to prevent command palette clutter.
-- **Telemetry & AI Removal**: Legacy "Build with AI" prompt integrations and telemetry are completely stripped, making the extension 100% private, local, and exceptionally lightweight.
+- **AI Tools Removal**: The "Build with AI" prompt integrations are completely stripped, making the extension 100% private, local, and exceptionally lightweight.
 
 ## File Format
 
@@ -125,6 +122,7 @@ Settings live under `kanban-sauce.*` in your VS Code preferences.
 | `showDueDate` | `true` | Show due date on cards |
 | `showLabels` | `true` | Show labels on cards and in editors |
 | `showFileName` | `false` | Show the source markdown filename on cards |
+| `showEpic` | `true` | Show epic (parent grouping) on cards and in editors |
 | `compactMode` | `false` | Use compact card layout |
 | `addNewCardsToTop` | `false` | Add new cards to the top of the column |
 | `markdownEditorMode` | `false` | Open files in VS Code's native text editor instead of the inline rich-text editor |
@@ -136,6 +134,8 @@ Settings live under `kanban-sauce.*` in your VS Code preferences.
 | `fontSizeEditorHeader` | `18px` | Font size for headings in the markdown editor/preview panel (e.g. `18px`, `1.5rem`) |
 | `fontSizeEditorBody` | `16px` | Font size for body text, lists, and tables in the editor/preview panel (e.g. `16px`, `1.1rem`) |
 | `fontSizeEditorMeta` | `14px` | Font size for elements in the metadata block above the editor/preview (e.g. `14px`, `0.9rem`) |
+| `language` | `auto` | Language for the Kanban Sauce UI (`auto`, `en` - English, `es` - Español, `pt` - Português) |
+| `hideScrollbar` | `false` | Hide scrollbars in the Kanban board (scrolling still works) |
 
 Default columns:
 
