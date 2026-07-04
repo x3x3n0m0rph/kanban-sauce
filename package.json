@@ -2,7 +2,7 @@
   "name": "kanban-sauce",
   "displayName": "Kanban Sauce",
   "description": "A kanban board for your codebase. Features stored as markdown.",
-  "version": "1.14.1",
+  "version": "2.0.0",
   "packageManager": "pnpm@9.15.9",
   "publisher": "salsa-lab",
   "license": "MIT",
