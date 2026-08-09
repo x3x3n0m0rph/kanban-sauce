@@ -8,6 +8,10 @@ import { serializeFeature } from '../shared/featureFrontmatter'
 import type { Feature, FeatureStatus, Priority } from '../shared/types'
 import { ensureStatusSubfolders, getFeatureFilePath } from './featureFileUtils'
 import { t, loadBundle } from './l10n'
+import { BoardsTreeProvider } from './BoardsTreeProvider'
+import { InProgressTreeProvider } from './InProgressTreeProvider'
+
+let boardsProvider: BoardsTreeProvider | undefined
 
 interface StatusQuickPickItem extends vscode.QuickPickItem {
   statusValue: FeatureStatus
@@ -170,6 +174,8 @@ async function registerKnownBoard(context: vscode.ExtensionContext, boardPath: s
   const boards = new Set(context.workspaceState.get<string[]>('kanban-sauce.knownBoards', []))
   boards.add(boardPath)
   await context.workspaceState.update('kanban-sauce.knownBoards', Array.from(boards))
+  SidebarViewProvider.currentProvider?.refreshBoards()
+  boardsProvider?.refresh()
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -178,6 +184,16 @@ export function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarViewProvider(context.extensionUri, context)
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(SidebarViewProvider.viewType, sidebarProvider)
+  )
+
+  boardsProvider = new BoardsTreeProvider(context)
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider('kanban-sauce.boardsView', boardsProvider)
+  )
+
+  const inProgressProvider = new InProgressTreeProvider()
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider('kanban-sauce.inProgressView', inProgressProvider)
   )
 
   context.subscriptions.push(
@@ -224,6 +240,8 @@ export function activate(context: vscode.ExtensionContext) {
             const pathsToRemove = new Set(toRemove.map(item => item.path))
             const updatedPaths = boardPaths.filter(p => !pathsToRemove.has(p))
             await context.workspaceState.update('kanban-sauce.knownBoards', updatedPaths)
+            SidebarViewProvider.currentProvider?.refreshBoards()
+            boardsProvider?.refresh()
             vscode.window.showInformationMessage("Selected boards removed from history.")
           }
           return
@@ -293,6 +311,28 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('kanban-sauce.addFeature', () => {
       createFeatureFromPrompts(context)
+    })
+  )
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('kanban-sauce.openBoardFromTree', (boardPath: string) => {
+      vscode.commands.executeCommand('kanban-sauce.openDirectory', vscode.Uri.file(boardPath))
+    })
+  )
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('kanban-sauce.openFeatureFromTree', (featureId: string) => {
+      // First try to open the active panel or single panel
+      if (KanbanPanel.activePanel) {
+        KanbanPanel.activePanel.openFeature(featureId)
+      } else if (KanbanPanel.openPanels.size === 1) {
+        Array.from(KanbanPanel.openPanels.values())[0].openFeature(featureId)
+      } else {
+        // If no panel is active, we can't easily open it since we don't know which board the feature belongs to
+        // Wait, InProgressTreeProvider only reads from the currently active board.
+        // So this state shouldn't happen unless the user clicks a stale tree item after closing boards.
+        vscode.window.showErrorMessage('No active Kanban board to open this feature in.')
+      }
     })
   )
 

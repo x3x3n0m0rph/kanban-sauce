@@ -55,9 +55,29 @@
           "id": "kanban-sauce.boardView",
           "name": "%view.board.name%",
           "type": "webview"
+        },
+        {
+          "id": "kanban-sauce.inProgressView",
+          "name": "In Progress"
+        },
+        {
+          "id": "kanban-sauce.boardsView",
+          "name": "Available Boards"
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "kanban-sauce.inProgressView",
+        "contents": "No active board",
+        "when": "!kanban-sauce.activeBoard"
+      },
+      {
+        "view": "kanban-sauce.inProgressView",
+        "contents": "No in-progress card",
+        "when": "kanban-sauce.activeBoard"
+      }
+    ],
     "commands": [
       {
         "command": "kanban-sauce.open",
@@ -76,6 +96,16 @@
       {
         "command": "kanban-sauce.openDirectory",
         "title": "%command.openDirectory.title%",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.openBoardFromTree",
+        "title": "Open Board",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.openFeatureFromTree",
+        "title": "Open Feature",
         "category": "%command.category%"
       }
     ],

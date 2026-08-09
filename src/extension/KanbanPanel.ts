@@ -93,6 +93,9 @@ export class KanbanPanel {
     if (this._panel.active) {
       KanbanPanel.activePanel = this
       KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(this))
+    } else if (KanbanPanel.activePanel === this) {
+      KanbanPanel.activePanel = undefined
+      KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(undefined))
     }
 
     this._panel.onDidChangeViewState(
@@ -100,6 +103,9 @@ export class KanbanPanel {
         if (this._panel.active) {
           KanbanPanel.activePanel = this
           KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(this))
+        } else if (KanbanPanel.activePanel === this) {
+          KanbanPanel.activePanel = undefined
+          KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(undefined))
         }
       },
       null,
