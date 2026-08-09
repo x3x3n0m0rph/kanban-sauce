@@ -5,6 +5,14 @@ All notable changes to the Kanban Sauce extension will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- List of available boards in the workspace is now visible in the sidebar, allowing quick one-click access
+- Added sorting capabilities for both the sidebar cards list and available boards list
+- Added column filtering to the sidebar cards list, allowing users to choose which column's cards to display
+
 ## [2.0.0] - 2026-07-04
 
 This release marks the transition to **Kanban Sauce** (version 2.0.0), a rebranded and enhanced fork of the original extension. It incorporates all major architectural upgrades, UI improvements, and privacy modifications introduced in this fork.

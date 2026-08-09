@@ -82,6 +82,8 @@ This project is a fork of [Kanban Markdown](https://github.com/LachyFS/kanban-ma
 
 - **Dynamic Board Folder Selection**: You are no longer restricted to a single `.devtool/features` directory at the root of your workspace. You can open *any* folder as an independent Kanban board.
 - **Multiple Concurrent Boards**: Fully supports running multiple Kanban board panels side-by-side. The Sidebar Summary view automatically tracks and switches to whichever board is active.
+- **Available Boards Sidebar List**: All known and previously opened boards in your workspace are conveniently listed in a dedicated sidebar view. You can click any board in the list to instantly open it.
+- **Enhanced Sidebar Filtering and Sorting**: Includes native sort capabilities for boards and cards (by name and last modified), real-time sorting updates, and dynamic column filtering straight from the activity bar.
 - **Persistent History Pruning**: Remembers your previously opened boards. It automatically filters out board directories that were deleted or moved, and includes a **Clear Board History...** picker to manually remove entries.
 - **Granular Font Size Settings**: Extensive settings let you customize the font size of almost every component (column headers, card titles, card description previews, label tags, card metadata, editor headings, editor body, and the editor metadata block).
 - **Cleaned Command Palette**: Obsolete/redundant commands like `selectBoard` or auto-generated focus actions are hidden or removed to prevent command palette clutter.
