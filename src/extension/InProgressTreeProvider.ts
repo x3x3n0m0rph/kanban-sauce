@@ -11,7 +11,7 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
   private _fileWatcher?: vscode.FileSystemWatcher
   private _debounceTimer?: NodeJS.Timeout
 
-  constructor() {
+  constructor(private context: vscode.ExtensionContext) {
     this._setupFileWatcher()
     KanbanPanel.onActivePanelChangedCallbacks.add(() => {
       this.refresh()
@@ -42,6 +42,13 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
     const features = await this._loadInProgressFeatures(featuresDir)
     if (features.length === 0) {
       return []
+    }
+    
+    const sortType = this.context.workspaceState.get<string>('kanban-sauce.inProgressSort', 'name')
+    if (sortType === 'modified') {
+      features.sort((a, b) => b.mtime - a.mtime)
+    } else {
+      features.sort((a, b) => a.title.localeCompare(b.title))
     }
 
     const inProgressColor = this._getInProgressColor()
@@ -92,8 +99,8 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
     this._fileWatcher.onDidDelete(handleChange)
   }
 
-  private async _loadInProgressFeatures(featuresDir: string): Promise<{ id: string, title: string }[]> {
-    const features: { id: string, title: string }[] = []
+  private async _loadInProgressFeatures(featuresDir: string): Promise<{ id: string, title: string, mtime: number }[]> {
+    const features: { id: string, title: string, mtime: number }[] = []
 
     try {
       const rootEntries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(featuresDir))
@@ -101,10 +108,12 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
         if (fileType !== vscode.FileType.File || !file.endsWith('.md')) continue
         const filePath = path.join(featuresDir, file)
         try {
-          const content = new TextDecoder().decode(await vscode.workspace.fs.readFile(vscode.Uri.file(filePath)))
+          const uri = vscode.Uri.file(filePath)
+          const stat = await vscode.workspace.fs.stat(uri)
+          const content = new TextDecoder().decode(await vscode.workspace.fs.readFile(uri))
           const parsed = this._parseFrontmatter(content, file)
           if (parsed && parsed.status === 'in-progress') {
-            features.push(parsed)
+            features.push({ ...parsed, mtime: stat.mtime })
           }
         } catch {
           // Skip unreadable files

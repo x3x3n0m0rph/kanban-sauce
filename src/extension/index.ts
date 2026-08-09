@@ -191,7 +191,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.registerTreeDataProvider('kanban-sauce.boardsView', boardsProvider)
   )
 
-  const inProgressProvider = new InProgressTreeProvider()
+  const inProgressProvider = new InProgressTreeProvider(context)
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider('kanban-sauce.inProgressView', inProgressProvider)
   )
@@ -338,6 +338,55 @@ export function activate(context: vscode.ExtensionContext) {
     })
   )
 
+  // Set default sorting states and context
+  const boardsSort = context.workspaceState.get<string>('kanban-sauce.boardsSort', 'name')
+  vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', boardsSort)
+
+  const inProgressSort = context.workspaceState.get<string>('kanban-sauce.inProgressSort', 'name')
+  vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', inProgressSort)
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('kanban-sauce.boards.sortByName', () => {
+      context.workspaceState.update('kanban-sauce.boardsSort', 'name')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'name')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortByName.checked', () => {
+      context.workspaceState.update('kanban-sauce.boardsSort', 'name')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'name')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortByModified', () => {
+      context.workspaceState.update('kanban-sauce.boardsSort', 'modified')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'modified')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortByModified.checked', () => {
+      context.workspaceState.update('kanban-sauce.boardsSort', 'modified')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'modified')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortByName', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSort', 'name')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'name')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortByName.checked', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSort', 'name')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'name')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortByModified', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSort', 'modified')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'modified')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortByModified.checked', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSort', 'modified')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'modified')
+      inProgressProvider.refresh()
+    })
+  )
 }
 
 export function deactivate() {}

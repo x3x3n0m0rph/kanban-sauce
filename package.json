@@ -107,6 +107,46 @@
         "command": "kanban-sauce.openFeatureFromTree",
         "title": "Open Feature",
         "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.boards.sortByName",
+        "title": "Sort by: Name",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.boards.sortByName.checked",
+        "title": "✓ Sort by: Name",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.boards.sortByModified",
+        "title": "Sort by: Last Modified",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.boards.sortByModified.checked",
+        "title": "✓ Sort by: Last Modified",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.inProgress.sortByName",
+        "title": "Sort by: Name",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.inProgress.sortByName.checked",
+        "title": "✓ Sort by: Name",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.inProgress.sortByModified",
+        "title": "Sort by: Last Modified",
+        "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.inProgress.sortByModified.checked",
+        "title": "✓ Sort by: Last Modified",
+        "category": "%command.category%"
       }
     ],
     "configuration": {
@@ -339,6 +379,64 @@
         {
           "command": "kanban-sauce.openDirectory",
           "when": "false"
+        },
+        {
+          "command": "kanban-sauce.boards.sortByName",
+          "when": "false"
+        },
+        {
+          "command": "kanban-sauce.boards.sortByModified",
+          "when": "false"
+        },
+        {
+          "command": "kanban-sauce.inProgress.sortByName",
+          "when": "false"
+        },
+        {
+          "command": "kanban-sauce.inProgress.sortByModified",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "kanban-sauce.boards.sortByName",
+          "when": "view == kanban-sauce.boardsView && kanban-sauce.boardsSort != 'name'",
+          "group": "1_sort@1"
+        },
+        {
+          "command": "kanban-sauce.boards.sortByName.checked",
+          "when": "view == kanban-sauce.boardsView && kanban-sauce.boardsSort == 'name'",
+          "group": "1_sort@1"
+        },
+        {
+          "command": "kanban-sauce.boards.sortByModified",
+          "when": "view == kanban-sauce.boardsView && kanban-sauce.boardsSort != 'modified'",
+          "group": "1_sort@2"
+        },
+        {
+          "command": "kanban-sauce.boards.sortByModified.checked",
+          "when": "view == kanban-sauce.boardsView && kanban-sauce.boardsSort == 'modified'",
+          "group": "1_sort@2"
+        },
+        {
+          "command": "kanban-sauce.inProgress.sortByName",
+          "when": "view == kanban-sauce.inProgressView && kanban-sauce.inProgressSort != 'name'",
+          "group": "1_sort@1"
+        },
+        {
+          "command": "kanban-sauce.inProgress.sortByName.checked",
+          "when": "view == kanban-sauce.inProgressView && kanban-sauce.inProgressSort == 'name'",
+          "group": "1_sort@1"
+        },
+        {
+          "command": "kanban-sauce.inProgress.sortByModified",
+          "when": "view == kanban-sauce.inProgressView && kanban-sauce.inProgressSort != 'modified'",
+          "group": "1_sort@2"
+        },
+        {
+          "command": "kanban-sauce.inProgress.sortByModified.checked",
+          "when": "view == kanban-sauce.inProgressView && kanban-sauce.inProgressSort == 'modified'",
+          "group": "1_sort@2"
         }
       ]
     }

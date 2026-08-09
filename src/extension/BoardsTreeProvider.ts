@@ -5,35 +5,103 @@ export class BoardsTreeProvider implements vscode.TreeDataProvider<BoardTreeItem
   private _onDidChangeTreeData: vscode.EventEmitter<BoardTreeItem | undefined | void> = new vscode.EventEmitter<BoardTreeItem | undefined | void>()
   readonly onDidChangeTreeData: vscode.Event<BoardTreeItem | undefined | void> = this._onDidChangeTreeData.event
 
-  constructor(private context: vscode.ExtensionContext) {}
+  private _watchers: vscode.FileSystemWatcher[] = []
+  private _debounceTimer?: NodeJS.Timeout
+
+  constructor(private context: vscode.ExtensionContext) {
+    this._setupFileWatchers()
+  }
 
   refresh(): void {
+    this._setupFileWatchers()
     this._onDidChangeTreeData.fire()
+  }
+
+  private _setupFileWatchers(): void {
+    // Clean up old watchers
+    for (const watcher of this._watchers) {
+      watcher.dispose()
+    }
+    this._watchers = []
+
+    const knownBoards = this.context.workspaceState.get<string[]>('kanban-sauce.knownBoards', [])
+    if (knownBoards.length === 0) return
+
+    const handleChange = () => {
+      if (this._debounceTimer) clearTimeout(this._debounceTimer)
+      this._debounceTimer = setTimeout(() => this._onDidChangeTreeData.fire(), 300)
+    }
+
+    for (const boardPath of knownBoards) {
+      const pattern = new vscode.RelativePattern(boardPath, '**/*.md')
+      const watcher = vscode.workspace.createFileSystemWatcher(pattern)
+      
+      watcher.onDidChange(handleChange)
+      watcher.onDidCreate(handleChange)
+      watcher.onDidDelete(handleChange)
+
+      this._watchers.push(watcher)
+    }
   }
 
   getTreeItem(element: BoardTreeItem): vscode.TreeItem {
     return element
   }
 
-  getChildren(element?: BoardTreeItem): Thenable<BoardTreeItem[]> {
+  async getChildren(element?: BoardTreeItem): Promise<BoardTreeItem[]> {
     if (element) {
-      return Promise.resolve([])
+      return []
     }
 
     const knownBoards = this.context.workspaceState.get<string[]>('kanban-sauce.knownBoards', [])
-    const items = knownBoards.map(boardPath => {
+    const sortType = this.context.workspaceState.get<string>('kanban-sauce.boardsSort', 'name')
+
+    let boardData = await Promise.all(knownBoards.map(async boardPath => {
+      let mtime = 0
+      if (sortType === 'modified') {
+        try {
+          const dirStat = await vscode.workspace.fs.stat(vscode.Uri.file(boardPath))
+          mtime = dirStat.mtime
+          
+          const rootEntries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(boardPath))
+          for (const [file, fileType] of rootEntries) {
+            if (fileType === vscode.FileType.File && file.endsWith('.md')) {
+              try {
+                const fileStat = await vscode.workspace.fs.stat(vscode.Uri.file(path.join(boardPath, file)))
+                if (fileStat.mtime > mtime) {
+                  mtime = fileStat.mtime
+                }
+              } catch {
+                // ignore
+              }
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+      return { boardPath, mtime, name: path.basename(boardPath) }
+    }))
+
+    if (sortType === 'modified') {
+      boardData.sort((a, b) => b.mtime - a.mtime)
+    } else {
+      boardData.sort((a, b) => a.name.localeCompare(b.name))
+    }
+
+    const items = boardData.map(data => {
       return new BoardTreeItem(
-        path.basename(boardPath),
-        boardPath,
+        data.name,
+        data.boardPath,
         vscode.TreeItemCollapsibleState.None,
         {
           command: 'kanban-sauce.openBoardFromTree',
           title: 'Open Board',
-          arguments: [boardPath]
+          arguments: [data.boardPath]
         }
       )
     })
-    return Promise.resolve(items)
+    return items
   }
 }
 
