@@ -75,7 +75,7 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
   if (KanbanPanel.activePanel) {
     featuresDir = KanbanPanel.activePanel._boardPath
   } else if (KanbanPanel.openPanels.size === 1) {
-    featuresDir = Array.from(KanbanPanel.openPanels.values())[0]._boardPath
+    featuresDir = Array.from(KanbanPanel.openPanels.keys())[0]
   } else {
     const boardPaths = await getValidKnownBoards(context)
     if (boardPaths.length > 0) {
@@ -275,13 +275,16 @@ export function activate(context: vscode.ExtensionContext) {
         sidebarProvider.setBoardOpen(true)
       }
       await registerKnownBoard(context, boardPath)
-      const panel = KanbanPanel.openPanels.get(boardPath)
-      if (panel) {
-        panel.onDispose(() => {
-          if (KanbanPanel.openPanels.size === 0) {
-            sidebarProvider.setBoardOpen(false)
-          }
-        })
+      const panels = KanbanPanel.openPanels.get(boardPath)
+      if (panels) {
+        // We can just add the listener to all panels for this board (safe if added multiple times if we're careful, but we only need one to trigger the check)
+        for (const panel of panels) {
+          panel.onDispose(() => {
+            if (KanbanPanel.openPanels.size === 0) {
+              sidebarProvider.setBoardOpen(false)
+            }
+          })
+        }
       }
     })
   )
@@ -296,13 +299,15 @@ export function activate(context: vscode.ExtensionContext) {
           sidebarProvider.setBoardOpen(true)
         }
         await registerKnownBoard(context, boardPath)
-        const panel = KanbanPanel.openPanels.get(boardPath)
-        if (panel) {
-          panel.onDispose(() => {
-            if (KanbanPanel.openPanels.size === 0) {
-              sidebarProvider.setBoardOpen(false)
-            }
-          })
+        const panels = KanbanPanel.openPanels.get(boardPath)
+        if (panels) {
+          for (const panel of panels) {
+            panel.onDispose(() => {
+              if (KanbanPanel.openPanels.size === 0) {
+                sidebarProvider.setBoardOpen(false)
+              }
+            })
+          }
         }
       }
     })
@@ -326,7 +331,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (KanbanPanel.activePanel) {
         KanbanPanel.activePanel.openFeature(featureId)
       } else if (KanbanPanel.openPanels.size === 1) {
-        Array.from(KanbanPanel.openPanels.values())[0].openFeature(featureId)
+        Array.from(KanbanPanel.openPanels.values())[0]?.values().next().value?.openFeature(featureId)
       } else {
         // If no panel is active, we can't easily open it since we don't know which board the feature belongs to
         // Wait, InProgressTreeProvider only reads from the currently active board.
@@ -346,11 +351,13 @@ export function activate(context: vscode.ExtensionContext) {
         if (boardPath) {
           KanbanPanel.revive(webviewPanel, context.extensionUri, context, boardPath)
           sidebarProvider.setBoardOpen(true)
-          const panel = KanbanPanel.openPanels.get(boardPath)
-          panel?.onDispose(() => {
-            if (KanbanPanel.openPanels.size === 0) {
-              sidebarProvider.setBoardOpen(false)
-            }
+          const panels = KanbanPanel.openPanels.get(boardPath)
+          panels?.forEach(panel => {
+            panel.onDispose(() => {
+              if (KanbanPanel.openPanels.size === 0) {
+                sidebarProvider.setBoardOpen(false)
+              }
+            })
           })
         } else {
           const boardPaths = await getValidKnownBoards(context)
@@ -363,11 +370,13 @@ export function activate(context: vscode.ExtensionContext) {
           }
           KanbanPanel.revive(webviewPanel, context.extensionUri, context, fullPath)
           sidebarProvider.setBoardOpen(true)
-          const panel = KanbanPanel.openPanels.get(fullPath)
-          panel?.onDispose(() => {
-            if (KanbanPanel.openPanels.size === 0) {
-              sidebarProvider.setBoardOpen(false)
-            }
+          const panels = KanbanPanel.openPanels.get(fullPath)
+          panels?.forEach(panel => {
+            panel.onDispose(() => {
+              if (KanbanPanel.openPanels.size === 0) {
+                sidebarProvider.setBoardOpen(false)
+              }
+            })
           })
         }
       }

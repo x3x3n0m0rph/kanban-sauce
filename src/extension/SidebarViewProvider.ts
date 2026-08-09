@@ -153,7 +153,8 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
   private async _refresh(): Promise<void> {
     await this._loadFeatures()
     if (this._view) {
-      const activePanel = KanbanPanel.activePanel || (KanbanPanel.openPanels.size === 1 ? Array.from(KanbanPanel.openPanels.values())[0] : undefined)
+      const singleBoardSet = KanbanPanel.openPanels.size === 1 ? Array.from(KanbanPanel.openPanels.values())[0] : undefined
+      const activePanel = KanbanPanel.activePanel || (singleBoardSet ? singleBoardSet.values().next().value : undefined)
       if (activePanel) {
         const boardName = path.basename(activePanel._boardPath)
         this._view.title = boardName
@@ -174,7 +175,7 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
       return KanbanPanel.activePanel._boardPath
     }
     if (KanbanPanel.openPanels.size === 1) {
-      return Array.from(KanbanPanel.openPanels.values())[0]._boardPath
+      return Array.from(KanbanPanel.openPanels.keys())[0]
     }
     return null
   }

@@ -26,7 +26,7 @@ interface CreateFeatureData {
 
 export class KanbanPanel {
   public static readonly viewType = 'kanban-sauce.panel'
-  public static openPanels = new Map<string, KanbanPanel>()
+  public static openPanels = new Map<string, Set<KanbanPanel>>()
   public static activePanel: KanbanPanel | undefined
   public static onActivePanelChangedCallbacks = new Set<(panel: KanbanPanel | undefined) => void>()
 
@@ -45,19 +45,35 @@ export class KanbanPanel {
   public static createOrShow(extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn
-      : undefined
+      : vscode.ViewColumn.Active
 
-    const existingPanel = KanbanPanel.openPanels.get(boardPath)
-    if (existingPanel) {
-      existingPanel._panel.reveal(column)
-      return
+    // Resolve the actual target column number if it's Active
+    let targetColumn = column
+    if (targetColumn === vscode.ViewColumn.Active) {
+      targetColumn = vscode.window.tabGroups?.activeTabGroup?.viewColumn || vscode.ViewColumn.One
+    }
+
+    const existingPanels = KanbanPanel.openPanels.get(boardPath)
+    if (existingPanels && existingPanels.size > 0) {
+      // Find if there is already a panel in the target column
+      const panelInColumn = Array.from(existingPanels).find(p => p._panel.viewColumn === targetColumn)
+      
+      if (panelInColumn) {
+        panelInColumn._panel.reveal(column)
+        return
+      }
+      
+      // If we are just trying to focus the board and don't care about splits, 
+      // maybe we should just focus the existing one?
+      // But the user explicitly wants to open the same board in multiple splits when they invoke it in a new split.
+      // So if it's not in the target column, we will fall through and create a NEW panel!
     }
 
     const folderName = path.basename(boardPath)
     const panel = vscode.window.createWebviewPanel(
       KanbanPanel.viewType,
       `Kanban: ${folderName}`,
-      column || vscode.ViewColumn.One,
+      column || vscode.ViewColumn.Active,
       {
         enableScripts: true,
         retainContextWhenHidden: true,
@@ -74,14 +90,18 @@ export class KanbanPanel {
     }
 
     const newPanel = new KanbanPanel(panel, extensionUri, context, boardPath)
-    KanbanPanel.openPanels.set(boardPath, newPanel)
+    const set = KanbanPanel.openPanels.get(boardPath) || new Set()
+    set.add(newPanel)
+    KanbanPanel.openPanels.set(boardPath, set)
   }
 
   public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
     const folderName = path.basename(boardPath)
     panel.title = `Kanban: ${folderName}`
     const newPanel = new KanbanPanel(panel, extensionUri, context, boardPath)
-    KanbanPanel.openPanels.set(boardPath, newPanel)
+    const set = KanbanPanel.openPanels.get(boardPath) || new Set()
+    set.add(newPanel)
+    KanbanPanel.openPanels.set(boardPath, set)
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
@@ -301,7 +321,13 @@ export class KanbanPanel {
   }
 
   public dispose() {
-    KanbanPanel.openPanels.delete(this._boardPath)
+    const set = KanbanPanel.openPanels.get(this._boardPath)
+    if (set) {
+      set.delete(this)
+      if (set.size === 0) {
+        KanbanPanel.openPanels.delete(this._boardPath)
+      }
+    }
     if (KanbanPanel.activePanel === this) {
       KanbanPanel.activePanel = undefined
       KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(undefined))
@@ -347,6 +373,9 @@ export class KanbanPanel {
 </head>
 <body>
   <div id="root"></div>
+  <script nonce="${nonce}">
+    window.__BOARD_PATH__ = ${JSON.stringify(this._boardPath)};
+  </script>
   <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`
