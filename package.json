@@ -328,12 +328,6 @@
       }
     },
     "menus": {
-      "editor/title/run": [
-        {
-          "command": "kanban-sauce.open",
-          "when": "resourceLangId == markdown"
-        }
-      ],
       "explorer/context": [
         {
           "command": "kanban-sauce.openDirectory",
