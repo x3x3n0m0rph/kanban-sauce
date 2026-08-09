@@ -333,55 +333,11 @@ export function activate(context: vscode.ExtensionContext) {
       } else if (KanbanPanel.openPanels.size === 1) {
         Array.from(KanbanPanel.openPanels.values())[0]?.values().next().value?.openFeature(featureId)
       } else {
-        // If no panel is active, we can't easily open it since we don't know which board the feature belongs to
-        // Wait, InProgressTreeProvider only reads from the currently active board.
-        // So this state shouldn't happen unless the user clicks a stale tree item after closing boards.
         vscode.window.showErrorMessage('No active Kanban board to open this feature in.')
       }
     })
   )
 
-
-
-  // If a panel already exists, revive it
-  if (vscode.window.registerWebviewPanelSerializer) {
-    vscode.window.registerWebviewPanelSerializer(KanbanPanel.viewType, {
-      async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: { boardPath?: string }) {
-        const boardPath = state?.boardPath
-        if (boardPath) {
-          KanbanPanel.revive(webviewPanel, context.extensionUri, context, boardPath)
-          sidebarProvider.setBoardOpen(true)
-          const panels = KanbanPanel.openPanels.get(boardPath)
-          panels?.forEach(panel => {
-            panel.onDispose(() => {
-              if (KanbanPanel.openPanels.size === 0) {
-                sidebarProvider.setBoardOpen(false)
-              }
-            })
-          })
-        } else {
-          const boardPaths = await getValidKnownBoards(context)
-          let fullPath: string
-          if (boardPaths.length > 0) {
-            fullPath = boardPaths[0]
-          } else {
-            webviewPanel.dispose()
-            return
-          }
-          KanbanPanel.revive(webviewPanel, context.extensionUri, context, fullPath)
-          sidebarProvider.setBoardOpen(true)
-          const panels = KanbanPanel.openPanels.get(fullPath)
-          panels?.forEach(panel => {
-            panel.onDispose(() => {
-              if (KanbanPanel.openPanels.size === 0) {
-                sidebarProvider.setBoardOpen(false)
-              }
-            })
-          })
-        }
-      }
-    })
-  }
 }
 
 export function deactivate() {}

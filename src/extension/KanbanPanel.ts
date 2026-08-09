@@ -43,30 +43,21 @@ export class KanbanPanel {
   private _onDisposeCallbacks: (() => void)[] = []
 
   public static createOrShow(extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : vscode.ViewColumn.Active
-
-    // Resolve the actual target column number if it's Active
-    let targetColumn = column
-    if (targetColumn === vscode.ViewColumn.Active) {
-      targetColumn = vscode.window.tabGroups?.activeTabGroup?.viewColumn || vscode.ViewColumn.One
+    let column: vscode.ViewColumn | undefined = vscode.ViewColumn.Active
+    if (vscode.window.tabGroups && vscode.window.tabGroups.activeTabGroup) {
+      column = vscode.window.tabGroups.activeTabGroup.viewColumn
+    } else if (vscode.window.activeTextEditor) {
+      column = vscode.window.activeTextEditor.viewColumn
     }
 
-    const existingPanels = KanbanPanel.openPanels.get(boardPath)
-    if (existingPanels && existingPanels.size > 0) {
-      // Find if there is already a panel in the target column
-      const panelInColumn = Array.from(existingPanels).find(p => p._panel.viewColumn === targetColumn)
-      
-      if (panelInColumn) {
-        panelInColumn._panel.reveal(column)
-        return
+    if (KanbanPanel.openPanels.has(boardPath)) {
+      const panels = KanbanPanel.openPanels.get(boardPath)!
+      for (const p of panels) {
+        if (p._panel.viewColumn === column) {
+          p._panel.reveal(column)
+          return
+        }
       }
-      
-      // If we are just trying to focus the board and don't care about splits, 
-      // maybe we should just focus the existing one?
-      // But the user explicitly wants to open the same board in multiple splits when they invoke it in a new split.
-      // So if it's not in the target column, we will fall through and create a NEW panel!
     }
 
     const folderName = path.basename(boardPath)
