@@ -58,7 +58,7 @@
         },
         {
           "id": "kanban-sauce.inProgressView",
-          "name": "In Progress"
+          "name": "Cards"
         },
         {
           "id": "kanban-sauce.boardsView",
@@ -147,6 +147,12 @@
         "command": "kanban-sauce.inProgress.sortByModified.checked",
         "title": "✓ Sort by: Last Modified",
         "category": "%command.category%"
+      },
+      {
+        "command": "kanban-sauce.changeSidebarColumn",
+        "title": "Change Filtered Column",
+        "category": "%command.category%",
+        "icon": "$(filter)"
       }
     ],
     "configuration": {
@@ -437,6 +443,11 @@
           "command": "kanban-sauce.inProgress.sortByModified.checked",
           "when": "view == kanban-sauce.inProgressView && kanban-sauce.inProgressSort == 'modified'",
           "group": "1_sort@2"
+        },
+        {
+          "command": "kanban-sauce.changeSidebarColumn",
+          "when": "view == kanban-sauce.inProgressView",
+          "group": "navigation"
         }
       ]
     }

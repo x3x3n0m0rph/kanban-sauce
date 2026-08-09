@@ -192,9 +192,11 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   const inProgressProvider = new InProgressTreeProvider(context)
-  context.subscriptions.push(
-    vscode.window.registerTreeDataProvider('kanban-sauce.inProgressView', inProgressProvider)
-  )
+  const inProgressTreeView = vscode.window.createTreeView('kanban-sauce.inProgressView', {
+    treeDataProvider: inProgressProvider
+  })
+  inProgressProvider.setTreeView(inProgressTreeView)
+  context.subscriptions.push(inProgressTreeView)
 
   context.subscriptions.push(
     vscode.commands.registerCommand('kanban-sauce.open', async () => {
@@ -385,6 +387,19 @@ export function activate(context: vscode.ExtensionContext) {
       context.workspaceState.update('kanban-sauce.inProgressSort', 'modified')
       vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'modified')
       inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.changeSidebarColumn', async () => {
+      const config = vscode.workspace.getConfiguration('kanban-sauce')
+      const columns = config.get<any[]>('columns', [])
+      const items = columns.map(c => ({
+        label: c.name,
+        description: c.id
+      }))
+      const selected = await vscode.window.showQuickPick(items, { placeHolder: 'Select a column to display' })
+      if (selected) {
+        context.workspaceState.update('kanban-sauce.sidebarColumn', selected.description)
+        inProgressProvider.refresh()
+      }
     })
   )
 }

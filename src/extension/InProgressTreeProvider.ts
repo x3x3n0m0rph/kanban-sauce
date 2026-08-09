@@ -10,16 +10,21 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
 
   private _fileWatcher?: vscode.FileSystemWatcher
   private _debounceTimer?: NodeJS.Timeout
+  private _treeView?: vscode.TreeView<FeatureTreeItem>
 
   constructor(private context: vscode.ExtensionContext) {
-    this._setupFileWatcher()
+    this._setupFileWatchers()
     KanbanPanel.onActivePanelChangedCallbacks.add(() => {
       this.refresh()
     })
   }
 
+  setTreeView(treeView: vscode.TreeView<FeatureTreeItem>) {
+    this._treeView = treeView
+  }
+
   refresh(): void {
-    this._setupFileWatcher()
+    this._setupFileWatchers()
     this._onDidChangeTreeData.fire()
   }
 
@@ -32,6 +37,15 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
       return []
     }
 
+    const config = vscode.workspace.getConfiguration('kanban-sauce')
+    const columns = config.get<any[]>('columns', [])
+    const selectedColumnId = this.context.workspaceState.get<string>('kanban-sauce.sidebarColumn', 'in-progress')
+    const selectedColumn = columns.find(c => c.id === selectedColumnId)
+    
+    if (this._treeView) {
+      this._treeView.description = selectedColumn ? selectedColumn.name : 'In Progress'
+    }
+
     const featuresDir = this._getFeaturesDir()
     await vscode.commands.executeCommand('setContext', 'kanban-sauce.activeBoard', !!featuresDir)
 
@@ -39,7 +53,7 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
       return []
     }
 
-    const features = await this._loadInProgressFeatures(featuresDir)
+    const features = await this._loadFeatures(featuresDir, selectedColumnId)
     if (features.length === 0) {
       return []
     }
@@ -51,7 +65,7 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
       features.sort((a, b) => a.title.localeCompare(b.title))
     }
 
-    const inProgressColor = this._getInProgressColor()
+    const columnColor = selectedColumn ? selectedColumn.color : '#f59e0b'
 
     return features.map(f => {
       const item = new FeatureTreeItem(
@@ -78,7 +92,7 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
     return null
   }
 
-  private _setupFileWatcher(): void {
+  private _setupFileWatchers(): void {
     if (this._fileWatcher) {
       this._fileWatcher.dispose()
     }
@@ -99,7 +113,7 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
     this._fileWatcher.onDidDelete(handleChange)
   }
 
-  private async _loadInProgressFeatures(featuresDir: string): Promise<{ id: string, title: string, mtime: number }[]> {
+  private async _loadFeatures(featuresDir: string, targetStatus: string): Promise<{ id: string, title: string, mtime: number }[]> {
     const features: { id: string, title: string, mtime: number }[] = []
 
     try {
@@ -112,7 +126,7 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
           const stat = await vscode.workspace.fs.stat(uri)
           const content = new TextDecoder().decode(await vscode.workspace.fs.readFile(uri))
           const parsed = this._parseFrontmatter(content, file)
-          if (parsed && parsed.status === 'in-progress') {
+          if (parsed && parsed.status === targetStatus) {
             features.push({ ...parsed, mtime: stat.mtime })
           }
         } catch {
@@ -146,13 +160,6 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
     const title = getTitleFromContent(body)
 
     return { id, title, status }
-  }
-
-  private _getInProgressColor(): string {
-    const config = vscode.workspace.getConfiguration('kanban-sauce')
-    const columns = config.get<any[]>('columns', [])
-    const inProgressCol = columns.find(c => c.id === 'in-progress')
-    return inProgressCol ? inProgressCol.color : '#f59e0b'
   }
 }
 
