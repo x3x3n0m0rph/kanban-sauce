@@ -347,7 +347,54 @@ export function activate(context: vscode.ExtensionContext) {
   const inProgressSort = context.workspaceState.get<string>('kanban-sauce.inProgressSort', 'name')
   vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', inProgressSort)
 
+  const boardsSortDir = context.workspaceState.get<string>('kanban-sauce.boardsSortDir', 'asc')
+  vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', boardsSortDir)
+
+  const inProgressSortDir = context.workspaceState.get<string>('kanban-sauce.inProgressSortDir', 'asc')
+  vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', inProgressSortDir)
+
+
   context.subscriptions.push(
+        vscode.commands.registerCommand('kanban-sauce.boards.sortAscending', () => {
+      context.workspaceState.update('kanban-sauce.boardsSortDir', 'asc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', 'asc')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortAscending.checked', () => {
+      context.workspaceState.update('kanban-sauce.boardsSortDir', 'asc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', 'asc')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortDescending', () => {
+      context.workspaceState.update('kanban-sauce.boardsSortDir', 'desc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', 'desc')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortDescending.checked', () => {
+      context.workspaceState.update('kanban-sauce.boardsSortDir', 'desc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', 'desc')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortAscending', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSortDir', 'asc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', 'asc')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortAscending.checked', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSortDir', 'asc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', 'asc')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortDescending', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSortDir', 'desc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', 'desc')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortDescending.checked', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSortDir', 'desc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', 'desc')
+      inProgressProvider.refresh()
+    }),
     vscode.commands.registerCommand('kanban-sauce.boards.sortByName', () => {
       context.workspaceState.update('kanban-sauce.boardsSort', 'name')
       vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'name')

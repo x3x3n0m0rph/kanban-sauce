@@ -59,10 +59,11 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
     }
     
     const sortType = this.context.workspaceState.get<string>('kanban-sauce.inProgressSort', 'name')
+    const sortDir = this.context.workspaceState.get<string>('kanban-sauce.inProgressSortDir', 'asc')
     if (sortType === 'modified') {
-      features.sort((a, b) => b.mtime - a.mtime)
+      features.sort((a, b) => sortDir === 'asc' ? a.mtime - b.mtime : b.mtime - a.mtime)
     } else {
-      features.sort((a, b) => a.title.localeCompare(b.title))
+      features.sort((a, b) => sortDir === 'asc' ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title))
     }
 
     const columnColor = selectedColumn ? selectedColumn.color : '#f59e0b'
