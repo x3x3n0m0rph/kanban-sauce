@@ -216,12 +216,12 @@ export function activate(context: vscode.ExtensionContext) {
           path: p
         }))
         items.push({
-          label: "$(folder-opened) Open folder...",
+          label: "$(folder-opened) Open board...",
           description: "Select another folder in the workspace to open as a board",
           path: "CHOOSE_FOLDER"
         })
         items.push({
-          label: "$(trash) Clear Board History...",
+          label: "$(trash) Remove board...",
           description: "Remove boards from your history list",
           path: "CLEAR_HISTORY"
         })
@@ -322,6 +322,47 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
+        vscode.commands.registerCommand('kanban-sauce.boards.renameBoard', async (item) => {
+      if (!item || !item.boardPath) return
+      
+      const newName = await vscode.window.showInputBox({
+        prompt: "Enter a new display name for this Kanban Board",
+        value: typeof item.label === 'string' ? item.label : item.label.label
+      })
+      
+      if (newName) {
+        const boardAliases = context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+        boardAliases[item.boardPath] = newName
+        await context.workspaceState.update('kanban-sauce.boardAliases', boardAliases)
+        boardsProvider?.refresh()
+      }
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.removeBoard', async (item) => {
+      if (!item || !item.boardPath) return
+      
+      const knownBoards = context.workspaceState.get<string[]>('kanban-sauce.knownBoards', [])
+      const updatedPaths = knownBoards.filter(p => p !== item.boardPath)
+      await context.workspaceState.update('kanban-sauce.knownBoards', updatedPaths)
+      
+      const boardAliases = context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+      if (boardAliases[item.boardPath]) {
+        delete boardAliases[item.boardPath]
+        await context.workspaceState.update('kanban-sauce.boardAliases', boardAliases)
+      }
+      
+      const panels = KanbanPanel.openPanels.get(item.boardPath)
+      if (panels) {
+        Array.from(panels).forEach(p => p.dispose())
+      }
+      
+      const activeBoard = context.workspaceState.get<string>('kanban-sauce.activeBoard')
+      if (activeBoard === item.boardPath) {
+        await context.workspaceState.update('kanban-sauce.activeBoard', undefined)
+        vscode.commands.executeCommand('setContext', 'kanban-sauce.activeBoard', false)
+      }
+      
+      boardsProvider?.refresh()
+    }),
     vscode.commands.registerCommand('kanban-sauce.openBoardFromTree', (boardPath: string) => {
       vscode.commands.executeCommand('kanban-sauce.openDirectory', vscode.Uri.file(boardPath))
     })

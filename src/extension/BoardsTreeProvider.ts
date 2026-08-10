@@ -24,7 +24,10 @@ export class BoardsTreeProvider implements vscode.TreeDataProvider<BoardTreeItem
     }
     this._watchers = []
 
+
     const knownBoards = this.context.workspaceState.get<string[]>('kanban-sauce.knownBoards', [])
+    const boardAliases = this.context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+
     if (knownBoards.length === 0) return
 
     const handleChange = () => {
@@ -54,6 +57,7 @@ export class BoardsTreeProvider implements vscode.TreeDataProvider<BoardTreeItem
     }
 
     const knownBoards = this.context.workspaceState.get<string[]>('kanban-sauce.knownBoards', [])
+    const boardAliases = this.context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
     const sortType = this.context.workspaceState.get<string>('kanban-sauce.boardsSort', 'name')
     const sortDir = this.context.workspaceState.get<string>('kanban-sauce.boardsSortDir', 'asc')
 
@@ -81,7 +85,9 @@ export class BoardsTreeProvider implements vscode.TreeDataProvider<BoardTreeItem
           // ignore
         }
       }
-      return { boardPath, mtime, name: path.basename(boardPath) }
+
+      return { boardPath, mtime, name: boardAliases[boardPath] || path.basename(boardPath) }
+
     }))
 
     if (sortType === 'modified') {
@@ -117,5 +123,6 @@ class BoardTreeItem extends vscode.TreeItem {
     this.tooltip = this.boardPath
     this.description = vscode.workspace.asRelativePath(this.boardPath)
     this.iconPath = new vscode.ThemeIcon('folder')
+    this.contextValue = 'boardItem'
   }
 }

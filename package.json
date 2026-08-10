@@ -193,6 +193,18 @@
         "title": "Filter Sidebar Cards by Column",
         "category": "%command.category%",
         "icon": "$(filter)"
+      },
+      {
+        "command": "kanban-sauce.boards.renameBoard",
+        "title": "Rename Board",
+        "category": "%command.category%",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "kanban-sauce.boards.removeBoard",
+        "title": "Remove from History",
+        "category": "%command.category%",
+        "icon": "$(trash)"
       }
     ],
     "configuration": {
@@ -513,6 +525,14 @@
         {
           "command": "kanban-sauce.boards.sortAscending",
           "when": "false"
+        },
+        {
+          "command": "kanban-sauce.boards.renameBoard",
+          "when": "false"
+        },
+        {
+          "command": "kanban-sauce.boards.removeBoard",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -600,6 +620,18 @@
           "command": "kanban-sauce.changeSidebarColumn",
           "when": "view == kanban-sauce.inProgressView",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "kanban-sauce.boards.renameBoard",
+          "when": "view == kanban-sauce.boardsView && viewItem == boardItem",
+          "group": "1_actions"
+        },
+        {
+          "command": "kanban-sauce.boards.removeBoard",
+          "when": "view == kanban-sauce.boardsView && viewItem == boardItem",
+          "group": "1_actions"
         }
       ]
     }

@@ -60,7 +60,8 @@ export class KanbanPanel {
       }
     }
 
-    const folderName = path.basename(boardPath)
+    const boardAliases = context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+    const folderName = boardAliases[boardPath] || path.basename(boardPath)
     const panel = vscode.window.createWebviewPanel(
       KanbanPanel.viewType,
       `Kanban: ${folderName}`,
@@ -87,7 +88,8 @@ export class KanbanPanel {
   }
 
   public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
-    const folderName = path.basename(boardPath)
+    const boardAliases = context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+    const folderName = boardAliases[boardPath] || path.basename(boardPath)
     panel.title = `Kanban: ${folderName}`
     const newPanel = new KanbanPanel(panel, extensionUri, context, boardPath)
     const set = KanbanPanel.openPanels.get(boardPath) || new Set()
