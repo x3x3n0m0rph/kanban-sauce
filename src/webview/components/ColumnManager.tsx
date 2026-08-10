@@ -12,7 +12,7 @@ interface ColumnManagerProps {
 
 export function ColumnManager({ isOpen, onClose }: Readonly<ColumnManagerProps>) {
   const { columns, features } = useStore()
-  const [localColumns, setLocalColumns] = useState<KanbanColumn[]>([])
+  const [localColumns, setLocalColumns] = useState<KanbanColumn[]>(columns)
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
 
   if (isOpen !== prevIsOpen) {
