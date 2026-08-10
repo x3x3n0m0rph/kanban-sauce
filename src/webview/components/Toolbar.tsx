@@ -1,4 +1,4 @@
-import { Search, X, Columns, Rows, Settings, Tags, Layers, RefreshCw } from 'lucide-react'
+import { Search, X, Columns, Rows, Settings, Tags, Layers, RefreshCw, Kanban } from 'lucide-react'
 import { useStore, type DueDateFilter } from '../store'
 import type { BoardViewMode, Priority } from '../../shared/types'
 import { useState } from 'react'
@@ -30,11 +30,13 @@ const selectClassName =
 
 export function Toolbar({
   onOpenSettings,
+  onOpenColumnManager,
   onRefresh,
   boardViewMode,
   onBoardViewModeChange
 }: {
   onOpenSettings: () => void
+  onOpenColumnManager: () => void
   onRefresh: () => void
   boardViewMode: BoardViewMode
   onBoardViewModeChange: (mode: BoardViewMode) => void
@@ -210,6 +212,15 @@ export function Toolbar({
         title={t('toolbar.refresh')}
       >
         <RefreshCw size={16} />
+      </button>
+
+      {/* Manage Columns */}
+      <button
+        onClick={onOpenColumnManager}
+        className="flex items-center gap-1 px-2 py-1.5 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
+        title={t('toolbar.manageColumns')}
+      >
+        <Kanban size={16} />
       </button>
 
       {/* Settings */}

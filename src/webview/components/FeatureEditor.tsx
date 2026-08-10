@@ -56,15 +56,7 @@ function getPriorityLabels(): Record<Priority, string> {
   }
 }
 
-function getStatusLabels(): Record<FeatureStatus, string> {
-  return {
-    backlog: t('status.backlog'),
-    todo: t('status.todo'),
-    'in-progress': t('status.inProgress'),
-    review: t('status.review'),
-    done: t('status.done')
-  }
-}
+
 
 const priorities: Priority[] = ['critical', 'high', 'medium', 'low']
 
@@ -330,7 +322,6 @@ export function FeatureEditor({
   const [currentFrontmatter, setCurrentFrontmatter] = useState(frontmatter)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const priorityLabels = getPriorityLabels()
-  const statusLabels = getStatusLabels()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInitialLoad = useRef(true)
   const currentFrontmatterRef = useRef(currentFrontmatter)

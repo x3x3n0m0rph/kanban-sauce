@@ -8,7 +8,7 @@ import { ensureStatusSubfolders, moveFeatureFile, getFeatureFilePath, getStatusF
 import { parseFeatureFile, serializeFeature } from '../shared/featureFrontmatter'
 import { featureMatchesEpicLane } from '../shared/epicLane'
 import { t, getBundle, getEffectiveLocale, reloadBundle, getAllDefaultColumnNames, getDefaultColumnNamesForLocale } from './l10n'
-import { getBoardColumns } from './boardConfig'
+import { getBoardColumns, saveBoardColumns } from './boardConfig'
 
 function normalizeEpic(value: string | null | undefined): string | null {
   const t = value?.trim()
@@ -152,6 +152,15 @@ export class KanbanPanel {
           case 'refresh':
             await this._loadFeatures()
             this._sendFeaturesToWebview()
+            break
+          case 'saveBoardColumns':
+            saveBoardColumns(this._boardPath, message.columns)
+            // Re-load features and send to webview
+            await this._loadFeatures()
+            this._sendFeaturesToWebview()
+            break
+          case 'showErrorMessage':
+            vscode.window.showErrorMessage(message.message)
             break
           case 'createFeature': {
             await this._createFeature(message.data)

@@ -42,3 +42,20 @@ export function getBoardColumns(boardPath: string | null): KanbanColumn[] {
   const config = vscode.workspace.getConfiguration('kanban-sauce')
   return config.get<KanbanColumn[]>('columns', defaultColumns)
 }
+
+export function saveBoardColumns(boardPath: string, columns: KanbanColumn[]): void {
+  const configPath = path.join(boardPath, '.kanbansauce')
+  let parsedConfig: { columns?: KanbanColumn[] } = {}
+
+  if (fs.existsSync(configPath)) {
+    try {
+      const configContent = fs.readFileSync(configPath, 'utf-8')
+      parsedConfig = JSON.parse(configContent)
+    } catch (e) {
+      console.error(`Failed to parse ${configPath} when saving:`, e)
+    }
+  }
+
+  parsedConfig.columns = columns
+  fs.writeFileSync(configPath, JSON.stringify(parsedConfig, null, 2), 'utf-8')
+}
