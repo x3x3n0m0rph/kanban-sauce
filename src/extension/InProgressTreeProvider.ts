@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import * as path from 'path'
 import { KanbanPanel } from './KanbanPanel'
 import { getTitleFromContent } from '../shared/types'
+import { getBoardColumns } from './boardConfig'
 
 export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTreeItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<FeatureTreeItem | undefined | void> = new vscode.EventEmitter<FeatureTreeItem | undefined | void>()
@@ -36,8 +37,8 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
       return []
     }
 
-    const config = vscode.workspace.getConfiguration('kanban-sauce')
-    const columns = config.get<{ id: string; name: string; color?: string }[]>('columns', [])
+    const featuresDir = this._getFeaturesDir()
+    const columns = getBoardColumns(featuresDir)
     const selectedColumnId = this.context.workspaceState.get<string>('kanban-sauce.sidebarColumn', 'in-progress')
     const selectedColumn = columns.find(c => c.id === selectedColumnId)
     
@@ -45,7 +46,6 @@ export class InProgressTreeProvider implements vscode.TreeDataProvider<FeatureTr
       this._treeView.description = selectedColumn ? selectedColumn.name : 'In Progress'
     }
 
-    const featuresDir = this._getFeaturesDir()
     await vscode.commands.executeCommand('setContext', 'kanban-sauce.activeBoard', !!featuresDir)
 
     if (!featuresDir) {

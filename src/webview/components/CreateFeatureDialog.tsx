@@ -44,19 +44,11 @@ function getPriorityConfig(): { value: Priority; label: string; dot: string }[] 
   ]
 }
 
-function getStatusConfig(): { value: FeatureStatus; label: string; dot: string }[] {
-  return [
-    { value: 'backlog', label: t('status.backlog'), dot: 'bg-zinc-400' },
-    { value: 'todo', label: t('status.todo'), dot: 'bg-blue-400' },
-    { value: 'in-progress', label: t('status.inProgress'), dot: 'bg-amber-400' },
-    { value: 'review', label: t('status.review'), dot: 'bg-purple-400' },
-    { value: 'done', label: t('status.done'), dot: 'bg-emerald-400' }
-  ]
-}
+
 
 interface DropdownProps {
   value: string
-  options: { value: string; label: string; dot?: string }[]
+  options: { value: string; label: string; dot?: string; color?: string }[]
   onChange: (value: string) => void
   className?: string
 }
@@ -80,6 +72,7 @@ function Dropdown({ value, options, onChange, className }: DropdownProps) {
         onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
       >
         {current?.dot && <span className={cn('w-2 h-2 rounded-full shrink-0', current.dot)} />}
+        {current?.color && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: current.color }} />}
         <span>{current?.label}</span>
         <ChevronDown
           size={12}
@@ -122,6 +115,7 @@ function Dropdown({ value, options, onChange, className }: DropdownProps) {
                 }}
               >
                 {option.dot && <span className={cn('w-2 h-2 rounded-full shrink-0', option.dot)} />}
+                {option.color && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: option.color }} />}
                 <span className="flex-1 text-left">{option.label}</span>
                 {option.value === value && (
                   <Check
@@ -305,9 +299,13 @@ function CreateFeatureDialogContent({
   onCreate,
   initialStatus
 }: CreateFeatureDialogProps) {
-  const { cardSettings } = useStore()
+  const { cardSettings, columns } = useStore()
   const priorityConfig = getPriorityConfig()
-  const statusConfig = getStatusConfig()
+  const statusConfig = columns.map(c => ({
+    value: c.id as FeatureStatus,
+    label: c.name,
+    color: c.color || '#9ca3af'
+  }))
   const [title, setTitle] = useState('')
   const [status, setStatus] = useState<FeatureStatus>(initialStatus ?? cardSettings.defaultStatus)
   const [priority, setPriority] = useState<Priority>(cardSettings.defaultPriority)
@@ -422,7 +420,7 @@ function CreateFeatureDialogContent({
           <PropertyRow label={t('property.status')} icon={<CircleDot size={13} />}>
             <Dropdown
               value={status}
-              options={statusConfig.map((s) => ({ value: s.value, label: s.label, dot: s.dot }))}
+              options={statusConfig.map((s) => ({ value: s.value, label: s.label, color: s.color }))}
               onChange={(v) => setStatus(v as FeatureStatus)}
             />
           </PropertyRow>

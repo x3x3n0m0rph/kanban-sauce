@@ -5,6 +5,7 @@ import { getTitleFromContent } from '../shared/types'
 import type { FeatureStatus, Priority, KanbanColumn } from '../shared/types'
 import { KanbanPanel } from './KanbanPanel'
 import { t } from './l10n'
+import { getBoardColumns } from './boardConfig'
 
 interface SidebarFeature {
   id: string
@@ -181,15 +182,7 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
   }
 
   private _getColumns(): KanbanColumn[] {
-    const config = vscode.workspace.getConfiguration('kanban-sauce')
-    const defaultColumns: KanbanColumn[] = [
-      { id: 'backlog', name: 'Backlog', color: '#6b7280' },
-      { id: 'todo', name: 'To Do', color: '#3b82f6' },
-      { id: 'in-progress', name: 'In Progress', color: '#f59e0b' },
-      { id: 'review', name: 'Review', color: '#8b5cf6' },
-      { id: 'done', name: 'Done', color: '#22c55e' }
-    ]
-    return config.get<KanbanColumn[]>('columns', defaultColumns)
+    return getBoardColumns(this._getFeaturesDir())
   }
 
   private async _loadFeatures(): Promise<void> {

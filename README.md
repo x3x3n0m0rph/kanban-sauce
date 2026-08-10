@@ -155,6 +155,22 @@ Default columns:
 ]
 ```
 
+### Board-Specific Configuration
+
+You can override workspace settings for a specific board by creating a `.kanbansauce` file (in JSON format) at the root of the board directory. This allows you to have different column configurations for different boards, and since the file lives in the board folder, it is version-controllable and easily reproducible.
+
+Example `.kanbansauce` file:
+
+```json
+{
+  "columns": [
+    { "id": "backlog", "name": "Backlog", "color": "#6b7280" },
+    { "id": "in-progress", "name": "In Progress", "color": "#f59e0b" },
+    { "id": "done", "name": "Done", "color": "#22c55e" }
+  ]
+}
+```
+
 ## Installation
 
 ### VS Code Marketplace

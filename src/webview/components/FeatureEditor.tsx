@@ -67,7 +67,6 @@ function getStatusLabels(): Record<FeatureStatus, string> {
 }
 
 const priorities: Priority[] = ['critical', 'high', 'medium', 'low']
-const statuses: FeatureStatus[] = ['backlog', 'todo', 'in-progress', 'review', 'done']
 
 const priorityDots: Record<Priority, string> = {
   critical: 'bg-red-500',
@@ -76,19 +75,12 @@ const priorityDots: Record<Priority, string> = {
   low: 'bg-green-500'
 }
 
-const statusDots: Record<FeatureStatus, string> = {
-  backlog: 'bg-zinc-400',
-  todo: 'bg-blue-400',
-  'in-progress': 'bg-amber-400',
-  review: 'bg-purple-400',
-  done: 'bg-emerald-400'
-}
 
 
 
 interface DropdownProps {
   value: string
-  options: { value: string; label: string; dot?: string }[]
+  options: { value: string; label: string; dot?: string; color?: string }[]
   onChange: (value: string) => void
   className?: string
 }
@@ -105,6 +97,7 @@ function Dropdown({ value, options, onChange, className }: DropdownProps) {
         style={{ color: 'var(--vscode-foreground)' }}
       >
         {current?.dot && <span className={cn('w-2 h-2 rounded-full shrink-0', current.dot)} />}
+        {current?.color && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: current.color }} />}
         <span>{current?.label}</span>
         <ChevronDown
           size={12}
@@ -146,6 +139,7 @@ function Dropdown({ value, options, onChange, className }: DropdownProps) {
                 }}
               >
                 {option.dot && <span className={cn('w-2 h-2 rounded-full shrink-0', option.dot)} />}
+                {option.color && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: option.color }} />}
                 <span className="flex-1 text-left">{option.label}</span>
                 {option.value === value && (
                   <Check
@@ -332,7 +326,7 @@ export function FeatureEditor({
   onDelete,
   onOpenFile
 }: FeatureEditorProps) {
-  const { cardSettings } = useStore()
+  const { cardSettings, columns } = useStore()
   const [currentFrontmatter, setCurrentFrontmatter] = useState(frontmatter)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const priorityLabels = getPriorityLabels()
@@ -523,10 +517,10 @@ export function FeatureEditor({
         <PropertyRow label={t('property.status')} icon={<CircleDot size={13} />}>
           <Dropdown
             value={currentFrontmatter.status}
-            options={statuses.map((s) => ({
-              value: s,
-              label: statusLabels[s],
-              dot: statusDots[s]
+            options={columns.map((c) => ({
+              value: c.id,
+              label: c.name,
+              color: c.color || '#9ca3af'
             }))}
             onChange={(v) => handleFrontmatterUpdate({ status: v as FeatureStatus })}
           />
