@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
+import '@testing-library/jest-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ColumnManager } from '../../../src/webview/components/ColumnManager'
 import { useStore } from '../../../src/webview/store'
@@ -103,10 +104,10 @@ describe('ColumnManager', () => {
 
   it('prevents deletion of column that contains cards', async () => {
     const mockFeature: Feature = {
-      id: '1', filePath: '', filename: 'test',
+      id: '1', filePath: '',
       status: 'todo', // Has a card in 'todo'
       content: '', priority: 'low', assignee: null, epic: null, dueDate: null, labels: [],
-      created: '', modified: '', order: 0, completedAt: null, epicLane: null, isNewlyCreated: false
+      created: '', modified: '', order: '0', completedAt: null
     }
     useStore.setState({ columns: defaultColumns, features: [mockFeature] })
     render(<ColumnManager isOpen={true} onClose={vi.fn()} />)
