@@ -85,6 +85,7 @@ This project is a fork of [Kanban Markdown](https://github.com/LachyFS/kanban-ma
 - **Available Boards Sidebar List**: All known and previously opened boards in your workspace are conveniently listed in a dedicated sidebar view. You can click any board in the list to instantly open it.
 - **Enhanced Sidebar Filtering and Sorting**: Includes native sort capabilities for boards and cards (by name and last modified), real-time sorting updates, and dynamic column filtering straight from the activity bar.
 - **Persistent History Pruning**: Remembers your previously opened boards. It automatically filters out board directories that were deleted or moved, and includes a **Clear Board History...** picker to manually remove entries.
+- **Board-Specific Column Configurations**: Customize column lists, IDs, names, and colors on a per-board basis using a `.kanbansauce` file, effortlessly editable via an intuitive in-app **Column Manager** UI.
 - **Granular Font Size Settings**: Extensive settings let you customize the font size of almost every component (column headers, card titles, card description previews, label tags, card metadata, editor headings, editor body, and the editor metadata block).
 - **Cleaned Command Palette**: Obsolete/redundant commands like `selectBoard` or auto-generated focus actions are hidden or removed to prevent command palette clutter.
 - **AI Tools Removal**: The "Build with AI" prompt integrations are completely stripped, making the extension 100% private, local, and exceptionally lightweight.
@@ -157,7 +158,9 @@ Default columns:
 
 ### Board-Specific Configuration
 
-You can override workspace settings for a specific board by creating a `.kanbansauce` file (in JSON format) at the root of the board directory. This allows you to have different column configurations for different boards, and since the file lives in the board folder, it is version-controllable and easily reproducible.
+You can override workspace settings for a specific board by configuring board-specific columns. You can do this easily from the Kanban board UI by clicking the **Manage Columns** button in the top toolbar. 
+
+This will automatically create or update a `.kanbansauce` file (in JSON format) at the root of the board directory. This allows you to have different column configurations for different boards, and since the file lives in the board folder, it is version-controllable and easily reproducible.
 
 Example `.kanbansauce` file:
 
