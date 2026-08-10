@@ -10,8 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - List of available boards in the workspace is now visible in the sidebar, allowing quick one-click access
-- Added sorting capabilities for both the sidebar cards list and available boards list
+- Added sorting capabilities for both the sidebar cards list and available boards list, including Ascending and Descending directions
 - Added column filtering to the sidebar cards list, allowing users to choose which column's cards to display
+- Added right-click context menus to the available boards list to securely Rename boards (via display aliases) and Remove boards from history
+
+### Changed
+
+- Renamed the Quick Pick options in the global "Open Kanban board" command to "Open board..." and "Remove board..." for clarity
+- Internal UI commands are now explicitly hidden from the global command palette to reduce clutter
 
 ## [2.0.0] - 2026-07-04
 
