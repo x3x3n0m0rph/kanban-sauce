@@ -8,6 +8,10 @@ import { serializeFeature } from '../shared/featureFrontmatter'
 import type { Feature, FeatureStatus, Priority } from '../shared/types'
 import { ensureStatusSubfolders, getFeatureFilePath } from './featureFileUtils'
 import { t, loadBundle } from './l10n'
+import { BoardsTreeProvider } from './BoardsTreeProvider'
+import { InProgressTreeProvider } from './InProgressTreeProvider'
+
+let boardsProvider: BoardsTreeProvider | undefined
 
 interface StatusQuickPickItem extends vscode.QuickPickItem {
   statusValue: FeatureStatus
@@ -71,7 +75,7 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
   if (KanbanPanel.activePanel) {
     featuresDir = KanbanPanel.activePanel._boardPath
   } else if (KanbanPanel.openPanels.size === 1) {
-    featuresDir = Array.from(KanbanPanel.openPanels.values())[0]._boardPath
+    featuresDir = Array.from(KanbanPanel.openPanels.keys())[0]
   } else {
     const boardPaths = await getValidKnownBoards(context)
     if (boardPaths.length > 0) {
@@ -170,6 +174,8 @@ async function registerKnownBoard(context: vscode.ExtensionContext, boardPath: s
   const boards = new Set(context.workspaceState.get<string[]>('kanban-sauce.knownBoards', []))
   boards.add(boardPath)
   await context.workspaceState.update('kanban-sauce.knownBoards', Array.from(boards))
+  SidebarViewProvider.currentProvider?.refreshBoards()
+  boardsProvider?.refresh()
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -179,6 +185,18 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(SidebarViewProvider.viewType, sidebarProvider)
   )
+
+  boardsProvider = new BoardsTreeProvider(context)
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider('kanban-sauce.boardsView', boardsProvider)
+  )
+
+  const inProgressProvider = new InProgressTreeProvider(context)
+  const inProgressTreeView = vscode.window.createTreeView('kanban-sauce.inProgressView', {
+    treeDataProvider: inProgressProvider
+  })
+  inProgressProvider.setTreeView(inProgressTreeView)
+  context.subscriptions.push(inProgressTreeView)
 
   context.subscriptions.push(
     vscode.commands.registerCommand('kanban-sauce.open', async () => {
@@ -198,12 +216,12 @@ export function activate(context: vscode.ExtensionContext) {
           path: p
         }))
         items.push({
-          label: "$(folder-opened) Open folder...",
+          label: "$(folder-opened) Open board...",
           description: "Select another folder in the workspace to open as a board",
           path: "CHOOSE_FOLDER"
         })
         items.push({
-          label: "$(trash) Clear Board History...",
+          label: "$(trash) Remove board...",
           description: "Remove boards from your history list",
           path: "CLEAR_HISTORY"
         })
@@ -224,6 +242,8 @@ export function activate(context: vscode.ExtensionContext) {
             const pathsToRemove = new Set(toRemove.map(item => item.path))
             const updatedPaths = boardPaths.filter(p => !pathsToRemove.has(p))
             await context.workspaceState.update('kanban-sauce.knownBoards', updatedPaths)
+            SidebarViewProvider.currentProvider?.refreshBoards()
+            boardsProvider?.refresh()
             vscode.window.showInformationMessage("Selected boards removed from history.")
           }
           return
@@ -257,13 +277,16 @@ export function activate(context: vscode.ExtensionContext) {
         sidebarProvider.setBoardOpen(true)
       }
       await registerKnownBoard(context, boardPath)
-      const panel = KanbanPanel.openPanels.get(boardPath)
-      if (panel) {
-        panel.onDispose(() => {
-          if (KanbanPanel.openPanels.size === 0) {
-            sidebarProvider.setBoardOpen(false)
-          }
-        })
+      const panels = KanbanPanel.openPanels.get(boardPath)
+      if (panels) {
+        // We can just add the listener to all panels for this board (safe if added multiple times if we're careful, but we only need one to trigger the check)
+        for (const panel of panels) {
+          panel.onDispose(() => {
+            if (KanbanPanel.openPanels.size === 0) {
+              sidebarProvider.setBoardOpen(false)
+            }
+          })
+        }
       }
     })
   )
@@ -278,13 +301,15 @@ export function activate(context: vscode.ExtensionContext) {
           sidebarProvider.setBoardOpen(true)
         }
         await registerKnownBoard(context, boardPath)
-        const panel = KanbanPanel.openPanels.get(boardPath)
-        if (panel) {
-          panel.onDispose(() => {
-            if (KanbanPanel.openPanels.size === 0) {
-              sidebarProvider.setBoardOpen(false)
-            }
-          })
+        const panels = KanbanPanel.openPanels.get(boardPath)
+        if (panels) {
+          for (const panel of panels) {
+            panel.onDispose(() => {
+              if (KanbanPanel.openPanels.size === 0) {
+                sidebarProvider.setBoardOpen(false)
+              }
+            })
+          }
         }
       }
     })
@@ -296,43 +321,175 @@ export function activate(context: vscode.ExtensionContext) {
     })
   )
 
+  context.subscriptions.push(
+        vscode.commands.registerCommand('kanban-sauce.boards.renameBoard', async (item) => {
+      if (!item || !item.boardPath) return
+      
+      const newName = await vscode.window.showInputBox({
+        prompt: "Enter a new display name for this Kanban Board",
+        value: typeof item.label === 'string' ? item.label : item.label.label
+      })
+      
+      if (newName) {
+        const boardAliases = context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+        boardAliases[item.boardPath] = newName
+        await context.workspaceState.update('kanban-sauce.boardAliases', boardAliases)
+        boardsProvider?.refresh()
+      }
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.removeBoard', async (item) => {
+      if (!item || !item.boardPath) return
+      
+      const knownBoards = context.workspaceState.get<string[]>('kanban-sauce.knownBoards', [])
+      const updatedPaths = knownBoards.filter(p => p !== item.boardPath)
+      await context.workspaceState.update('kanban-sauce.knownBoards', updatedPaths)
+      
+      const boardAliases = context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+      if (boardAliases[item.boardPath]) {
+        delete boardAliases[item.boardPath]
+        await context.workspaceState.update('kanban-sauce.boardAliases', boardAliases)
+      }
+      
+      const panels = KanbanPanel.openPanels.get(item.boardPath)
+      if (panels) {
+        Array.from(panels).forEach(p => p.dispose())
+      }
+      
+      const activeBoard = context.workspaceState.get<string>('kanban-sauce.activeBoard')
+      if (activeBoard === item.boardPath) {
+        await context.workspaceState.update('kanban-sauce.activeBoard', undefined)
+        vscode.commands.executeCommand('setContext', 'kanban-sauce.activeBoard', false)
+      }
+      
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.openBoardFromTree', (boardPath: string) => {
+      vscode.commands.executeCommand('kanban-sauce.openDirectory', vscode.Uri.file(boardPath))
+    })
+  )
 
-
-  // If a panel already exists, revive it
-  if (vscode.window.registerWebviewPanelSerializer) {
-    vscode.window.registerWebviewPanelSerializer(KanbanPanel.viewType, {
-      async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: { boardPath?: string }) {
-        const boardPath = state?.boardPath
-        if (boardPath) {
-          KanbanPanel.revive(webviewPanel, context.extensionUri, context, boardPath)
-          sidebarProvider.setBoardOpen(true)
-          const panel = KanbanPanel.openPanels.get(boardPath)
-          panel?.onDispose(() => {
-            if (KanbanPanel.openPanels.size === 0) {
-              sidebarProvider.setBoardOpen(false)
-            }
-          })
-        } else {
-          const boardPaths = await getValidKnownBoards(context)
-          let fullPath: string
-          if (boardPaths.length > 0) {
-            fullPath = boardPaths[0]
-          } else {
-            webviewPanel.dispose()
-            return
-          }
-          KanbanPanel.revive(webviewPanel, context.extensionUri, context, fullPath)
-          sidebarProvider.setBoardOpen(true)
-          const panel = KanbanPanel.openPanels.get(fullPath)
-          panel?.onDispose(() => {
-            if (KanbanPanel.openPanels.size === 0) {
-              sidebarProvider.setBoardOpen(false)
-            }
-          })
-        }
+  context.subscriptions.push(
+    vscode.commands.registerCommand('kanban-sauce.openFeatureFromTree', (featureId: string) => {
+      // First try to open the active panel or single panel
+      if (KanbanPanel.activePanel) {
+        KanbanPanel.activePanel.openFeature(featureId)
+      } else if (KanbanPanel.openPanels.size === 1) {
+        Array.from(KanbanPanel.openPanels.values())[0]?.values().next().value?.openFeature(featureId)
+      } else {
+        vscode.window.showErrorMessage('No active Kanban board to open this feature in.')
       }
     })
-  }
+  )
+
+  // Set default sorting states and context
+  const boardsSort = context.workspaceState.get<string>('kanban-sauce.boardsSort', 'name')
+  vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', boardsSort)
+
+  const inProgressSort = context.workspaceState.get<string>('kanban-sauce.inProgressSort', 'name')
+  vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', inProgressSort)
+
+  const boardsSortDir = context.workspaceState.get<string>('kanban-sauce.boardsSortDir', 'asc')
+  vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', boardsSortDir)
+
+  const inProgressSortDir = context.workspaceState.get<string>('kanban-sauce.inProgressSortDir', 'asc')
+  vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', inProgressSortDir)
+
+
+  context.subscriptions.push(
+        vscode.commands.registerCommand('kanban-sauce.boards.sortAscending', () => {
+      context.workspaceState.update('kanban-sauce.boardsSortDir', 'asc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', 'asc')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortAscending.checked', () => {
+      context.workspaceState.update('kanban-sauce.boardsSortDir', 'asc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', 'asc')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortDescending', () => {
+      context.workspaceState.update('kanban-sauce.boardsSortDir', 'desc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', 'desc')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortDescending.checked', () => {
+      context.workspaceState.update('kanban-sauce.boardsSortDir', 'desc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSortDir', 'desc')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortAscending', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSortDir', 'asc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', 'asc')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortAscending.checked', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSortDir', 'asc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', 'asc')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortDescending', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSortDir', 'desc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', 'desc')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortDescending.checked', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSortDir', 'desc')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSortDir', 'desc')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortByName', () => {
+      context.workspaceState.update('kanban-sauce.boardsSort', 'name')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'name')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortByName.checked', () => {
+      context.workspaceState.update('kanban-sauce.boardsSort', 'name')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'name')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortByModified', () => {
+      context.workspaceState.update('kanban-sauce.boardsSort', 'modified')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'modified')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.boards.sortByModified.checked', () => {
+      context.workspaceState.update('kanban-sauce.boardsSort', 'modified')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.boardsSort', 'modified')
+      boardsProvider?.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortByName', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSort', 'name')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'name')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortByName.checked', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSort', 'name')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'name')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortByModified', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSort', 'modified')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'modified')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.inProgress.sortByModified.checked', () => {
+      context.workspaceState.update('kanban-sauce.inProgressSort', 'modified')
+      vscode.commands.executeCommand('setContext', 'kanban-sauce.inProgressSort', 'modified')
+      inProgressProvider.refresh()
+    }),
+    vscode.commands.registerCommand('kanban-sauce.changeSidebarColumn', async () => {
+      const config = vscode.workspace.getConfiguration('kanban-sauce')
+      const columns = config.get<{ id: string; name: string }[]>('columns', [])
+      const items = columns.map(c => ({
+        label: c.name,
+        description: c.id
+      }))
+      const selected = await vscode.window.showQuickPick(items, { placeHolder: 'Select a column to display' })
+      if (selected) {
+        context.workspaceState.update('kanban-sauce.sidebarColumn', selected.description)
+        inProgressProvider.refresh()
+      }
+    })
+  )
 }
 
 export function deactivate() {}

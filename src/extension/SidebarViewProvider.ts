@@ -57,6 +57,11 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
         case 'openBoard':
           vscode.commands.executeCommand('kanban-sauce.open')
           break
+        case 'openDirectory':
+          if (message.path) {
+            vscode.commands.executeCommand('kanban-sauce.openDirectory', vscode.Uri.file(message.path))
+          }
+          break
         case 'newFeature':
           if (KanbanPanel.activePanel) {
             KanbanPanel.activePanel.triggerCreateDialog()
@@ -80,12 +85,17 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
             vscode.commands.executeCommand('kanban-sauce.open')
           }
           break
-        case 'openFeature':
-          vscode.commands.executeCommand('kanban-sauce.open')
-          setTimeout(() => {
-            KanbanPanel.activePanel?.openFeature(message.featureId)
-          }, 500)
+        case 'openFeature': {
+          const boardPath = this._getFeaturesDir()
+          if (boardPath) {
+            vscode.commands.executeCommand('kanban-sauce.openDirectory', vscode.Uri.file(boardPath)).then(() => {
+              setTimeout(() => {
+                KanbanPanel.activePanel?.openFeature(message.featureId)
+              }, 500)
+            })
+          }
           break
+        }
       }
     }, null, this._disposables)
 
@@ -143,7 +153,8 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
   private async _refresh(): Promise<void> {
     await this._loadFeatures()
     if (this._view) {
-      const activePanel = KanbanPanel.activePanel || (KanbanPanel.openPanels.size === 1 ? Array.from(KanbanPanel.openPanels.values())[0] : undefined)
+      const singleBoardSet = KanbanPanel.openPanels.size === 1 ? Array.from(KanbanPanel.openPanels.values())[0] : undefined
+      const activePanel = KanbanPanel.activePanel || (singleBoardSet ? singleBoardSet.values().next().value : undefined)
       if (activePanel) {
         const boardName = path.basename(activePanel._boardPath)
         this._view.title = boardName
@@ -164,7 +175,7 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
       return KanbanPanel.activePanel._boardPath
     }
     if (KanbanPanel.openPanels.size === 1) {
-      return Array.from(KanbanPanel.openPanels.values())[0]._boardPath
+      return Array.from(KanbanPanel.openPanels.keys())[0]
     }
     return null
   }
@@ -228,6 +239,10 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
     }
 
     this._features = features
+  }
+
+  public refreshBoards(): void {
+    this._refresh()
   }
 
   private _parseFrontmatter(content: string, filename: string): SidebarFeature | null {
@@ -326,6 +341,8 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
       letter-spacing: 0.5px;
       color: var(--vscode-sideBarSectionHeader-foreground, var(--vscode-foreground));
       opacity: 0.8;
+      cursor: pointer;
+      user-select: none;
     }
 
     .section-header .total {
@@ -361,6 +378,11 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
 
     .feature-list {
       list-style: none;
+      resize: vertical;
+      overflow-y: auto;
+      min-height: 50px;
+      max-height: 400px;
+      padding-bottom: 4px;
     }
 
     .feature-item {
@@ -430,13 +452,6 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
 
   <div class="separator"></div>
 
-  <div class="section" id="inProgressSection" style="display:none;">
-    <div class="section-header">
-      <span>${t('sidebar.inProgress')}</span>
-    </div>
-    <ul class="feature-list" id="inProgressList"></ul>
-  </div>
-
   <script nonce="${nonce}">
     (function() {
       const vscode = acquireVsCodeApi();
@@ -477,32 +492,6 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
             '</span>' +
             '<span class="stat-count">' + count + '</span>';
           statRows.appendChild(row);
-        }
-
-        // In-progress features
-        const inProgressCol = columns.find(c => c.id === 'in-progress');
-        const inProgressColor = inProgressCol ? inProgressCol.color : '#f59e0b';
-        const inProgress = features.filter(f => f.status === 'in-progress');
-        const section = document.getElementById('inProgressSection');
-        const list = document.getElementById('inProgressList');
-
-        if (inProgress.length > 0) {
-          section.style.display = '';
-          list.innerHTML = '';
-          for (const f of inProgress) {
-            const li = document.createElement('li');
-            li.className = 'feature-item';
-            li.title = f.title;
-            li.innerHTML =
-              '<span class="feature-dot" style="background:' + escapeHtml(inProgressColor) + '"></span>' +
-              '<span class="feature-title">' + escapeHtml(f.title) + '</span>';
-            li.addEventListener('click', () => {
-              vscode.postMessage({ type: 'openFeature', featureId: f.id });
-            });
-            list.appendChild(li);
-          }
-        } else {
-          section.style.display = 'none';
         }
       }
 

@@ -26,7 +26,7 @@ interface CreateFeatureData {
 
 export class KanbanPanel {
   public static readonly viewType = 'kanban-sauce.panel'
-  public static openPanels = new Map<string, KanbanPanel>()
+  public static openPanels = new Map<string, Set<KanbanPanel>>()
   public static activePanel: KanbanPanel | undefined
   public static onActivePanelChangedCallbacks = new Set<(panel: KanbanPanel | undefined) => void>()
 
@@ -43,21 +43,29 @@ export class KanbanPanel {
   private _onDisposeCallbacks: (() => void)[] = []
 
   public static createOrShow(extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : undefined
-
-    const existingPanel = KanbanPanel.openPanels.get(boardPath)
-    if (existingPanel) {
-      existingPanel._panel.reveal(column)
-      return
+    let column: vscode.ViewColumn | undefined = vscode.ViewColumn.Active
+    if (vscode.window.tabGroups && vscode.window.tabGroups.activeTabGroup) {
+      column = vscode.window.tabGroups.activeTabGroup.viewColumn
+    } else if (vscode.window.activeTextEditor) {
+      column = vscode.window.activeTextEditor.viewColumn
     }
 
-    const folderName = path.basename(boardPath)
+    if (KanbanPanel.openPanels.has(boardPath)) {
+      const panels = KanbanPanel.openPanels.get(boardPath)!
+      for (const p of panels) {
+        if (p._panel.viewColumn === column) {
+          p._panel.reveal(column)
+          return
+        }
+      }
+    }
+
+    const boardAliases = context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+    const folderName = boardAliases[boardPath] || path.basename(boardPath)
     const panel = vscode.window.createWebviewPanel(
       KanbanPanel.viewType,
       `Kanban: ${folderName}`,
-      column || vscode.ViewColumn.One,
+      column || vscode.ViewColumn.Active,
       {
         enableScripts: true,
         retainContextWhenHidden: true,
@@ -74,14 +82,19 @@ export class KanbanPanel {
     }
 
     const newPanel = new KanbanPanel(panel, extensionUri, context, boardPath)
-    KanbanPanel.openPanels.set(boardPath, newPanel)
+    const set = KanbanPanel.openPanels.get(boardPath) || new Set()
+    set.add(newPanel)
+    KanbanPanel.openPanels.set(boardPath, set)
   }
 
   public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
-    const folderName = path.basename(boardPath)
+    const boardAliases = context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
+    const folderName = boardAliases[boardPath] || path.basename(boardPath)
     panel.title = `Kanban: ${folderName}`
     const newPanel = new KanbanPanel(panel, extensionUri, context, boardPath)
-    KanbanPanel.openPanels.set(boardPath, newPanel)
+    const set = KanbanPanel.openPanels.get(boardPath) || new Set()
+    set.add(newPanel)
+    KanbanPanel.openPanels.set(boardPath, set)
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, context: vscode.ExtensionContext, boardPath: string) {
@@ -93,6 +106,9 @@ export class KanbanPanel {
     if (this._panel.active) {
       KanbanPanel.activePanel = this
       KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(this))
+    } else if (KanbanPanel.activePanel === this) {
+      KanbanPanel.activePanel = undefined
+      KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(undefined))
     }
 
     this._panel.onDidChangeViewState(
@@ -100,6 +116,9 @@ export class KanbanPanel {
         if (this._panel.active) {
           KanbanPanel.activePanel = this
           KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(this))
+        } else if (KanbanPanel.activePanel === this) {
+          KanbanPanel.activePanel = undefined
+          KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(undefined))
         }
       },
       null,
@@ -295,7 +314,13 @@ export class KanbanPanel {
   }
 
   public dispose() {
-    KanbanPanel.openPanels.delete(this._boardPath)
+    const set = KanbanPanel.openPanels.get(this._boardPath)
+    if (set) {
+      set.delete(this)
+      if (set.size === 0) {
+        KanbanPanel.openPanels.delete(this._boardPath)
+      }
+    }
     if (KanbanPanel.activePanel === this) {
       KanbanPanel.activePanel = undefined
       KanbanPanel.onActivePanelChangedCallbacks.forEach(cb => cb(undefined))
@@ -341,6 +366,9 @@ export class KanbanPanel {
 </head>
 <body>
   <div id="root"></div>
+  <script nonce="${nonce}">
+    window.__BOARD_PATH__ = ${JSON.stringify(this._boardPath)};
+  </script>
   <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`
