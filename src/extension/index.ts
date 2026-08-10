@@ -478,7 +478,7 @@ export function activate(context: vscode.ExtensionContext) {
     }),
     vscode.commands.registerCommand('kanban-sauce.changeSidebarColumn', async () => {
       const config = vscode.workspace.getConfiguration('kanban-sauce')
-      const columns = config.get<any[]>('columns', [])
+      const columns = config.get<{ id: string; name: string }[]>('columns', [])
       const items = columns.map(c => ({
         label: c.name,
         description: c.id

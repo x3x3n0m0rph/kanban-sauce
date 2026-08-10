@@ -26,7 +26,6 @@ export class BoardsTreeProvider implements vscode.TreeDataProvider<BoardTreeItem
 
 
     const knownBoards = this.context.workspaceState.get<string[]>('kanban-sauce.knownBoards', [])
-    const boardAliases = this.context.workspaceState.get<Record<string, string>>('kanban-sauce.boardAliases', {})
 
     if (knownBoards.length === 0) return
 
@@ -61,7 +60,7 @@ export class BoardsTreeProvider implements vscode.TreeDataProvider<BoardTreeItem
     const sortType = this.context.workspaceState.get<string>('kanban-sauce.boardsSort', 'name')
     const sortDir = this.context.workspaceState.get<string>('kanban-sauce.boardsSortDir', 'asc')
 
-    let boardData = await Promise.all(knownBoards.map(async boardPath => {
+    const boardData = await Promise.all(knownBoards.map(async boardPath => {
       let mtime = 0
       if (sortType === 'modified') {
         try {
