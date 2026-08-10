@@ -66,6 +66,7 @@
   "toolbar.epicBoardView": "Carriles por épica — agrupa tarjetas por épica",
   "toolbar.standardBoardView": "Tablero estándar — todas las tarjetas en columnas",
   "toolbar.manageLabels": "Gestionar etiquetas",
+  "toolbar.refresh": "Actualizar tablero",
   "toolbar.openSettings": "Abrir ajustes",
   "toolbar.pressKeyToAdd": "Pulsa {key} para añadir",
 

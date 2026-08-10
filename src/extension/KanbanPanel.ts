@@ -149,6 +149,10 @@ export class KanbanPanel {
             await this._loadFeatures()
             this._sendFeaturesToWebview()
             break
+          case 'refresh':
+            await this._loadFeatures()
+            this._sendFeaturesToWebview()
+            break
           case 'createFeature': {
             await this._createFeature(message.data)
             const createConfig = vscode.workspace.getConfiguration('kanban-sauce')

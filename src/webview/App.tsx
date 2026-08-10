@@ -410,6 +410,7 @@ function App(): React.JSX.Element {
     <div className="h-full w-full flex flex-col bg-[var(--vscode-editor-background)]">
       <Toolbar
         onOpenSettings={() => vscode.postMessage({ type: 'openSettings' })}
+        onRefresh={() => vscode.postMessage({ type: 'refresh' })}
         boardViewMode={boardViewMode}
         onBoardViewModeChange={(mode) => {
           setBoardViewMode(mode)

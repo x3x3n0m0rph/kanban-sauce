@@ -66,6 +66,7 @@
   "toolbar.epicBoardView": "Faixas por épico — agrupar cartões por épico",
   "toolbar.standardBoardView": "Quadro padrão — todos os cartões em colunas",
   "toolbar.manageLabels": "Gerir etiquetas",
+  "toolbar.refresh": "Atualizar quadro",
   "toolbar.openSettings": "Abrir definições",
   "toolbar.pressKeyToAdd": "Prima {key} para adicionar",
 

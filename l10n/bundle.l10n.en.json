@@ -66,6 +66,7 @@
   "toolbar.epicBoardView": "Epic swim lanes — group cards by epic",
   "toolbar.standardBoardView": "Standard board — all cards in columns",
   "toolbar.manageLabels": "Manage labels",
+  "toolbar.refresh": "Refresh board",
   "toolbar.openSettings": "Open settings",
   "toolbar.pressKeyToAdd": "Press {key} to add",
 
