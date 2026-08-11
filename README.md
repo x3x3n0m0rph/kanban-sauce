@@ -4,9 +4,9 @@
 
 # Kanban Sauce
 
-**A folder-focused kanban board for VS Code, backed by markdown files**
+**A Kanban-style project and notes management tool for VS Code, backed by Markdown**
 
-[![VS Marketplace](https://vsmarketplacebadges.dev/version/salsa-lab.kanban-sauce.svg?&colorB=orange)](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version/salsa-lab.kanban-sauce.svg?&colorB=blue)](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce)
 [![Open VSX](https://img.shields.io/open-vsx/v/salsa-lab/kanban-sauce?label=Open%20VSX&logo=vscodium)](https://open-vsx.org/extension/salsa-lab/kanban-sauce)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/salsa-lab/kanban-sauce?label=Downloads&logo=vscodium)](https://open-vsx.org/extension/salsa-lab/kanban-sauce)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -17,106 +17,44 @@
 
 ---
 
-Features are stored as markdown files with YAML frontmatter — version-controllable, diffable, and editable outside the extension. No accounts, no external services.
+**Kanban Sauce** is a powerful, privacy-first project and notes management extension for VS Code, similar to tools like Trello and Notion but built directly into your editor. It stores your tasks, notes, and ideas as simple, version-controllable Markdown files with YAML frontmatter. No external accounts, no cloud dependencies, no telemetry - just pure, local productivity that integrates seamlessly with your workflow.
 
 ## Quick Start
 
-1. **Install** — search "Kanban Sauce" in the Extensions view ([VS Marketplace](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce) / [Open VSX](https://open-vsx.org/extension/salsa-lab/kanban-sauce))
-2. **Open** — run `Open Kanban Board` from the command palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and choose any folder to open as a board
-3. **Create** — click `+ New Feature` in the sidebar or click the `+` sign next to column headers to add a new card
+1. **Install:** Search for "Kanban Sauce" in the VS Code Extensions view ([VS Marketplace](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce) / [Open VSX](https://open-vsx.org/extension/salsa-lab/kanban-sauce)).
+2. **Open:** Run `Open Kanban Board` from the command palette (`Cmd+Shift+P` or `Ctrl+Shift+P`), or right-click any folder in your file explorer and choose **Open as Kanban Board**.
+3. **Create:** Click `+ New Feature` in the sidebar, or use the `+` sign next to column headers to add a new card.
 
-## Features
+## Key Features
 
-### Multiple Kanban Boards
+- **Dynamic, Folder-Focused Boards:** Kanban Sauce isn't restricted to a single hidden folder. You can **open any folder in your workspace as an independent board**. Files are saved precisely where you want them, organized neatly into subfolders by their status or category. 
+- **Multiple Concurrent Boards & Sidebar Tracking:** Open two or more boards side-by-side in separate editor tabs. The **Available Boards** sidebar view tracks all known boards in your workspace, letting you jump between them with a single click. It automatically updates when you switch tabs and includes right-click options to safely rename or remove boards from your history.
+- **Fully Customizable, Board-Specific Columns:** Because columns are fully customizable, you can use Kanban Sauce for anything from agile development to personal note-taking or content planning. Customize column IDs, names, and colors on a per-board basis using the intuitive **Column Manager** UI.
+- **Board & Workflow:** 
+  - **Drag & Drop:** Easily move cards between and within columns.
+  - **Split-View Editor:** Keep the board on the left while editing a card inline on the right.
+  - **Flexible Layouts:** Supports horizontal and vertical layouts, and a **compact mode** for dense boards.
+  - **Keyboard Shortcuts:** `N` (new feature), `Esc` (close dialogs), `Cmd/Ctrl+Enter` (submit).
+  - **Auto-Sync:** Auto-saves your changes as you type, and auto-refreshes the board when files are modified externally.
+- **Cards as Markdown Files:** Each card on your board is just a standard Markdown file with YAML frontmatter. Edit them in the extension's rich-text editor, or open them in VS Code's native text editor. 
 
-You can create and open multiple independent kanban boards inside the same workspace:
-- **Open any folder**: Right-click any folder in the VS Code Explorer file tree and select **Open as Kanban Board**. Or run **Open Kanban Board** from the command palette to select from your history or pick a new folder.
-- **No automatic/hidden folders**: Features are stored exactly inside the chosen directory in subfolders named after their status (`backlog`, `todo`, `in-progress`, `review`, `done`).
-- **Run multiple simultaneously**: You can open two or more kanban boards side-by-side! Each tab will dynamically track and update cards for its specific directory path.
+  <div align="center">
+  <br/>
+  <img src="https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/editor-view.png" alt="Editor View" />
+  <br/><br/>
+  </div>
 
-### Board & Workflow
-
-- 5-column workflow — Backlog, To Do, In Progress, Review, Done (customizable)
-- Drag-and-drop between columns and within columns
-- Sidebar view from the activity bar
-- Split-view editor — board on left, inline editor on right
-- Horizontal and vertical layouts
-- Compact mode for dense boards
-- Keyboard shortcuts — `N` new feature, `Esc` close dialogs, `Cmd/Ctrl+Enter` submit
-
-### Cards
-
-Each card is a markdown file with YAML frontmatter.
-
-<div align="center">
-
-![Editor View](https://raw.githubusercontent.com/salsa-lab/kanban-sauce/main/docs/images/editor-view.png)
-
-</div>
-
-- Priority levels — Critical, High, Medium, Low with color-coded badges
-- Assignees
-- Due dates with smart formatting (Overdue, Today, Tomorrow, "5d", etc.)
-- Labels — multiple per card, shows up to 3 with "+X more"
-- Automatic created/modified timestamps
-- Archive completed features to keep the board clean
-
-### Search & Filtering
-
-- Full-text search across content, IDs, assignees, and labels
-- Filter by priority, assignee, label, or due date
-- Due date filters — overdue, today, this week, or no date
-
-### Editor Integration
-
-- Rich text editing with Tiptap
-- Inline frontmatter editing — dropdowns for status/priority, inputs for assignee/due date/labels
-- Auto-save on change
-- Auto-refresh when files change externally
-- Native markdown mode — open files in VS Code's built-in editor instead
-- Follows your VS Code/Cursor theme (light & dark)
-
-## Differences from the Original Repository
-
-This project is a fork of [Kanban Markdown](https://github.com/LachyFS/kanban-markdown-vscode-extension) extension. This fork introduces major architectural improvements and UI enhancements:
-
-- **Dynamic Board Folder Selection**: You are no longer restricted to a single `.devtool/features` directory at the root of your workspace. You can open *any* folder as an independent Kanban board.
-- **Multiple Concurrent Boards**: Fully supports running multiple Kanban board panels side-by-side. The Sidebar Summary view automatically tracks and switches to whichever board is active.
-- **Available Boards Sidebar List**: All known and previously opened boards in your workspace are conveniently listed in a dedicated sidebar view. You can click any board in the list to instantly open it.
-- **Enhanced Sidebar Filtering and Sorting**: Includes native sort capabilities for boards and cards (by name and last modified), real-time sorting updates, and dynamic column filtering straight from the activity bar.
-- **Persistent History Pruning**: Remembers your previously opened boards. It automatically filters out board directories that were deleted or moved, and includes a **Clear Board History...** picker to manually remove entries.
-- **Board-Specific Column Configurations**: Customize column lists, IDs, names, and colors on a per-board basis using a `.kanbansauce` file, effortlessly editable via an intuitive in-app **Column Manager** UI.
-- **Granular Font Size Settings**: Extensive settings let you customize the font size of almost every component (column headers, card titles, card description previews, label tags, card metadata, editor headings, editor body, and the editor metadata block).
-- **Cleaned Command Palette**: Obsolete/redundant commands like `selectBoard` or auto-generated focus actions are hidden or removed to prevent command palette clutter.
-- **AI Tools Removal**: The "Build with AI" prompt integrations are completely stripped, making the extension 100% private, local, and exceptionally lightweight.
-
-## File Format
-
-Features live inside your selected board folder as Markdown files with YAML formatter, organized into subfolders by status.
-
-```markdown
----
-id: "remove-ai-integration-2026-07-04"
-status: "done"
-priority: "critical"
-assignee: "peppe"
-epic: null
-dueDate: "2026-07-04"
-created: "2026-07-04T09:27:55.052Z"
-modified: "2026-07-04T09:27:55.052Z"
-completedAt: "2026-07-04T09:27:55.052Z"
-labels: ["enhancement"]
-order: "Zz"
----
-# Remove AI integration
-
-Remove completely the AI integration, so that humans can waste a bit more time
-
-```
+  - **Priority Badge:** Visual color-coded badges for Critical, High, Medium, Low.
+  - **Smart Due Dates:** Easily set and read relative dates like "Overdue," "Today," "Tomorrow," or "+5d".
+  - **Rich Metadata:** Support for assignees, multi-labels, epic grouping, and automatic timestamps (`created`, `modified`, `completedAt`).
+- **Advanced Search, Filtering & Sorting:** Find what you need instantly. 
+  - Full-text search across card content, IDs, assignees, and labels.
+  - Native sort capabilities for boards and cards (by name, last modified, ascending/descending) straight from the Activity Bar.
+  - Dynamic column filtering in the sidebar to only show cards in specific stages or categories.
 
 ## Configuration
 
-Settings live under `kanban-sauce.*` in your VS Code preferences.
+Tailor Kanban Sauce to your exact liking. Settings can be found under `kanban-sauce.*` in your VS Code preferences.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -156,11 +94,7 @@ Default columns:
 ]
 ```
 
-### Board-Specific Configuration
-
-You can override workspace settings for a specific board by configuring board-specific columns. You can do this easily from the Kanban board UI by clicking the **Manage Columns** button in the top toolbar. 
-
-This will automatically create or update a `.kanbansauce` file (in JSON format) at the root of the board directory. This allows you to have different column configurations for different boards, and since the file lives in the board folder, it is version-controllable and easily reproducible.
+You can override the columns configuration/list for a specific board easily from the Kanban board UI by clicking the **Manage Columns** button in the top toolbar. This will automatically create or update a `.kanbansauce` file (in JSON format) at the root of the board directory. This allows you to have different column configurations for different boards, and since the file lives in the board folder, it is version-controllable and easily reproducible.
 
 Example `.kanbansauce` file:
 
@@ -174,90 +108,64 @@ Example `.kanbansauce` file:
 }
 ```
 
+## File Format Example
+
+Because your data is yours, a typical Kanban Sauce card looks like this on disk:
+
+```markdown
+---
+id: "remove-ai-integration-2026-07-04"
+status: "done"
+priority: "critical"
+assignee: "peppe"
+epic: null
+dueDate: "2026-07-04"
+created: "2026-07-04T09:27:55.052Z"
+modified: "2026-07-04T09:27:55.052Z"
+completedAt: "2026-07-04T09:27:55.052Z"
+labels: ["enhancement"]
+order: "Zz"
+---
+# Remove AI integration
+
+Remove completely the AI integration, so that humans can waste a bit more time
+```
+
 ## Installation
 
-### VS Code Marketplace
+Choose your preferred method:
 
-Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce) or search "Kanban Sauce" in the Extensions view.
-
-### Open VSX (VSCodium, Cursor, etc.)
-
-Install from [Open VSX](https://open-vsx.org/extension/salsa-lab/kanban-sauce) or search "Kanban Sauce" in the Extensions view.
-
-### From VSIX
-
-1. Download the `.vsix` from [Releases](https://github.com/salsa-lab/kanban-sauce/releases)
-2. In VS Code: Extensions > `...` > Install from VSIX
-3. Select the downloaded file
+- **VS Code Marketplace:** Install from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=salsa-lab.kanban-sauce) directly.
+- **Open VSX:** Great for VSCodium and Cursor. Install from [Open VSX](https://open-vsx.org/extension/salsa-lab/kanban-sauce).
+- **Manual (VSIX):** Download the `.vsix` from our [Releases](https://github.com/salsa-lab/kanban-sauce/releases), open VS Code, go to Extensions > `...` > *Install from VSIX*.
 
 ## Development
 
-### Prerequisites
+Want to contribute? Contributions are welcome! 
 
-- Node.js 18+
-- pnpm
-
-### Setup
+**Prerequisites:** Node.js 18+ and `pnpm`.
 
 ```bash
 pnpm install       # Install dependencies
 pnpm dev           # Start development (watch mode)
 pnpm build         # Build for production
-pnpm typecheck     # Type checking
-pnpm lint          # Linting
+pnpm test          # Run unit/component tests
 ```
 
-### Testing
-
-```bash
-# Unit + component tests (fast, no VS Code host required)
-pnpm test
-
-# Watch mode
-pnpm test:watch
-
-# Integration tests (launches a real VS Code instance)
-pnpm test:integration
-```
-
-Unit tests cover shared logic, extension utilities, and React components. Integration tests run inside a VS Code host using `@vscode/test-electron` and exercise the real file system and VS Code APIs.
-
-#### Running the CI pipeline locally with `act`
-
-[`act`](https://github.com/nektos/act) runs GitHub Actions workflows locally in Docker.
-
-```bash
-# Install (macOS)
-brew install act
-
-# Run the full CI test job
-act push -j test --container-architecture linux/amd64
-```
-
-The first run downloads a VS Code binary (~160 MB) into `.vscode-test/` which is cached for subsequent runs.
-
-### Debugging
-
-1. Press `F5` in VS Code to launch the Extension Development Host
-2. Open the command palette and run "Open Kanban Board"
-3. Make changes and reload the window (`Cmd+R`) to see updates
+*See [CONTRIBUTING.md](CONTRIBUTING.md) for deeper architecture and testing details.*
 
 ### Tech Stack
 
-**Extension**: TypeScript, VS Code API, esbuild | **Webview**: React 18, Vite, Tailwind CSS, Zustand, Tiptap
+**Extension Host:** TypeScript, VS Code API, esbuild  
+**Webview UI:** React 18, Vite, Tailwind CSS, Zustand, Tiptap
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+## Acknowledgements
 
-## Contributors
+Kanban Sauce is a proud, heavily-evolved fork of [Kanban Markdown](https://github.com/LachyFS/kanban-markdown-vscode-extension). We owe a huge thanks to the original contributors:
+[@LachyFS](https://github.com/LachyFS), [@luciopaiva](https://github.com/luciopaiva), [@ungive](https://github.com/ungive), [@hodanli](https://github.com/hodanli), and [@SuperbDotHub](https://github.com/SuperbDotHub). 
 
-Contributors to the main repository [Kanban Markdown](https://github.com/LachyFS/kanban-markdown-vscode-extension):
-
-- [@LachyFS](https://github.com/LachyFS) — lead developer
-- [@luciopaiva](https://github.com/luciopaiva) — sidebar view and layout improvements
-- [@ungive](https://github.com/ungive) — file organization and status subfolders
-- [@hodanli](https://github.com/hodanli) — label management enhancements
-- [@SuperbDotHub](https://github.com/SuperbDotHub) — compact mode and card display options
+Kanban Sauce builds on their fantastic foundation to offer a more dynamic, multi-board, and entirely private experience.
 
 ## License
 
-[MIT](LICENSE)
+Released under the [MIT License](LICENSE).
