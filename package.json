@@ -2,7 +2,7 @@
   "name": "kanban-sauce",
   "displayName": "Kanban Sauce",
   "description": "A kanban board for your codebase. Features stored as markdown.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "packageManager": "pnpm@11.20.0",
   "publisher": "salsa-lab",
   "license": "MIT",
@@ -115,7 +115,7 @@
       },
       {
         "command": "kanban-sauce.boards.sortByName.checked",
-        "title": "\u2713 Sort by: Name",
+        "title": "✓ Sort by: Name",
         "category": "%command.category%"
       },
       {
@@ -125,7 +125,7 @@
       },
       {
         "command": "kanban-sauce.boards.sortByModified.checked",
-        "title": "\u2713 Sort by: Last Modified",
+        "title": "✓ Sort by: Last Modified",
         "category": "%command.category%"
       },
       {
@@ -135,7 +135,7 @@
       },
       {
         "command": "kanban-sauce.inProgress.sortByName.checked",
-        "title": "\u2713 Sort by: Name",
+        "title": "✓ Sort by: Name",
         "category": "%command.category%"
       },
       {
@@ -145,7 +145,7 @@
       },
       {
         "command": "kanban-sauce.inProgress.sortByModified.checked",
-        "title": "\u2713 Sort by: Last Modified",
+        "title": "✓ Sort by: Last Modified",
         "category": "%command.category%"
       },
       {
@@ -155,7 +155,7 @@
       },
       {
         "command": "kanban-sauce.boards.sortAscending.checked",
-        "title": "\u2713 Sort Direction: Ascending",
+        "title": "✓ Sort Direction: Ascending",
         "category": "%command.category%"
       },
       {
@@ -165,7 +165,7 @@
       },
       {
         "command": "kanban-sauce.boards.sortDescending.checked",
-        "title": "\u2713 Sort Direction: Descending",
+        "title": "✓ Sort Direction: Descending",
         "category": "%command.category%"
       },
       {
@@ -175,7 +175,7 @@
       },
       {
         "command": "kanban-sauce.inProgress.sortAscending.checked",
-        "title": "\u2713 Sort Direction: Ascending",
+        "title": "✓ Sort Direction: Ascending",
         "category": "%command.category%"
       },
       {
@@ -185,7 +185,7 @@
       },
       {
         "command": "kanban-sauce.inProgress.sortDescending.checked",
-        "title": "\u2713 Sort Direction: Descending",
+        "title": "✓ Sort Direction: Descending",
         "category": "%command.category%"
       },
       {
