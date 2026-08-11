@@ -142,3 +142,6 @@ export type WebviewMessage =
   | { type: 'archiveAllCards'; sourceColumnId: string }
   | { type: 'renameLabel'; oldName: string; newName: string }
   | { type: 'deleteLabel'; labelName: string }
+  | { type: 'refresh' }
+  | { type: 'saveBoardColumns'; columns: KanbanColumn[] }
+  | { type: 'showErrorMessage'; message: string }

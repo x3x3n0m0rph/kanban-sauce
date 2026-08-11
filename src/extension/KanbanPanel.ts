@@ -8,6 +8,7 @@ import { ensureStatusSubfolders, moveFeatureFile, getFeatureFilePath, getStatusF
 import { parseFeatureFile, serializeFeature } from '../shared/featureFrontmatter'
 import { featureMatchesEpicLane } from '../shared/epicLane'
 import { t, getBundle, getEffectiveLocale, reloadBundle, getAllDefaultColumnNames, getDefaultColumnNamesForLocale } from './l10n'
+import { getBoardColumns, saveBoardColumns } from './boardConfig'
 
 function normalizeEpic(value: string | null | undefined): string | null {
   const t = value?.trim()
@@ -147,6 +148,19 @@ export class KanbanPanel {
           case 'ready':
             await this._loadFeatures()
             this._sendFeaturesToWebview()
+            break
+          case 'refresh':
+            await this._loadFeatures()
+            this._sendFeaturesToWebview()
+            break
+          case 'saveBoardColumns':
+            saveBoardColumns(this._boardPath, message.columns)
+            // Re-load features and send to webview
+            await this._loadFeatures()
+            this._sendFeaturesToWebview()
+            break
+          case 'showErrorMessage':
+            vscode.window.showErrorMessage(message.message)
             break
           case 'createFeature': {
             await this._createFeature(message.data)
@@ -1108,14 +1122,7 @@ export class KanbanPanel {
   private _sendFeaturesToWebview(): void {
     const config = vscode.workspace.getConfiguration('kanban-sauce')
 
-    const defaultColumns: KanbanColumn[] = [
-      { id: 'backlog', name: 'Backlog', color: '#6b7280' },
-      { id: 'todo', name: 'To Do', color: '#3b82f6' },
-      { id: 'in-progress', name: 'In Progress', color: '#f59e0b' },
-      { id: 'review', name: 'Review', color: '#8b5cf6' },
-      { id: 'done', name: 'Done', color: '#22c55e' }
-    ]
-    const columns = config.get<KanbanColumn[]>('columns', defaultColumns)
+    const columns = getBoardColumns(this._boardPath)
     const settings: CardDisplaySettings = {
       showPriorityBadges: config.get<boolean>('showPriorityBadges', true),
       showAssignee: config.get<boolean>('showAssignee', true),

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Column Manager UI within the webview for easily configuring board-specific columns (statuses), colors, and ordering.
+- Board-specific configuration using `.kanbansauce` files located at the root of a board directory.
+- Manual refresh button on the board toolbar to reload the board configuration and card features seamlessly.
 - List of available boards in the workspace is now visible in the sidebar, allowing quick one-click access
 - Added sorting capabilities for both the sidebar cards list and available boards list, including Ascending and Descending directions
 - Added column filtering to the sidebar cards list, allowing users to choose which column's cards to display

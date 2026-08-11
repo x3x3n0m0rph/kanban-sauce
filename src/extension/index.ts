@@ -10,6 +10,7 @@ import { ensureStatusSubfolders, getFeatureFilePath } from './featureFileUtils'
 import { t, loadBundle } from './l10n'
 import { BoardsTreeProvider } from './BoardsTreeProvider'
 import { InProgressTreeProvider } from './InProgressTreeProvider'
+import { getBoardColumns, getActiveBoardPath } from './boardConfig'
 
 let boardsProvider: BoardsTreeProvider | undefined
 
@@ -36,13 +37,13 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
   if (!title) return
 
   // Ask for status
-  const statusItems: StatusQuickPickItem[] = [
-    { label: t('status.backlog'), description: t('status.backlog.description'), statusValue: 'backlog' },
-    { label: t('status.todo'), description: t('status.todo.description'), statusValue: 'todo' },
-    { label: t('status.inProgress'), description: t('status.inProgress.description'), statusValue: 'in-progress' },
-    { label: t('status.review'), description: t('status.review.description'), statusValue: 'review' },
-    { label: t('status.done'), description: t('status.done.description'), statusValue: 'done' }
-  ]
+  const activeBoard = getActiveBoardPath()
+  const columns = getBoardColumns(activeBoard)
+  const statusItems: StatusQuickPickItem[] = columns.map(c => ({
+    label: c.name,
+    description: t(`status.${c.id as FeatureStatus}.description`) || c.id,
+    statusValue: c.id as FeatureStatus
+  }))
   const statusPick = await vscode.window.showQuickPick(statusItems, {
     placeHolder: t('ext.selectStatus')
   })
@@ -477,8 +478,8 @@ export function activate(context: vscode.ExtensionContext) {
       inProgressProvider.refresh()
     }),
     vscode.commands.registerCommand('kanban-sauce.changeSidebarColumn', async () => {
-      const config = vscode.workspace.getConfiguration('kanban-sauce')
-      const columns = config.get<{ id: string; name: string }[]>('columns', [])
+      const activeBoard = getActiveBoardPath()
+      const columns = getBoardColumns(activeBoard)
       const items = columns.map(c => ({
         label: c.name,
         description: c.id

@@ -4,6 +4,7 @@ import { useStore } from './store'
 import { KanbanBoard } from './components/KanbanBoard'
 import { KanbanEpicBoard } from './components/KanbanEpicBoard'
 import { CreateFeatureDialog } from './components/CreateFeatureDialog'
+import { ColumnManager } from './components/ColumnManager'
 import { FeatureEditor } from './components/FeatureEditor'
 import { Toolbar } from './components/Toolbar'
 import { UndoToast } from './components/UndoToast'
@@ -30,6 +31,7 @@ function App(): React.JSX.Element {
 
   const [createFeatureOpen, setCreateFeatureOpen] = useState(false)
   const [createFeatureStatus, setCreateFeatureStatus] = useState<FeatureStatus>('backlog')
+  const [columnManagerOpen, setColumnManagerOpen] = useState(false)
 
   // Editor state
   const contentVersionRef = useRef(0)
@@ -410,6 +412,8 @@ function App(): React.JSX.Element {
     <div className="h-full w-full flex flex-col bg-[var(--vscode-editor-background)]">
       <Toolbar
         onOpenSettings={() => vscode.postMessage({ type: 'openSettings' })}
+        onOpenColumnManager={() => setColumnManagerOpen(true)}
+        onRefresh={() => vscode.postMessage({ type: 'refresh' })}
         boardViewMode={boardViewMode}
         onBoardViewModeChange={(mode) => {
           setBoardViewMode(mode)
@@ -453,6 +457,11 @@ function App(): React.JSX.Element {
         onClose={() => setCreateFeatureOpen(false)}
         onCreate={handleCreateFeature}
         initialStatus={createFeatureStatus}
+      />
+
+      <ColumnManager
+        isOpen={columnManagerOpen}
+        onClose={() => setColumnManagerOpen(false)}
       />
 
       {pendingDeletes.map((entry, i) => (

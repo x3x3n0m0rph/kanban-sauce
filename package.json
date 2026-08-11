@@ -45,7 +45,7 @@
         {
           "id": "kanban-sauce",
           "title": "%viewContainer.title%",
-          "icon": "resources/icon.png"
+          "icon": "resources/icon_128.png"
         }
       ]
     },
