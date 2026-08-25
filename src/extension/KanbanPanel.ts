@@ -8,7 +8,7 @@ import { ensureStatusSubfolders, moveFeatureFile, getFeatureFilePath, getStatusF
 import { parseFeatureFile, serializeFeature } from '../shared/featureFrontmatter'
 import { featureMatchesEpicLane } from '../shared/epicLane'
 import { t, getBundle, getEffectiveLocale, reloadBundle, getAllDefaultColumnNames, getDefaultColumnNamesForLocale } from './l10n'
-import { getBoardColumns, saveBoardColumns } from './boardConfig'
+import { getBoardColumns, getDescriptionTemplate, saveBoardConfig } from './boardConfig'
 
 function normalizeEpic(value: string | null | undefined): string | null {
   const t = value?.trim()
@@ -154,7 +154,10 @@ export class KanbanPanel {
             this._sendFeaturesToWebview()
             break
           case 'saveBoardColumns':
-            saveBoardColumns(this._boardPath, message.columns)
+            saveBoardConfig(this._boardPath, {
+              columns: message.columns,
+              descriptionTemplate: message.descriptionTemplate
+            })
             // Re-load features and send to webview
             await this._loadFeatures()
             this._sendFeaturesToWebview()
@@ -1123,6 +1126,7 @@ export class KanbanPanel {
     const config = vscode.workspace.getConfiguration('kanban-sauce')
 
     const columns = getBoardColumns(this._boardPath)
+    const descriptionTemplate = getDescriptionTemplate(this._boardPath)
     const settings: CardDisplaySettings = {
       showPriorityBadges: config.get<boolean>('showPriorityBadges', true),
       showAssignee: config.get<boolean>('showAssignee', true),
@@ -1165,7 +1169,8 @@ export class KanbanPanel {
       collapsedEpics,
       locale: getEffectiveLocale(),
       translations: getBundle(),
-      boardPath: this._boardPath
+      boardPath: this._boardPath,
+      descriptionTemplate
     })
   }
 }

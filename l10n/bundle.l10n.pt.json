@@ -83,6 +83,9 @@
   "columnManager.save": "Salvar",
   "columnManager.errorEmpty": "ID e Nome da coluna não podem estar vazios.",
   "columnManager.errorDuplicate": "IDs da coluna devem ser únicos.",
+  "columnManager.templateTitle": "Modelo de descrição",
+  "columnManager.templateDescription": "Markdown pré-preenchido na descrição ao criar um novo cartão neste quadro. Deixe vazio para não usar modelo.",
+  "columnManager.templatePlaceholder": "## Contexto\n\n- [ ] Critérios de aceitação",
 
   "date.day.mo": "Se",
   "date.day.tu": "Te",

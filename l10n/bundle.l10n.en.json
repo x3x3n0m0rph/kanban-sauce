@@ -82,6 +82,9 @@
   "columnManager.save": "Save",
   "columnManager.errorEmpty": "Column ID and Name cannot be empty.",
   "columnManager.errorDuplicate": "Column IDs must be unique.",
+  "columnManager.templateTitle": "Description template",
+  "columnManager.templateDescription": "Markdown pre-filled into the description when creating a new card on this board. Leave empty for no template.",
+  "columnManager.templatePlaceholder": "## Context\n\n- [ ] Acceptance criteria",
 
   "date.day.mo": "Mo",
   "date.day.tu": "Tu",

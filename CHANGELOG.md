@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Board-level **description template** stored in `.kanbansauce` and edited in Manage Columns; pre-fills the description when creating a new card.
+
 ## [2.1.0] - 2023-08-11
 
 ### Added

@@ -10,7 +10,7 @@ import { ensureStatusSubfolders, getFeatureFilePath } from './featureFileUtils'
 import { t, loadBundle } from './l10n'
 import { BoardsTreeProvider } from './BoardsTreeProvider'
 import { InProgressTreeProvider } from './InProgressTreeProvider'
-import { getBoardColumns, getActiveBoardPath } from './boardConfig'
+import { getBoardColumns, getActiveBoardPath, getDescriptionTemplate } from './boardConfig'
 
 let boardsProvider: BoardsTreeProvider | undefined
 
@@ -66,7 +66,7 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
   const priority = priorityPick.priorityValue
 
   // Ask for description (optional)
-  const description = await vscode.window.showInputBox({
+  const descriptionInput = await vscode.window.showInputBox({
     prompt: t('ext.descriptionOptional'),
     placeHolder: t('ext.descriptionPlaceholder')
   })
@@ -122,6 +122,10 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
 
   const filename = generateFeatureFilename(title)
   const now = new Date().toISOString()
+
+  // Use typed description, or fall back to the board's description template
+  const boardTemplate = getDescriptionTemplate(featuresDir)
+  const description = (descriptionInput?.trim() || boardTemplate.trim() || '')
 
   // Build content with title as first # heading
   const content = `# ${title}${description ? '\n\n' + description : ''}`

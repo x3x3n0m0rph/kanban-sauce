@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import * as path from 'path'
 import * as fs from 'fs'
-import { getBoardColumns, saveBoardColumns } from '../../src/extension/boardConfig'
+import {
+  getBoardColumns,
+  getDescriptionTemplate,
+  saveBoardColumns,
+  saveBoardConfig
+} from '../../src/extension/boardConfig'
 import { KanbanColumn } from '../../src/shared/types'
 
 // Mock vscode
@@ -94,6 +99,31 @@ describe('boardConfig', () => {
     })
   })
 
+  describe('getDescriptionTemplate', () => {
+    it('returns empty string when boardPath is null', () => {
+      expect(getDescriptionTemplate(null)).toBe('')
+    })
+
+    it('returns empty string when .kanbansauce does not exist', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false)
+      expect(getDescriptionTemplate('/fake/path')).toBe('')
+    })
+
+    it('returns the descriptionTemplate when present', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(
+        JSON.stringify({ columns: customColumns, descriptionTemplate: '## Context\n\n- [ ] AC' })
+      )
+      expect(getDescriptionTemplate('/fake/path')).toBe('## Context\n\n- [ ] AC')
+    })
+
+    it('returns empty string when descriptionTemplate is missing', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ columns: customColumns }))
+      expect(getDescriptionTemplate('/fake/path')).toBe('')
+    })
+  })
+
   describe('saveBoardColumns', () => {
     it('creates a new .kanbansauce file if it does not exist', () => {
       vi.mocked(fs.existsSync).mockReturnValue(false)
@@ -120,6 +150,21 @@ describe('boardConfig', () => {
       )
     })
 
+    it('preserves descriptionTemplate when saving columns only', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(
+        JSON.stringify({ columns: defaultColumns, descriptionTemplate: '## Keep me' })
+      )
+
+      saveBoardColumns('/fake/path', customColumns)
+
+      expect(fs.writeFileSync).toHaveBeenCalledWith(
+        path.join('/fake/path', '.kanbansauce'),
+        JSON.stringify({ columns: customColumns, descriptionTemplate: '## Keep me' }, null, 2),
+        'utf-8'
+      )
+    })
+
     it('overwrites corrupted .kanbansauce file', () => {
       vi.mocked(fs.existsSync).mockReturnValue(true)
       vi.mocked(fs.readFileSync).mockReturnValue('{ invalid json }')
@@ -130,6 +175,54 @@ describe('boardConfig', () => {
       expect(fs.writeFileSync).toHaveBeenCalledWith(
         path.join('/fake/path', '.kanbansauce'),
         JSON.stringify({ columns: customColumns }, null, 2),
+        'utf-8'
+      )
+    })
+  })
+
+  describe('saveBoardConfig', () => {
+    it('writes columns and descriptionTemplate together', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(false)
+
+      saveBoardConfig('/fake/path', {
+        columns: customColumns,
+        descriptionTemplate: '## Context'
+      })
+
+      expect(fs.writeFileSync).toHaveBeenCalledWith(
+        path.join('/fake/path', '.kanbansauce'),
+        JSON.stringify({ columns: customColumns, descriptionTemplate: '## Context' }, null, 2),
+        'utf-8'
+      )
+    })
+
+    it('removes descriptionTemplate when empty', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(
+        JSON.stringify({ columns: customColumns, descriptionTemplate: '## Old' })
+      )
+
+      saveBoardConfig('/fake/path', {
+        columns: customColumns,
+        descriptionTemplate: '   '
+      })
+
+      expect(fs.writeFileSync).toHaveBeenCalledWith(
+        path.join('/fake/path', '.kanbansauce'),
+        JSON.stringify({ columns: customColumns }, null, 2),
+        'utf-8'
+      )
+    })
+
+    it('preserves columns when updating only descriptionTemplate', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ columns: customColumns }))
+
+      saveBoardConfig('/fake/path', { descriptionTemplate: '## New' })
+
+      expect(fs.writeFileSync).toHaveBeenCalledWith(
+        path.join('/fake/path', '.kanbansauce'),
+        JSON.stringify({ columns: customColumns, descriptionTemplate: '## New' }, null, 2),
         'utf-8'
       )
     })

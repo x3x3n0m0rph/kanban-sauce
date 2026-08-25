@@ -82,6 +82,9 @@
   "columnManager.save": "Guardar",
   "columnManager.errorEmpty": "El ID y nombre de la columna no pueden estar vacíos.",
   "columnManager.errorDuplicate": "Los IDs de columna deben ser únicos.",
+  "columnManager.templateTitle": "Plantilla de descripción",
+  "columnManager.templateDescription": "Markdown que se rellena automáticamente en la descripción al crear una tarjeta en este tablero. Déjalo vacío para no usar plantilla.",
+  "columnManager.templatePlaceholder": "## Contexto\n\n- [ ] Criterios de aceptación",
 
   "date.day.mo": "Lu",
   "date.day.tu": "Ma",

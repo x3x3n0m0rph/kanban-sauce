@@ -20,6 +20,7 @@ function App(): React.JSX.Element {
     cardSettings,
     setFeatures,
     setColumns,
+    setDescriptionTemplate,
     setIsDarkMode,
     setCardSettings,
     setCollapsedColumns,
@@ -267,6 +268,7 @@ function App(): React.JSX.Element {
           }
           setFeatures(message.features)
           setColumns(message.columns)
+          setDescriptionTemplate(message.descriptionTemplate ?? '')
           setCollapsedColumns(message.collapsedColumns ?? [])
           setCollapsedEpics(message.collapsedEpics ?? [])
           setBoardViewMode((message.boardViewMode ?? 'standard') as BoardViewMode)
@@ -308,7 +310,7 @@ function App(): React.JSX.Element {
     vscode.postMessage({ type: 'ready' })
 
     return () => window.removeEventListener('message', handleMessage)
-  }, [setFeatures, setColumns, setCardSettings, setCollapsedColumns, setCollapsedEpics, setBoardViewMode, setLocale])
+  }, [setFeatures, setColumns, setDescriptionTemplate, setCardSettings, setCollapsedColumns, setCollapsedEpics, setBoardViewMode, setLocale])
 
   const handleFeatureClick = (feature: Feature): void => {
     // Request feature content for inline editing

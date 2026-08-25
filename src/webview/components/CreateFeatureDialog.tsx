@@ -299,7 +299,7 @@ function CreateFeatureDialogContent({
   onCreate,
   initialStatus
 }: CreateFeatureDialogProps) {
-  const { cardSettings, columns } = useStore()
+  const { cardSettings, columns, descriptionTemplate } = useStore()
   const priorityConfig = getPriorityConfig()
   const statusConfig = columns.map(c => ({
     value: c.id as FeatureStatus,
@@ -329,6 +329,13 @@ function CreateFeatureDialogContent({
     }
   })
 
+  // Prefill description from board template once the editor is ready
+  useEffect(() => {
+    if (descriptionEditor && descriptionTemplate) {
+      descriptionEditor.commands.setContent(descriptionTemplate)
+    }
+  }, [descriptionEditor, descriptionTemplate])
+
   // Focus input on mount
   useEffect(() => {
     const timer = setTimeout(() => inputRef.current?.focus(), 50)
@@ -336,10 +343,11 @@ function CreateFeatureDialogContent({
   }, [])
 
   const handleSubmit = () => {
-    const description = descriptionEditor ? getMarkdown(descriptionEditor).trim() : ''
     const heading = title.trim()
-    if (!heading && !description) return
-    const content = heading ? `# ${heading}${description ? '\n\n' + description : ''}` : description
+    // Require a title so closing with only a prefilled template does not create a card
+    if (!heading) return
+    const description = descriptionEditor ? getMarkdown(descriptionEditor).trim() : ''
+    const content = `# ${heading}${description ? '\n\n' + description : ''}`
     onCreate({
       status,
       priority,

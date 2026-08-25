@@ -8,6 +8,7 @@ export type LayoutMode = 'horizontal' | 'vertical'
 interface KanbanState {
   features: Feature[]
   columns: KanbanColumn[]
+  descriptionTemplate: string
   isDarkMode: boolean
   locale: string
   searchQuery: string
@@ -24,6 +25,7 @@ interface KanbanState {
   setLocale: (locale: string) => void
   setFeatures: (features: Feature[]) => void
   setColumns: (columns: KanbanColumn[]) => void
+  setDescriptionTemplate: (template: string) => void
   setIsDarkMode: (dark: boolean) => void
   setCardSettings: (settings: CardDisplaySettings) => void
   setSearchQuery: (query: string) => void
@@ -90,6 +92,7 @@ const isOverdue = (date: Date): boolean => {
 export const useStore = create<KanbanState>((set, get) => ({
   features: [],
   columns: [],
+  descriptionTemplate: '',
   isDarkMode: getInitialDarkMode(),
   locale: 'en',
   searchQuery: '',
@@ -118,6 +121,7 @@ export const useStore = create<KanbanState>((set, get) => ({
   setLocale: (locale) => set({ locale }),
   setFeatures: (features) => set({ features }),
   setColumns: (columns) => set({ columns }),
+  setDescriptionTemplate: (template) => set({ descriptionTemplate: template }),
   setIsDarkMode: (dark) => set({ isDarkMode: dark }),
   setCardSettings: (settings) => set({ cardSettings: settings }),
   setSearchQuery: (query) => set({ searchQuery: query }),

@@ -63,7 +63,7 @@ describe('ColumnManager', () => {
   })
 
   it('posts saveBoardColumns message on save', async () => {
-    useStore.setState({ columns: defaultColumns })
+    useStore.setState({ columns: defaultColumns, descriptionTemplate: '' })
     render(<ColumnManager isOpen={true} onClose={vi.fn()} />)
     
     const user = userEvent.setup()
@@ -79,7 +79,29 @@ describe('ColumnManager', () => {
       columns: [
         { id: 'todo', name: 'Renamed Column', color: '#000000' },
         { id: 'done', name: 'Done', color: '#111111' }
-      ]
+      ],
+      descriptionTemplate: ''
+    })
+  })
+
+  it('includes descriptionTemplate in save payload', async () => {
+    useStore.setState({
+      columns: defaultColumns,
+      descriptionTemplate: '## Old template'
+    })
+    render(<ColumnManager isOpen={true} onClose={vi.fn()} />)
+
+    const user = userEvent.setup()
+    const templateInput = screen.getByPlaceholderText('columnManager.templatePlaceholder')
+    await user.clear(templateInput)
+    await user.type(templateInput, '## Context')
+
+    await user.click(screen.getByText('columnManager.save'))
+
+    expect(mockPostMessage).toHaveBeenCalledWith({
+      type: 'saveBoardColumns',
+      columns: defaultColumns,
+      descriptionTemplate: '## Context'
     })
   })
 

@@ -11,14 +11,16 @@ interface ColumnManagerProps {
 }
 
 export function ColumnManager({ isOpen, onClose }: Readonly<ColumnManagerProps>) {
-  const { columns, features } = useStore()
+  const { columns, features, descriptionTemplate } = useStore()
   const [localColumns, setLocalColumns] = useState<KanbanColumn[]>(columns)
+  const [localTemplate, setLocalTemplate] = useState(descriptionTemplate)
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
 
   if (isOpen !== prevIsOpen) {
     setPrevIsOpen(isOpen)
     if (isOpen) {
       setLocalColumns([...columns])
+      setLocalTemplate(descriptionTemplate)
     }
   }
 
@@ -87,7 +89,11 @@ export function ColumnManager({ isOpen, onClose }: Readonly<ColumnManagerProps>)
       return
     }
 
-    vscode.postMessage({ type: 'saveBoardColumns', columns: localColumns })
+    vscode.postMessage({
+      type: 'saveBoardColumns',
+      columns: localColumns,
+      descriptionTemplate: localTemplate
+    })
     onClose()
   }
 
@@ -232,6 +238,30 @@ export function ColumnManager({ isOpen, onClose }: Readonly<ColumnManagerProps>)
             <Plus size={16} />
             {t('columnManager.addColumn')}
           </button>
+
+          <div
+            className="space-y-2 pt-2"
+            style={{ borderTop: '1px solid var(--vscode-panel-border)' }}
+          >
+            <h3 className="text-sm font-medium" style={{ color: 'var(--vscode-foreground)' }}>
+              {t('columnManager.templateTitle')}
+            </h3>
+            <p className="text-sm" style={{ color: 'var(--vscode-descriptionForeground)' }}>
+              {t('columnManager.templateDescription')}
+            </p>
+            <textarea
+              value={localTemplate}
+              onChange={(e) => setLocalTemplate(e.target.value)}
+              placeholder={t('columnManager.templatePlaceholder')}
+              rows={8}
+              className="w-full text-sm font-mono border rounded px-3 py-2 resize-y"
+              style={{
+                color: 'var(--vscode-input-foreground)',
+                background: 'var(--vscode-input-background)',
+                borderColor: 'var(--vscode-input-border)'
+              }}
+            />
+          </div>
         </div>
 
         {/* Footer */}

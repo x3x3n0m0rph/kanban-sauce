@@ -104,7 +104,7 @@ export function epicLaneId(epic: string | null | undefined): string {
 }
 
 export type ExtensionMessage =
-  | { type: 'init'; features: Feature[]; columns: KanbanColumn[]; settings: CardDisplaySettings; collapsedColumns: string[]; boardViewMode: BoardViewMode; collapsedEpics: string[]; locale: string; translations: Record<string, string>; boardPath: string }
+  | { type: 'init'; features: Feature[]; columns: KanbanColumn[]; settings: CardDisplaySettings; collapsedColumns: string[]; boardViewMode: BoardViewMode; collapsedEpics: string[]; locale: string; translations: Record<string, string>; boardPath: string; descriptionTemplate?: string }
   | { type: 'featuresUpdated'; features: Feature[] }
   | { type: 'triggerCreateDialog' }
   | { type: 'featureContent'; featureId: string; content: string; frontmatter: FeatureFrontmatter }
@@ -143,5 +143,5 @@ export type WebviewMessage =
   | { type: 'renameLabel'; oldName: string; newName: string }
   | { type: 'deleteLabel'; labelName: string }
   | { type: 'refresh' }
-  | { type: 'saveBoardColumns'; columns: KanbanColumn[] }
+  | { type: 'saveBoardColumns'; columns: KanbanColumn[]; descriptionTemplate?: string }
   | { type: 'showErrorMessage'; message: string }

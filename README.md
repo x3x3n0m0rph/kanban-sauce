@@ -96,6 +96,8 @@ Default columns:
 
 You can override the columns configuration/list for a specific board easily from the Kanban board UI by clicking the **Manage Columns** button in the top toolbar. This will automatically create or update a `.kanbansauce` file (in JSON format) at the root of the board directory. This allows you to have different column configurations for different boards, and since the file lives in the board folder, it is version-controllable and easily reproducible.
 
+In the same **Manage Columns** panel you can set a **Description template** — markdown that is pre-filled into the description field when creating a new card on that board.
+
 Example `.kanbansauce` file:
 
 ```json
@@ -104,7 +106,8 @@ Example `.kanbansauce` file:
     { "id": "backlog", "name": "Backlog", "color": "#6b7280" },
     { "id": "in-progress", "name": "In Progress", "color": "#f59e0b" },
     { "id": "done", "name": "Done", "color": "#22c55e" }
-  ]
+  ],
+  "descriptionTemplate": "## Context\n\n- [ ] Acceptance criteria"
 }
 ```
 
