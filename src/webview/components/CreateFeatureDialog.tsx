@@ -11,6 +11,7 @@ import { useStore } from '../store'
 import { cn } from '../lib/utils'
 import { DatePicker } from './DatePicker'
 import { t } from '../lib/i18n'
+import { buildCreateFeatureContent, shouldCreateFeatureOnClose } from '../lib/createFeatureSubmit'
 
 interface MarkdownStorage {
   markdown: { getMarkdown: () => string }
@@ -314,6 +315,8 @@ function CreateFeatureDialogContent({
   const [labels, setLabels] = useState<string[]>([])
   const [epic, setEpic] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const descriptionDirtyRef = useRef(false)
+  const isPrefillingRef = useRef(false)
 
   const descriptionEditor = useEditor({
     extensions: [
@@ -326,13 +329,22 @@ function CreateFeatureDialogContent({
       attributes: {
         class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[200px]'
       }
+    },
+    onUpdate: () => {
+      if (isPrefillingRef.current) return
+      descriptionDirtyRef.current = true
     }
   })
 
   // Prefill description from board template once the editor is ready
   useEffect(() => {
     if (descriptionEditor && descriptionTemplate) {
+      isPrefillingRef.current = true
       descriptionEditor.commands.setContent(descriptionTemplate)
+      // Ignore the onUpdate from setContent, then allow real user edits to mark dirty
+      requestAnimationFrame(() => {
+        isPrefillingRef.current = false
+      })
     }
   }, [descriptionEditor, descriptionTemplate])
 
@@ -344,14 +356,15 @@ function CreateFeatureDialogContent({
 
   const handleSubmit = () => {
     const heading = title.trim()
-    // Require a title so closing with only a prefilled template does not create a card
-    if (!heading) return
     const description = descriptionEditor ? getMarkdown(descriptionEditor).trim() : ''
-    const content = `# ${heading}${description ? '\n\n' + description : ''}`
+    const bodyEdited = descriptionDirtyRef.current
+
+    if (!shouldCreateFeatureOnClose(heading, description, bodyEdited)) return
+
     onCreate({
       status,
       priority,
-      content,
+      content: buildCreateFeatureContent(heading, description),
       assignee: assignee.trim() || null,
       epic: epic.trim() || null,
       dueDate: dueDate || null,
@@ -359,7 +372,7 @@ function CreateFeatureDialogContent({
     })
   }
 
-  // Save and close: creates the feature if there's a title, then closes
+  // Save and close when there is a title or user-edited description
   const handleClose = () => {
     handleSubmit()
     onClose()
