@@ -3,7 +3,7 @@ import * as crypto from 'crypto'
 import * as path from 'path'
 import { generateKeyBetween, generateNKeysBetween } from 'fractional-indexing'
 import { getTitleFromContent, generateFeatureFilename } from '../shared/types'
-import type { Feature, FeatureStatus, Priority, KanbanColumn, FeatureFrontmatter, CardDisplaySettings, FilenamePattern, BoardViewMode, ColumnSortField, ColumnSortDirection } from '../shared/types'
+import type { Feature, FeatureStatus, Priority, KanbanColumn, FeatureFrontmatter, CardDisplaySettings, FilenamePattern, BoardViewMode, ColumnSortField, ColumnSortDirection, ColumnWidthMode } from '../shared/types'
 import { sortFeaturesForColumn } from '../shared/columnSort'
 import { ensureStatusSubfolders, moveFeatureFile, getFeatureFilePath, getStatusFromPath, fileExists } from './featureFileUtils'
 import { parseFeatureFile, serializeFeature } from '../shared/featureFrontmatter'
@@ -235,6 +235,10 @@ export class KanbanPanel {
           }
           case 'setBoardViewMode': {
             await this._context.workspaceState.update('kanban-sauce.boardViewMode', message.mode)
+            break
+          }
+          case 'setColumnWidthMode': {
+            await this._context.workspaceState.update('kanban-sauce.columnWidthMode', message.mode)
             break
           }
           case 'toggleEpicCollapsed': {
@@ -1194,6 +1198,7 @@ export class KanbanPanel {
 
     const collapsedColumns: string[] = this._context.workspaceState.get('kanban-sauce.collapsedColumns', [])
     const boardViewMode: BoardViewMode = this._context.workspaceState.get('kanban-sauce.boardViewMode', 'standard')
+    const columnWidthMode: ColumnWidthMode = this._context.workspaceState.get('kanban-sauce.columnWidthMode', 'fixed')
     const collapsedEpics: string[] = this._context.workspaceState.get('kanban-sauce.collapsedEpics', [])
 
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
@@ -1210,6 +1215,7 @@ export class KanbanPanel {
       settings,
       collapsedColumns,
       boardViewMode,
+      columnWidthMode,
       collapsedEpics,
       locale: getEffectiveLocale(),
       translations: getBundle(),

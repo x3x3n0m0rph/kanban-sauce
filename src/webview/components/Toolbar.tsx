@@ -1,9 +1,10 @@
 import { Search, X, Columns, Rows, Settings, Tags, Layers, RefreshCw, Kanban } from 'lucide-react'
 import { useStore, type DueDateFilter } from '../store'
-import type { BoardViewMode, Priority } from '../../shared/types'
+import type { BoardViewMode, ColumnWidthMode, Priority } from '../../shared/types'
 import { useState } from 'react'
 import { LabelManager } from './LabelManager'
 import { t } from '../lib/i18n'
+import { vscode } from '../vscodeApi'
 
 function getPriorities(): { value: Priority | 'all'; label: string }[] {
   return [
@@ -12,6 +13,14 @@ function getPriorities(): { value: Priority | 'all'; label: string }[] {
     { value: 'high', label: t('priority.high') },
     { value: 'medium', label: t('priority.medium') },
     { value: 'low', label: t('priority.low') }
+  ]
+}
+
+function getColumnWidthOptions(): { value: ColumnWidthMode; label: string }[] {
+  return [
+    { value: 'fixed', label: t('toolbar.columnWidthFixed') },
+    { value: 'fill', label: t('toolbar.columnWidthFill') },
+    { value: 'compact', label: t('toolbar.columnWidthCompact') }
   ]
 }
 
@@ -62,11 +71,14 @@ export function Toolbar({
     hasActiveFilters,
     layout,
     toggleLayout,
+    columnWidthMode,
+    setColumnWidthMode,
     cardSettings
   } = useStore()
 
   const priorities = getPriorities()
   const dueDateOptions = getDueDateOptions()
+  const columnWidthOptions = getColumnWidthOptions()
   const assignees = getUniqueAssignees()
   const labels = getUniqueLabels()
   const unknownTypes = getUnknownTypes()
@@ -205,6 +217,26 @@ export function Toolbar({
       >
         {layout === 'horizontal' ? <Rows size={16} /> : <Columns size={16} />}
       </button>
+
+      {/* Column width mode (horizontal layout only) */}
+      {layout === 'horizontal' && (
+        <select
+          value={columnWidthMode}
+          onChange={(e) => {
+            const mode = e.target.value as ColumnWidthMode
+            setColumnWidthMode(mode)
+            vscode.postMessage({ type: 'setColumnWidthMode', mode })
+          }}
+          className={selectClassName}
+          title={t('toolbar.columnWidth')}
+        >
+          {columnWidthOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      )}
 
       {/* Board: standard columns vs epic swim lanes */}
       <button

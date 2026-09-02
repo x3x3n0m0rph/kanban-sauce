@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Feature, FeatureStatus, KanbanColumn, Priority, CardDisplaySettings, BoardViewMode, FeatureTypeConfig } from '../../shared/types'
+import type { Feature, FeatureStatus, KanbanColumn, Priority, CardDisplaySettings, BoardViewMode, FeatureTypeConfig, ColumnWidthMode } from '../../shared/types'
 import { DEFAULT_FEATURE_TYPES } from '../../shared/types'
 import { featureMatchesEpicLane } from '../../shared/epicLane'
 
@@ -22,6 +22,7 @@ interface KanbanState {
   dueDateFilter: DueDateFilter
   layout: LayoutMode
   boardViewMode: BoardViewMode
+  columnWidthMode: ColumnWidthMode
   cardSettings: CardDisplaySettings
   collapsedColumns: Set<string>
   collapsedEpics: Set<string>
@@ -41,6 +42,7 @@ interface KanbanState {
   setLayout: (layout: LayoutMode) => void
   toggleLayout: () => void
   setBoardViewMode: (mode: BoardViewMode) => void
+  setColumnWidthMode: (mode: ColumnWidthMode) => void
   setCollapsedColumns: (ids: string[]) => void
   toggleColumnCollapsed: (columnId: string) => void
   setCollapsedEpics: (ids: string[]) => void
@@ -109,6 +111,7 @@ export const useStore = create<KanbanState>((set, get) => ({
   dueDateFilter: 'all',
   layout: 'horizontal',
   boardViewMode: 'standard',
+  columnWidthMode: 'fixed',
   collapsedColumns: new Set<string>(),
   collapsedEpics: new Set<string>(),
   cardSettings: {
@@ -142,6 +145,7 @@ export const useStore = create<KanbanState>((set, get) => ({
   setLayout: (layout) => set({ layout }),
   toggleLayout: () => set((state) => ({ layout: state.layout === 'horizontal' ? 'vertical' : 'horizontal' })),
   setBoardViewMode: (mode) => set({ boardViewMode: mode }),
+  setColumnWidthMode: (mode) => set({ columnWidthMode: mode }),
   setCollapsedColumns: (ids) => set({ collapsedColumns: new Set(ids) }),
   toggleColumnCollapsed: (columnId) => set((state) => {
     const next = new Set(state.collapsedColumns)

@@ -152,6 +152,9 @@ export type BoardViewMode = 'standard' | 'epic'
 export type ColumnSortField = 'priority' | 'dueDate' | 'title' | 'created' | 'modified'
 export type ColumnSortDirection = 'asc' | 'desc'
 
+/** Horizontal column width behavior: fixed 288px, fill viewport, or compact min-width. */
+export type ColumnWidthMode = 'fixed' | 'fill' | 'compact'
+
 /** Stable id for the "no epic" swim lane (persisted collapse state). */
 export const NO_EPIC_LANE_ID = '__no_epic__'
 
@@ -161,7 +164,7 @@ export function epicLaneId(epic: string | null | undefined): string {
 }
 
 export type ExtensionMessage =
-  | { type: 'init'; features: Feature[]; columns: KanbanColumn[]; featureTypes: FeatureTypeConfig[]; settings: CardDisplaySettings; collapsedColumns: string[]; boardViewMode: BoardViewMode; collapsedEpics: string[]; locale: string; translations: Record<string, string>; boardPath: string }
+  | { type: 'init'; features: Feature[]; columns: KanbanColumn[]; featureTypes: FeatureTypeConfig[]; settings: CardDisplaySettings; collapsedColumns: string[]; boardViewMode: BoardViewMode; columnWidthMode: ColumnWidthMode; collapsedEpics: string[]; locale: string; translations: Record<string, string>; boardPath: string }
   | { type: 'featuresUpdated'; features: Feature[] }
   | { type: 'triggerCreateDialog' }
   | { type: 'featureContent'; featureId: string; content: string; frontmatter: FeatureFrontmatter }
@@ -195,6 +198,7 @@ export type WebviewMessage =
   | { type: 'openSettings' }
   | { type: 'toggleColumnCollapsed'; columnId: string }
   | { type: 'setBoardViewMode'; mode: BoardViewMode }
+  | { type: 'setColumnWidthMode'; mode: ColumnWidthMode }
   | { type: 'toggleEpicCollapsed'; epicKey: string }
   | { type: 'moveAllCards'; sourceColumnId: string; targetColumnId: string; epicLane?: string | null }
   | { type: 'archiveAllCards'; sourceColumnId: string }
