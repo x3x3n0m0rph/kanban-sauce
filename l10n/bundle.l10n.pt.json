@@ -139,6 +139,7 @@
   "column.sort.modifiedNewest": "Data de modificação: mais recente primeiro",
   "column.sort.modifiedOldest": "Data de modificação: mais antiga primeiro",
   "column.archiveAllCards": "Arquivar todos os cartões desta lista",
+  "column.bulkActionsDisabledByFilters": "Limpe os filtros do quadro para usar ações em massa da coluna",
   "column.noFeatures": "Sem funcionalidades",
 
   "epic.noEpic": "Sem épico",

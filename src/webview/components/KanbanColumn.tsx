@@ -16,6 +16,7 @@ interface KanbanColumnProps {
   onMoveAllCards: (targetColumnId: string) => void
   onSortCards: (field: ColumnSortField, direction: ColumnSortDirection) => void
   onArchiveAllCards?: () => void
+  bulkActionsDisabled?: boolean
   onDragStart: (e: React.DragEvent, feature: Feature) => void
   onDragOver: (e: React.DragEvent) => void
   onDragOverCard: (e: React.DragEvent, columnId: string, cardIndex: number) => void
@@ -36,6 +37,7 @@ export function KanbanColumn({
   onMoveAllCards,
   onSortCards,
   onArchiveAllCards,
+  bulkActionsDisabled = false,
   onDragStart,
   onDragOver,
   onDragOverCard,
@@ -69,6 +71,9 @@ export function KanbanColumn({
     setMenuOpen(false)
     setSubmenuOpen(null)
   }
+
+  const bulkDisabled = features.length === 0 || bulkActionsDisabled
+  const bulkDisabledClass = bulkDisabled ? 'opacity-40 pointer-events-none' : ''
 
   useEffect(() => {
     if (!menuOpen) return
@@ -125,9 +130,15 @@ export function KanbanColumn({
             </button>
             {menuOpen && (
               <div className="absolute right-0 top-full mt-1 z-50 min-w-[200px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg py-1">
+                {bulkActionsDisabled && (
+                  <p className="px-3 py-1.5 text-xs text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-700">
+                    {t('column.bulkActionsDisabledByFilters')}
+                  </p>
+                )}
                 <div
-                  className={`relative ${features.length === 0 ? 'opacity-40 pointer-events-none' : ''}`}
-                  onMouseEnter={() => setSubmenuOpen('move')}
+                  className={`relative ${bulkDisabledClass}`}
+                  title={bulkActionsDisabled ? t('column.bulkActionsDisabledByFilters') : undefined}
+                  onMouseEnter={() => !bulkDisabled && setSubmenuOpen('move')}
                   onMouseLeave={() => setSubmenuOpen((prev) => (prev === 'move' ? null : prev))}
                 >
                   <button
@@ -152,8 +163,9 @@ export function KanbanColumn({
                   )}
                 </div>
                 <div
-                  className={`relative ${features.length === 0 ? 'opacity-40 pointer-events-none' : ''}`}
-                  onMouseEnter={() => setSubmenuOpen('sort')}
+                  className={`relative ${bulkDisabledClass}`}
+                  title={bulkActionsDisabled ? t('column.bulkActionsDisabledByFilters') : undefined}
+                  onMouseEnter={() => !bulkDisabled && setSubmenuOpen('sort')}
                   onMouseLeave={() => setSubmenuOpen((prev) => (prev === 'sort' ? null : prev))}
                 >
                   <button
@@ -182,7 +194,8 @@ export function KanbanColumn({
                 </div>
                 {onArchiveAllCards && (
                   <button
-                    className={`w-full text-left px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 ${features.length === 0 ? 'opacity-40 pointer-events-none' : ''}`}
+                    className={`w-full text-left px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 ${bulkDisabledClass}`}
+                    title={bulkActionsDisabled ? t('column.bulkActionsDisabledByFilters') : undefined}
                     onClick={() => { onArchiveAllCards(); setMenuOpen(false) }}
                   >
                     {t('column.archiveAllCards')}

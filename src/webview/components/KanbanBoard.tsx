@@ -24,6 +24,7 @@ export function KanbanBoard({ onFeatureClick, onAddFeature, onMoveFeature, epicF
   const getFeaturesByStatus = useStore((s) => s.getFeaturesByStatus)
   const layout = useStore((s) => s.layout)
   const collapsedColumns = useStore((s) => s.collapsedColumns)
+  const bulkActionsDisabled = useStore((s) => s.hasActiveFilters())
   const toggleColumnCollapsed = useStore((s) => s.toggleColumnCollapsed)
   const [draggedFeature, setDraggedFeature] = useState<Feature | null>(null)
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null)
@@ -188,6 +189,7 @@ export function KanbanBoard({ onFeatureClick, onAddFeature, onMoveFeature, epicF
               onMoveAllCards={(targetColumnId) => handleMoveAllCards(column.id, targetColumnId)}
               onSortCards={(field, direction) => handleSortCards(column.id, field, direction)}
               onArchiveAllCards={column.id === 'done' ? () => handleArchiveAllCards(column.id) : undefined}
+              bulkActionsDisabled={bulkActionsDisabled}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
               onDragOverCard={handleDragOverCard}

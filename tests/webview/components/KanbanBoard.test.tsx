@@ -355,6 +355,26 @@ describe('KanbanBoard — sortColumnCards', () => {
     const sortWrapper = screen.getByText('Sort cards in this list').closest('div')!
     expect(sortWrapper.className).toMatch(/pointer-events-none/)
   })
+
+  it('disables bulk actions when board filters are active', async () => {
+    useStore.setState({
+      columns: DEFAULT_COLUMNS,
+      features: [makeFeature({ status: 'backlog' })],
+      priorityFilter: 'high'
+    })
+    const { user } = setup()
+
+    const backlogSection = screen.getByTitle('Collapse Backlog').closest('[class*="rounded-lg"]') as HTMLElement
+    const menuBtn = within(backlogSection).getByTitle('Column options')
+    await user.click(menuBtn)
+
+    expect(screen.getByText('Clear board filters to use column bulk actions')).toBeInTheDocument()
+
+    const sortWrapper = screen.getByText('Sort cards in this list').closest('div')!
+    const moveWrapper = screen.getByText('Move all cards in this list').closest('div')!
+    expect(sortWrapper.className).toMatch(/pointer-events-none/)
+    expect(moveWrapper.className).toMatch(/pointer-events-none/)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -394,6 +414,22 @@ describe('KanbanBoard — archiveAllCards', () => {
     await user.click(menuBtn)
 
     expect(screen.queryByRole('button', { name: /archive all cards/i })).not.toBeInTheDocument()
+  })
+
+  it('disables archive all when board filters are active on the done column', async () => {
+    useStore.setState({
+      columns: DEFAULT_COLUMNS,
+      features: [makeFeature({ status: 'done' })],
+      searchQuery: 'feature'
+    })
+    const { user } = setup()
+
+    const doneSection = screen.getByTitle('Collapse Done').closest('[class*="rounded-lg"]') as HTMLElement
+    const menuBtn = within(doneSection).getByTitle('Column options')
+    await user.click(menuBtn)
+
+    const archiveBtn = screen.getByRole('button', { name: /archive all cards/i })
+    expect(archiveBtn.className).toMatch(/pointer-events-none/)
   })
 })
 
