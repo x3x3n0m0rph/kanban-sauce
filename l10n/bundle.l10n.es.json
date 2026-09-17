@@ -138,6 +138,7 @@
   "column.sort.modifiedNewest": "Fecha de modificación: más reciente primero",
   "column.sort.modifiedOldest": "Fecha de modificación: más antigua primero",
   "column.archiveAllCards": "Archivar todas las tarjetas de esta lista",
+  "column.bulkActionsDisabledByFilters": "Quita los filtros del tablero para usar acciones masivas de columna",
   "column.noFeatures": "Sin funciones",
 
   "epic.noEpic": "Sin épica",
