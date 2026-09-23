@@ -17,6 +17,7 @@ function makeFeature(overrides: Partial<Feature> = {}): Feature {
     id: 'f1',
     status: 'todo',
     priority: 'medium',
+    type: null,
     assignee: null,
     epic: null,
     dueDate: null,
@@ -201,13 +202,14 @@ describe('toggleColumnCollapsed', () => {
 
 describe('clearAllFilters', () => {
   it('resets all active filters to their defaults', () => {
-    useStore.setState({ searchQuery: 'foo', priorityFilter: 'high', assigneeFilter: 'alice', labelFilter: 'label:frontend', dueDateFilter: 'overdue' })
+    useStore.setState({ searchQuery: 'foo', priorityFilter: 'high', assigneeFilter: 'alice', labelFilter: 'label:frontend', typeFilter: 'bug', dueDateFilter: 'overdue' })
     useStore.getState().clearAllFilters()
-    const { searchQuery, priorityFilter, assigneeFilter, labelFilter, dueDateFilter } = useStore.getState()
+    const { searchQuery, priorityFilter, assigneeFilter, labelFilter, typeFilter, dueDateFilter } = useStore.getState()
     expect(searchQuery).toBe('')
     expect(priorityFilter).toBe('all')
     expect(assigneeFilter).toBe('all')
     expect(labelFilter).toBe('all')
+    expect(typeFilter).toBe('all')
     expect(dueDateFilter).toBe('all')
   })
 })
@@ -226,8 +228,8 @@ describe('hasActiveFilters', () => {
     expect(useStore.getState().hasActiveFilters()).toBe(true)
   })
 
-  it('returns true when priorityFilter is set', () => {
-    useStore.setState({ priorityFilter: 'high' })
+  it('returns true when typeFilter is set', () => {
+    useStore.setState({ typeFilter: 'bug' })
     expect(useStore.getState().hasActiveFilters()).toBe(true)
   })
 })
@@ -261,6 +263,37 @@ describe('getUniqueEpics', () => {
     useStore.getState().addFeature(makeFeature({ id: '3', epic: 'Alpha' }))
     useStore.getState().addFeature(makeFeature({ id: '4', epic: null }))
     expect(useStore.getState().getUniqueEpics()).toEqual(['Alpha', 'Beta'])
+  })
+})
+
+describe('type filtering', () => {
+  it('filters by known type id', () => {
+    useStore.getState().addFeature(makeFeature({ id: 'a', status: 'todo', type: 'bug' }))
+    useStore.getState().addFeature(makeFeature({ id: 'b', status: 'todo', type: 'feature' }))
+    useStore.setState({ typeFilter: 'bug' })
+    expect(useStore.getState().getFilteredFeaturesByStatus('todo').map(f => f.id)).toEqual(['a'])
+  })
+
+  it('filters untyped features', () => {
+    useStore.getState().addFeature(makeFeature({ id: 'a', status: 'todo', type: null }))
+    useStore.getState().addFeature(makeFeature({ id: 'b', status: 'todo', type: 'bug' }))
+    useStore.setState({ typeFilter: 'untyped' })
+    expect(useStore.getState().getFilteredFeaturesByStatus('todo').map(f => f.id)).toEqual(['a'])
+  })
+
+  it('filters by unknown type id still in use', () => {
+    useStore.getState().addFeature(makeFeature({ id: 'a', status: 'todo', type: 'legacy' }))
+    useStore.getState().addFeature(makeFeature({ id: 'b', status: 'todo', type: 'bug' }))
+    useStore.setState({ typeFilter: 'legacy' })
+    expect(useStore.getState().getFilteredFeaturesByStatus('todo').map(f => f.id)).toEqual(['a'])
+  })
+})
+
+describe('getUnknownTypes', () => {
+  it('returns type ids used by features but missing from config', () => {
+    useStore.getState().addFeature(makeFeature({ id: 'a', type: 'legacy' }))
+    useStore.getState().addFeature(makeFeature({ id: 'b', type: 'bug' }))
+    expect(useStore.getState().getUnknownTypes()).toEqual(['legacy'])
   })
 })
 

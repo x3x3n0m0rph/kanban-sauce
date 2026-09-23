@@ -13,6 +13,7 @@ function makeFeature(overrides: Partial<Feature> = {}): Feature {
     id: 'abc-123',
     status: 'in-progress',
     priority: 'high',
+    type: null,
     assignee: 'foo',
     epic: null,
     dueDate: '2026-03-01',
@@ -32,6 +33,7 @@ function makeFrontmatter(overrides: Record<string, string> = {}): string {
     id: '"abc-123"',
     status: '"in-progress"',
     priority: '"high"',
+    type: 'null',
     assignee: '"foo"',
     epic: 'null',
     dueDate: '"2026-03-01"',
@@ -59,6 +61,7 @@ describe('parseFeatureFile', () => {
     expect(feature!.id).toBe('abc-123')
     expect(feature!.status).toBe('in-progress')
     expect(feature!.priority).toBe('high')
+    expect(feature!.type).toBeNull()
     expect(feature!.assignee).toBe('foo')
     expect(feature!.epic).toBeNull()
     expect(feature!.dueDate).toBe('2026-03-01')
@@ -126,6 +129,18 @@ describe('parseFeatureFile', () => {
     })
   })
 
+  describe('type', () => {
+    it('parses a non-null type string', () => {
+      const content = makeFrontmatter({ type: '"bug"' }) + ''
+      expect(parseFeatureFile(content, FIXTURE_PATH)!.type).toBe('bug')
+    })
+
+    it('returns null when type is missing', () => {
+      const content = makeFrontmatter().replace('type: null\n', '') + ''
+      expect(parseFeatureFile(content, FIXTURE_PATH)!.type).toBeNull()
+    })
+  })
+
   describe('epic', () => {
     it('parses a non-null epic string', () => {
       const content = makeFrontmatter({ epic: '"Payments rollout"' }) + ''
@@ -170,6 +185,16 @@ describe('parseFeatureFile', () => {
 describe('serializeFeature', () => {
   it('produces a string starting with ---', () => {
     expect(serializeFeature(makeFeature())).toMatch(/^---\n/)
+  })
+
+  it('omits type from output when null', () => {
+    const output = serializeFeature(makeFeature({ type: null }))
+    expect(output).not.toMatch(/^type:/m)
+  })
+
+  it('writes type when set', () => {
+    const output = serializeFeature(makeFeature({ type: 'bug' }))
+    expect(output).toContain('type: "bug"')
   })
 
   it('writes null fields as literal null (not quoted "null")', () => {
@@ -219,6 +244,7 @@ describe('round-trip: serializeFeature → parseFeatureFile', () => {
     expect(recovered!.id).toBe(original.id)
     expect(recovered!.status).toBe(original.status)
     expect(recovered!.priority).toBe(original.priority)
+    expect(recovered!.type).toBe(original.type)
     expect(recovered!.assignee).toBe(original.assignee)
     expect(recovered!.epic).toBe(original.epic)
     expect(recovered!.dueDate).toBe(original.dueDate)
@@ -229,6 +255,12 @@ describe('round-trip: serializeFeature → parseFeatureFile', () => {
     expect(recovered!.order).toBe(original.order)
     expect(recovered!.content).toBe(original.content)
     expect(recovered!.filePath).toBe(original.filePath)
+  })
+
+  it('round-trips a feature with type set', () => {
+    const original = makeFeature({ type: 'feature' })
+    const recovered = parseFeatureFile(serializeFeature(original), original.filePath)!
+    expect(recovered.type).toBe('feature')
   })
 
   it('round-trips a feature with all nullable fields set to null', () => {

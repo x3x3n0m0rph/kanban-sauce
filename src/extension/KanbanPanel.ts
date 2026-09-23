@@ -3,14 +3,20 @@ import * as crypto from 'crypto'
 import * as path from 'path'
 import { generateKeyBetween, generateNKeysBetween } from 'fractional-indexing'
 import { getTitleFromContent, generateFeatureFilename } from '../shared/types'
-import type { Feature, FeatureStatus, Priority, KanbanColumn, FeatureFrontmatter, CardDisplaySettings, FilenamePattern, BoardViewMode } from '../shared/types'
+import type { Feature, FeatureStatus, Priority, KanbanColumn, FeatureFrontmatter, CardDisplaySettings, FilenamePattern, BoardViewMode, ColumnSortField, ColumnSortDirection } from '../shared/types'
+import { sortFeaturesForColumn } from '../shared/columnSort'
 import { ensureStatusSubfolders, moveFeatureFile, getFeatureFilePath, getStatusFromPath, fileExists } from './featureFileUtils'
 import { parseFeatureFile, serializeFeature } from '../shared/featureFrontmatter'
 import { featureMatchesEpicLane } from '../shared/epicLane'
 import { t, getBundle, getEffectiveLocale, reloadBundle, getAllDefaultColumnNames, getDefaultColumnNamesForLocale } from './l10n'
-import { getBoardColumns, saveBoardColumns } from './boardConfig'
+import { getBoardColumns, getBoardFeatureTypes, getBoardDefaultFeatureType, saveBoardColumns } from './boardConfig'
 
 function normalizeEpic(value: string | null | undefined): string | null {
+  const t = value?.trim()
+  return t ? t : null
+}
+
+function normalizeType(value: string | null | undefined): string | null {
   const t = value?.trim()
   return t ? t : null
 }
@@ -18,6 +24,7 @@ function normalizeEpic(value: string | null | undefined): string | null {
 interface CreateFeatureData {
   status: FeatureStatus
   priority: Priority
+  type: string | null
   content: string
   assignee: string | null
   epic: string | null
@@ -246,6 +253,9 @@ export class KanbanPanel {
             break
           case 'archiveAllCards':
             await this._archiveAllCards(message.sourceColumnId)
+            break
+          case 'sortColumnCards':
+            await this._sortColumnCards(message.columnId, message.field, message.direction, message.epicLane)
             break
           case 'renameLabel':
             await this._renameLabel(message.oldName, message.newName)
@@ -606,7 +616,7 @@ export class KanbanPanel {
     const title = getTitleFromContent(data.content)
     const config = vscode.workspace.getConfiguration('kanban-sauce')
     const pattern = config.get<FilenamePattern>('filenamePattern', 'name-date')
-    const filename = generateFeatureFilename(title, pattern)
+    const filename = generateFeatureFilename(title, pattern, new Date(), normalizeType(data.type))
     const now = new Date().toISOString()
     const addNewCardsToTop = config.get<boolean>('addNewCardsToTop', false)
     const featuresInStatus = this._features
@@ -629,6 +639,7 @@ export class KanbanPanel {
       id: uniqueFilename,
       status: data.status,
       priority: data.priority,
+      type: normalizeType(data.type),
       assignee: data.assignee,
       epic: normalizeEpic(data.epic),
       dueDate: data.dueDate,
@@ -748,6 +759,36 @@ export class KanbanPanel {
     }
 
     this._sendFeaturesToWebview()
+  }
+
+  private async _sortColumnCards(
+    columnId: string,
+    field: ColumnSortField,
+    direction: ColumnSortDirection,
+    epicLane?: string | null
+  ): Promise<void> {
+    const columnFeatures = this._features
+      .filter(f => f.status === columnId && featureMatchesEpicLane(f, epicLane))
+      .sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0))
+
+    if (columnFeatures.length < 2) return
+
+    const sorted = sortFeaturesForColumn(columnFeatures, field, direction)
+    const newKeys = generateNKeysBetween(null, null, sorted.length)
+
+    let anyChanged = false
+    for (let i = 0; i < sorted.length; i++) {
+      const feature = sorted[i]
+      if (feature.order === newKeys[i]) continue
+      feature.order = newKeys[i]
+      anyChanged = true
+      const content = this._serializeFeature(feature)
+      await vscode.workspace.fs.writeFile(vscode.Uri.file(feature.filePath), new TextEncoder().encode(content))
+    }
+
+    if (anyChanged) {
+      this._sendFeaturesToWebview()
+    }
   }
 
   private async _archiveAllCards(sourceColumnId: string): Promise<void> {
@@ -888,6 +929,7 @@ export class KanbanPanel {
       id: feature.id,
       status: feature.status,
       priority: feature.priority,
+      type: feature.type,
       assignee: feature.assignee,
       epic: feature.epic,
       dueDate: feature.dueDate,
@@ -923,6 +965,7 @@ export class KanbanPanel {
     feature.content = content
     feature.status = frontmatter.status
     feature.priority = frontmatter.priority
+    feature.type = normalizeType(frontmatter.type)
     feature.assignee = frontmatter.assignee
     feature.epic = normalizeEpic(frontmatter.epic)
     feature.dueDate = frontmatter.dueDate
@@ -1081,7 +1124,7 @@ export class KanbanPanel {
       for (const feature of this._features) {
         const title = getTitleFromContent(feature.content)
         const createdDate = new Date(feature.created)
-        const newFilename = generateFeatureFilename(title, pattern, createdDate)
+        const newFilename = generateFeatureFilename(title, pattern, createdDate, feature.type)
 
         if (newFilename === feature.id) continue // no change needed
 
@@ -1123,18 +1166,22 @@ export class KanbanPanel {
     const config = vscode.workspace.getConfiguration('kanban-sauce')
 
     const columns = getBoardColumns(this._boardPath)
+    const featureTypes = getBoardFeatureTypes(this._boardPath)
+    const defaultFeatureType = getBoardDefaultFeatureType(this._boardPath, featureTypes)
     const settings: CardDisplaySettings = {
       showPriorityBadges: config.get<boolean>('showPriorityBadges', true),
       showAssignee: config.get<boolean>('showAssignee', true),
       showDueDate: config.get<boolean>('showDueDate', true),
       showLabels: config.get<boolean>('showLabels', true),
       showEpic: config.get<boolean>('showEpic', true),
+      showType: config.get<boolean>('showType', true),
       showFileName: config.get<boolean>('showFileName', false),
       compactMode: config.get<boolean>('compactMode', false),
       markdownEditorMode: config.get<boolean>('markdownEditorMode', false),
       hideScrollbar: config.get<boolean>('hideScrollbar', false),
       defaultPriority: config.get<Priority>('defaultPriority', 'medium'),
       defaultStatus: config.get<FeatureStatus>('defaultStatus', 'backlog'),
+      defaultFeatureType,
       fontSizeColumnHeader: config.get<string>('fontSizeColumnHeader', '14px'),
       fontSizeCardTitle: config.get<string>('fontSizeCardTitle', '13px'),
       fontSizeCardDescription: config.get<string>('fontSizeCardDescription', '12px'),
@@ -1159,6 +1206,7 @@ export class KanbanPanel {
       type: 'init',
       features,
       columns,
+      featureTypes,
       settings,
       collapsedColumns,
       boardViewMode,

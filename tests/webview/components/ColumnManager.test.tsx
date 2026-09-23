@@ -106,7 +106,7 @@ describe('ColumnManager', () => {
     const mockFeature: Feature = {
       id: '1', filePath: '',
       status: 'todo', // Has a card in 'todo'
-      content: '', priority: 'low', assignee: null, epic: null, dueDate: null, labels: [],
+      content: '', priority: 'low', type: null, assignee: null, epic: null, dueDate: null, labels: [],
       created: '', modified: '', order: '0', completedAt: null
     }
     useStore.setState({ columns: defaultColumns, features: [mockFeature] })

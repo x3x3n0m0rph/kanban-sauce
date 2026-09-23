@@ -1,19 +1,24 @@
 import { create } from 'zustand'
-import type { Feature, FeatureStatus, KanbanColumn, Priority, CardDisplaySettings, BoardViewMode } from '../../shared/types'
+import type { Feature, FeatureStatus, KanbanColumn, Priority, CardDisplaySettings, BoardViewMode, FeatureTypeConfig } from '../../shared/types'
+import { DEFAULT_FEATURE_TYPES } from '../../shared/types'
 import { featureMatchesEpicLane } from '../../shared/epicLane'
 
 export type DueDateFilter = 'all' | 'overdue' | 'today' | 'this-week' | 'no-date'
 export type LayoutMode = 'horizontal' | 'vertical'
 
+export type TypeFilter = 'all' | 'untyped' | string
+
 interface KanbanState {
   features: Feature[]
   columns: KanbanColumn[]
+  featureTypes: FeatureTypeConfig[]
   isDarkMode: boolean
   locale: string
   searchQuery: string
   priorityFilter: Priority | 'all'
   assigneeFilter: string | 'all'
   labelFilter: string | 'all'
+  typeFilter: TypeFilter
   dueDateFilter: DueDateFilter
   layout: LayoutMode
   boardViewMode: BoardViewMode
@@ -24,12 +29,14 @@ interface KanbanState {
   setLocale: (locale: string) => void
   setFeatures: (features: Feature[]) => void
   setColumns: (columns: KanbanColumn[]) => void
+  setFeatureTypes: (types: FeatureTypeConfig[]) => void
   setIsDarkMode: (dark: boolean) => void
   setCardSettings: (settings: CardDisplaySettings) => void
   setSearchQuery: (query: string) => void
   setPriorityFilter: (priority: Priority | 'all') => void
   setAssigneeFilter: (assignee: string | 'all') => void
   setLabelFilter: (label: string | 'all') => void
+  setTypeFilter: (type: TypeFilter) => void
   setDueDateFilter: (filter: DueDateFilter) => void
   setLayout: (layout: LayoutMode) => void
   toggleLayout: () => void
@@ -48,6 +55,7 @@ interface KanbanState {
   getUniqueAssignees: () => string[]
   getUniqueLabels: () => string[]
   getUniqueEpics: () => string[]
+  getUnknownTypes: () => string[]
   hasActiveFilters: () => boolean
 }
 
@@ -90,12 +98,14 @@ const isOverdue = (date: Date): boolean => {
 export const useStore = create<KanbanState>((set, get) => ({
   features: [],
   columns: [],
+  featureTypes: DEFAULT_FEATURE_TYPES,
   isDarkMode: getInitialDarkMode(),
   locale: 'en',
   searchQuery: '',
   priorityFilter: 'all',
   assigneeFilter: 'all',
   labelFilter: 'all',
+  typeFilter: 'all',
   dueDateFilter: 'all',
   layout: 'horizontal',
   boardViewMode: 'standard',
@@ -107,23 +117,27 @@ export const useStore = create<KanbanState>((set, get) => ({
     showDueDate: true,
     showLabels: true,
     showEpic: true,
+    showType: true,
     showFileName: false,
     compactMode: false,
     markdownEditorMode: false,
     hideScrollbar: false,
     defaultPriority: 'medium',
-    defaultStatus: 'backlog'
+    defaultStatus: 'backlog',
+    defaultFeatureType: 'feature'
   },
 
   setLocale: (locale) => set({ locale }),
   setFeatures: (features) => set({ features }),
   setColumns: (columns) => set({ columns }),
+  setFeatureTypes: (types) => set({ featureTypes: types }),
   setIsDarkMode: (dark) => set({ isDarkMode: dark }),
   setCardSettings: (settings) => set({ cardSettings: settings }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setPriorityFilter: (priority) => set({ priorityFilter: priority }),
   setAssigneeFilter: (assignee) => set({ assigneeFilter: assignee }),
   setLabelFilter: (label) => set({ labelFilter: label }),
+  setTypeFilter: (type) => set({ typeFilter: type }),
   setDueDateFilter: (filter) => set({ dueDateFilter: filter }),
   setLayout: (layout) => set({ layout }),
   toggleLayout: () => set((state) => ({ layout: state.layout === 'horizontal' ? 'vertical' : 'horizontal' })),
@@ -155,6 +169,7 @@ export const useStore = create<KanbanState>((set, get) => ({
       priorityFilter: 'all',
       assigneeFilter: 'all',
       labelFilter: 'all',
+      typeFilter: 'all',
       dueDateFilter: 'all'
     }),
 
@@ -187,6 +202,7 @@ export const useStore = create<KanbanState>((set, get) => ({
       priorityFilter,
       assigneeFilter,
       labelFilter,
+      typeFilter,
       dueDateFilter
     } = get()
 
@@ -197,6 +213,15 @@ export const useStore = create<KanbanState>((set, get) => ({
 
         // Priority filter
         if (priorityFilter !== 'all' && f.priority !== priorityFilter) return false
+
+        // Type filter
+        if (typeFilter !== 'all') {
+          if (typeFilter === 'untyped') {
+            if (f.type) return false
+          } else if (f.type !== typeFilter) {
+            return false
+          }
+        }
 
         // Assignee filter
         if (assigneeFilter !== 'all') {
@@ -236,6 +261,7 @@ export const useStore = create<KanbanState>((set, get) => ({
             f.id.toLowerCase().includes(query) ||
             (f.assignee && f.assignee.toLowerCase().includes(query)) ||
             (f.epic && f.epic.toLowerCase().includes(query)) ||
+            (f.type && f.type.toLowerCase().includes(query)) ||
             f.labels.some((l) => l.toLowerCase().includes(query))
           )
         }
@@ -273,12 +299,24 @@ export const useStore = create<KanbanState>((set, get) => ({
     return Array.from(epics).sort()
   },
 
+  getUnknownTypes: () => {
+    const { features, featureTypes } = get()
+    const knownIds = new Set(featureTypes.map(t => t.id))
+    const unknown = new Set<string>()
+    features.forEach((f) => {
+      const typeId = f.type?.trim()
+      if (typeId && !knownIds.has(typeId)) unknown.add(typeId)
+    })
+    return Array.from(unknown).sort()
+  },
+
   hasActiveFilters: () => {
     const {
       searchQuery,
       priorityFilter,
       assigneeFilter,
       labelFilter,
+      typeFilter,
       dueDateFilter
     } = get()
     return (
@@ -286,6 +324,7 @@ export const useStore = create<KanbanState>((set, get) => ({
       priorityFilter !== 'all' ||
       assigneeFilter !== 'all' ||
       labelFilter !== 'all' ||
+      typeFilter !== 'all' ||
       dueDateFilter !== 'all'
     )
   }

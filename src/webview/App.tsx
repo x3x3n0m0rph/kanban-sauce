@@ -26,6 +26,7 @@ function App(): React.JSX.Element {
     setCollapsedEpics,
     boardViewMode,
     setBoardViewMode,
+    setFeatureTypes,
     setLocale
   } = useStore()
 
@@ -267,6 +268,9 @@ function App(): React.JSX.Element {
           }
           setFeatures(message.features)
           setColumns(message.columns)
+          if (message.featureTypes) {
+            setFeatureTypes(message.featureTypes)
+          }
           setCollapsedColumns(message.collapsedColumns ?? [])
           setCollapsedEpics(message.collapsedEpics ?? [])
           setBoardViewMode((message.boardViewMode ?? 'standard') as BoardViewMode)
@@ -308,7 +312,7 @@ function App(): React.JSX.Element {
     vscode.postMessage({ type: 'ready' })
 
     return () => window.removeEventListener('message', handleMessage)
-  }, [setFeatures, setColumns, setCardSettings, setCollapsedColumns, setCollapsedEpics, setBoardViewMode, setLocale])
+  }, [setFeatures, setColumns, setCardSettings, setCollapsedColumns, setCollapsedEpics, setBoardViewMode, setFeatureTypes, setLocale])
 
   const handleFeatureClick = (feature: Feature): void => {
     // Request feature content for inline editing
@@ -351,6 +355,7 @@ function App(): React.JSX.Element {
   const handleCreateFeature = (data: {
     status: FeatureStatus
     priority: Priority
+    type: string | null
     content: string
     assignee: string | null
     epic: string | null

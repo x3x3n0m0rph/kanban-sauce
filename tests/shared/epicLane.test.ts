@@ -7,6 +7,7 @@ function f(overrides: Partial<Feature>): Feature {
     id: 'x',
     status: 'todo',
     priority: 'medium',
+    type: null,
     assignee: null,
     epic: null,
     dueDate: null,

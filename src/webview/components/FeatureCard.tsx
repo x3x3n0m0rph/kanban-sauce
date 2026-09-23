@@ -1,5 +1,5 @@
-import { Calendar, Check, FileText, Layers } from 'lucide-react'
-import { getTitleFromContent } from '../../shared/types'
+import { Calendar, Check, FileText, Layers, Tag } from 'lucide-react'
+import { getTitleFromContent, resolveFeatureType } from '../../shared/types'
 import type { Feature, Priority } from '../../shared/types'
 import { epicThemeFromName } from '../../shared/epicColor'
 import { useStore } from '../store'
@@ -40,7 +40,7 @@ function getDescriptionFromContent(content: string): string {
 }
 
 export function FeatureCard({ feature, onClick, isDragging }: FeatureCardProps) {
-  const { cardSettings, locale, isDarkMode } = useStore()
+  const { cardSettings, locale, isDarkMode, featureTypes } = useStore()
   const priorityLabels = getPriorityLabels()
   const title = getTitleFromContent(feature.content)
   const description = getDescriptionFromContent(feature.content)
@@ -88,6 +88,7 @@ export function FeatureCard({ feature, onClick, isDragging }: FeatureCardProps) 
 
   const epicTrimmed = feature.epic?.trim()
   const epicTheme = epicTrimmed ? epicThemeFromName(epicTrimmed, isDarkMode) : null
+  const typeInfo = resolveFeatureType(feature.type, featureTypes)
 
   return (
     <div
@@ -133,6 +134,16 @@ export function FeatureCard({ feature, onClick, isDragging }: FeatureCardProps) 
           <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-2 kanban-card-description">
             {description}
           </p>
+        )}
+
+        {/* Type */}
+        {cardSettings.showType && typeInfo && (
+          <div className="flex items-center gap-1 mb-1.5 text-[10px] kanban-card-meta">
+            <Tag size={10} className="shrink-0 text-zinc-400 dark:text-zinc-500" />
+            <span className="truncate font-medium px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+              {typeInfo.shortName}
+            </span>
+          </div>
         )}
 
         {/* Epic */}

@@ -318,7 +318,7 @@ export function FeatureEditor({
   onDelete,
   onOpenFile
 }: FeatureEditorProps) {
-  const { cardSettings, columns } = useStore()
+  const { cardSettings, columns, featureTypes } = useStore()
   const [currentFrontmatter, setCurrentFrontmatter] = useState(frontmatter)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const priorityLabels = getPriorityLabels()
@@ -534,6 +534,25 @@ export function FeatureEditor({
             <AssigneeInput
               value={currentFrontmatter.assignee || ''}
               onChange={(v) => handleFrontmatterUpdate({ assignee: v || null })}
+            />
+          </PropertyRow>
+        )}
+        {cardSettings.showType && (
+          <PropertyRow label={t('property.type')} icon={<Tag size={13} />}>
+            <Dropdown
+              value={currentFrontmatter.type || ''}
+              options={[
+                { value: '', label: t('editor.noType') },
+                ...featureTypes.map((type) => ({
+                  value: type.id,
+                  label: type.name
+                })),
+                ...(currentFrontmatter.type &&
+                !featureTypes.some(t => t.id === currentFrontmatter.type)
+                  ? [{ value: currentFrontmatter.type, label: currentFrontmatter.type }]
+                  : [])
+              ]}
+              onChange={(v) => handleFrontmatterUpdate({ type: v ? v : null })}
             />
           </PropertyRow>
         )}

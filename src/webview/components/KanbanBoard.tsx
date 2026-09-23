@@ -3,7 +3,7 @@ import { KanbanColumn } from './KanbanColumn'
 import { CollapsedColumn } from './CollapsedColumn'
 import { useStore } from '../store'
 import { vscode } from '../vscodeApi'
-import type { Feature, FeatureStatus } from '../../shared/types'
+import type { Feature, FeatureStatus, ColumnSortField, ColumnSortDirection } from '../../shared/types'
 
 export interface DropTarget {
   columnId: string
@@ -143,6 +143,23 @@ export function KanbanBoard({ onFeatureClick, onAddFeature, onMoveFeature, epicF
     vscode.postMessage({ type: 'archiveAllCards', sourceColumnId })
   }, [])
 
+  const handleSortCards = useCallback(
+    (columnId: string, field: ColumnSortField, direction: ColumnSortDirection) => {
+      if (epicFilter !== undefined) {
+        vscode.postMessage({
+          type: 'sortColumnCards',
+          columnId,
+          field,
+          direction,
+          epicLane: epicFilter
+        })
+      } else {
+        vscode.postMessage({ type: 'sortColumnCards', columnId, field, direction })
+      }
+    },
+    [epicFilter]
+  )
+
   const isVertical = layout === 'vertical'
 
   return (
@@ -169,6 +186,7 @@ export function KanbanBoard({ onFeatureClick, onAddFeature, onMoveFeature, epicF
               onAddFeature={onAddFeature}
               onCollapse={() => handleToggleCollapse(column.id)}
               onMoveAllCards={(targetColumnId) => handleMoveAllCards(column.id, targetColumnId)}
+              onSortCards={(field, direction) => handleSortCards(column.id, field, direction)}
               onArchiveAllCards={column.id === 'done' ? () => handleArchiveAllCards(column.id) : undefined}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}

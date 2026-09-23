@@ -5,12 +5,12 @@ import { KanbanPanel } from './KanbanPanel'
 import { SidebarViewProvider } from './SidebarViewProvider'
 import { generateFeatureFilename } from '../shared/types'
 import { serializeFeature } from '../shared/featureFrontmatter'
-import type { Feature, FeatureStatus, Priority } from '../shared/types'
+import type { Feature, FeatureStatus, Priority, FilenamePattern } from '../shared/types'
 import { ensureStatusSubfolders, getFeatureFilePath } from './featureFileUtils'
 import { t, loadBundle } from './l10n'
 import { BoardsTreeProvider } from './BoardsTreeProvider'
 import { InProgressTreeProvider } from './InProgressTreeProvider'
-import { getBoardColumns, getActiveBoardPath } from './boardConfig'
+import { getBoardColumns, getActiveBoardPath, getBoardFeatureTypes, getBoardDefaultFeatureType } from './boardConfig'
 
 let boardsProvider: BoardsTreeProvider | undefined
 
@@ -120,7 +120,12 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
   await vscode.workspace.fs.createDirectory(vscode.Uri.file(featuresDir))
   await ensureStatusSubfolders(featuresDir)
 
-  const filename = generateFeatureFilename(title)
+  const config = vscode.workspace.getConfiguration('kanban-sauce')
+  const pattern = config.get<FilenamePattern>('filenamePattern', 'name-date')
+  const featureTypes = getBoardFeatureTypes(featuresDir)
+  const defaultFeatureType = getBoardDefaultFeatureType(featuresDir, featureTypes)
+
+  const filename = generateFeatureFilename(title, pattern, new Date(), defaultFeatureType)
   const now = new Date().toISOString()
 
   // Build content with title as first # heading
@@ -130,6 +135,7 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
     id: filename,
     status,
     priority,
+    type: defaultFeatureType,
     assignee: null,
     epic: null,
     dueDate: null,

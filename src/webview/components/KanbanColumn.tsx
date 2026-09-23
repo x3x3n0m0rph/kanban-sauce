@@ -1,7 +1,7 @@
 import { Plus, ChevronLeft, MoreVertical, ChevronRight } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { FeatureCard } from './FeatureCard'
-import type { Feature, KanbanColumn as KanbanColumnType } from '../../shared/types'
+import type { Feature, KanbanColumn as KanbanColumnType, ColumnSortField, ColumnSortDirection } from '../../shared/types'
 import type { LayoutMode } from '../store'
 import type { DropTarget } from './KanbanBoard'
 import { t } from '../lib/i18n'
@@ -14,6 +14,7 @@ interface KanbanColumnProps {
   onAddFeature: (status: string) => void
   onCollapse: () => void
   onMoveAllCards: (targetColumnId: string) => void
+  onSortCards: (field: ColumnSortField, direction: ColumnSortDirection) => void
   onArchiveAllCards?: () => void
   onDragStart: (e: React.DragEvent, feature: Feature) => void
   onDragOver: (e: React.DragEvent) => void
@@ -33,6 +34,7 @@ export function KanbanColumn({
   onAddFeature,
   onCollapse,
   onMoveAllCards,
+  onSortCards,
   onArchiveAllCards,
   onDragStart,
   onDragOver,
@@ -46,8 +48,27 @@ export function KanbanColumn({
   const isVertical = layout === 'vertical'
   const isDropTarget = dropTarget && dropTarget.columnId === column.id
   const [menuOpen, setMenuOpen] = useState(false)
-  const [submenuOpen, setSubmenuOpen] = useState(false)
+  const [submenuOpen, setSubmenuOpen] = useState<'move' | 'sort' | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const sortOptions: { field: ColumnSortField; direction: ColumnSortDirection; labelKey: string }[] = [
+    { field: 'priority', direction: 'desc', labelKey: 'column.sort.priorityHighest' },
+    { field: 'priority', direction: 'asc', labelKey: 'column.sort.priorityLowest' },
+    { field: 'dueDate', direction: 'asc', labelKey: 'column.sort.dueSoonest' },
+    { field: 'dueDate', direction: 'desc', labelKey: 'column.sort.dueLatest' },
+    { field: 'title', direction: 'asc', labelKey: 'column.sort.titleAZ' },
+    { field: 'title', direction: 'desc', labelKey: 'column.sort.titleZA' },
+    { field: 'created', direction: 'desc', labelKey: 'column.sort.createdNewest' },
+    { field: 'created', direction: 'asc', labelKey: 'column.sort.createdOldest' },
+    { field: 'modified', direction: 'desc', labelKey: 'column.sort.modifiedNewest' },
+    { field: 'modified', direction: 'asc', labelKey: 'column.sort.modifiedOldest' }
+  ]
+
+  const handleSort = (field: ColumnSortField, direction: ColumnSortDirection) => {
+    onSortCards(field, direction)
+    setMenuOpen(false)
+    setSubmenuOpen(null)
+  }
 
   useEffect(() => {
     if (!menuOpen) return
@@ -106,8 +127,8 @@ export function KanbanColumn({
               <div className="absolute right-0 top-full mt-1 z-50 min-w-[200px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg py-1">
                 <div
                   className={`relative ${features.length === 0 ? 'opacity-40 pointer-events-none' : ''}`}
-                  onMouseEnter={() => setSubmenuOpen(true)}
-                  onMouseLeave={() => setSubmenuOpen(false)}
+                  onMouseEnter={() => setSubmenuOpen('move')}
+                  onMouseLeave={() => setSubmenuOpen((prev) => (prev === 'move' ? null : prev))}
                 >
                   <button
                     className="w-full text-left px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-between gap-2"
@@ -115,17 +136,46 @@ export function KanbanColumn({
                     <span>{t('column.moveAllCards')}</span>
                     <ChevronRight size={14} className="text-zinc-400 flex-shrink-0" />
                   </button>
-                  {submenuOpen && (
+                  {submenuOpen === 'move' && (
                     <div className="absolute left-full top-0 ml-0.5 z-50 min-w-[160px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg py-1">
                       {otherColumns.map((col) => (
                         <button
                           key={col.id}
                           className="w-full text-left px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2"
-                          onClick={() => { onMoveAllCards(col.id); setMenuOpen(false); setSubmenuOpen(false) }}
+                          onClick={() => { onMoveAllCards(col.id); setMenuOpen(false); setSubmenuOpen(null) }}
                         >
                           <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: col.color }} />
                           {col.name}
                         </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div
+                  className={`relative ${features.length === 0 ? 'opacity-40 pointer-events-none' : ''}`}
+                  onMouseEnter={() => setSubmenuOpen('sort')}
+                  onMouseLeave={() => setSubmenuOpen((prev) => (prev === 'sort' ? null : prev))}
+                >
+                  <button
+                    className="w-full text-left px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-between gap-2"
+                  >
+                    <span>{t('column.sortCards')}</span>
+                    <ChevronRight size={14} className="text-zinc-400 flex-shrink-0" />
+                  </button>
+                  {submenuOpen === 'sort' && (
+                    <div className="absolute left-full top-0 ml-0.5 z-50 min-w-[220px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-lg py-1">
+                      {sortOptions.map((opt, index) => (
+                        <div key={`${opt.field}-${opt.direction}`}>
+                          {index > 0 && index % 2 === 0 && (
+                            <div className="my-1 border-t border-zinc-200 dark:border-zinc-700" />
+                          )}
+                          <button
+                            className="w-full text-left px-3 py-1.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                            onClick={() => handleSort(opt.field, opt.direction)}
+                          >
+                            {t(opt.labelKey)}
+                          </button>
+                        </div>
                       ))}
                     </div>
                   )}
