@@ -138,6 +138,7 @@
   "column.sort.modifiedNewest": "Date modified: newest first",
   "column.sort.modifiedOldest": "Date modified: oldest first",
   "column.archiveAllCards": "Archive all cards in this list",
+  "column.bulkActionsDisabledByFilters": "Clear board filters to use column bulk actions",
   "column.noFeatures": "No features",
 
   "epic.noEpic": "No epic",
