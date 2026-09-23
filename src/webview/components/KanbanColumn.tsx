@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from 'react'
 import { FeatureCard } from './FeatureCard'
 import type { Feature, KanbanColumn as KanbanColumnType, ColumnSortField, ColumnSortDirection } from '../../shared/types'
 import type { LayoutMode } from '../store'
+import type { ColumnWidthMode } from '../../shared/types'
+import { getColumnWidthClass } from '../lib/columnWidth'
 import type { DropTarget } from './KanbanBoard'
 import { t } from '../lib/i18n'
 
@@ -25,6 +27,7 @@ interface KanbanColumnProps {
   draggedFeature: Feature | null
   dropTarget: DropTarget | null
   layout: LayoutMode
+  columnWidthMode: ColumnWidthMode
 }
 
 export function KanbanColumn({
@@ -45,7 +48,8 @@ export function KanbanColumn({
   onDragEnd,
   draggedFeature,
   dropTarget,
-  layout
+  layout,
+  columnWidthMode
 }: KanbanColumnProps) {
   const isVertical = layout === 'vertical'
   const isDropTarget = dropTarget && dropTarget.columnId === column.id
@@ -91,7 +95,7 @@ export function KanbanColumn({
       className={
         isVertical
           ? "flex flex-col bg-zinc-100 dark:bg-zinc-800/50 rounded-lg"
-          : "flex-shrink-0 w-72 h-full flex flex-col bg-zinc-100 dark:bg-zinc-800/50 rounded-lg"
+          : getColumnWidthClass(columnWidthMode)
       }
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, column.id)}

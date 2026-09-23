@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { KanbanColumn } from './KanbanColumn'
 import { CollapsedColumn } from './CollapsedColumn'
 import { useStore } from '../store'
+import { getBoardRowClass } from '../lib/columnWidth'
 import { vscode } from '../vscodeApi'
 import type { Feature, FeatureStatus, ColumnSortField, ColumnSortDirection } from '../../shared/types'
 
@@ -23,6 +24,7 @@ export function KanbanBoard({ onFeatureClick, onAddFeature, onMoveFeature, epicF
   const getFilteredFeaturesByStatus = useStore((s) => s.getFilteredFeaturesByStatus)
   const getFeaturesByStatus = useStore((s) => s.getFeaturesByStatus)
   const layout = useStore((s) => s.layout)
+  const columnWidthMode = useStore((s) => s.columnWidthMode)
   const collapsedColumns = useStore((s) => s.collapsedColumns)
   const bulkActionsDisabled = useStore((s) => s.hasActiveFilters())
   const toggleColumnCollapsed = useStore((s) => s.toggleColumnCollapsed)
@@ -165,7 +167,7 @@ export function KanbanBoard({ onFeatureClick, onAddFeature, onMoveFeature, epicF
 
   return (
     <div className={isVertical ? "h-full overflow-y-auto p-4" : "h-full overflow-x-auto p-4"}>
-      <div className={isVertical ? "flex flex-col gap-4" : "flex gap-4 h-full min-w-max"}>
+      <div className={isVertical ? "flex flex-col gap-4" : getBoardRowClass(columnWidthMode)}>
         {columns.map((column) =>
           collapsedColumns.has(column.id) ? (
             <CollapsedColumn
@@ -198,6 +200,7 @@ export function KanbanBoard({ onFeatureClick, onAddFeature, onMoveFeature, epicF
               draggedFeature={draggedFeature}
               dropTarget={dropTarget}
               layout={layout}
+              columnWidthMode={columnWidthMode}
             />
           )
         )}

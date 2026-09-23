@@ -8,7 +8,7 @@ import { ColumnManager } from './components/ColumnManager'
 import { FeatureEditor } from './components/FeatureEditor'
 import { Toolbar } from './components/Toolbar'
 import { UndoToast } from './components/UndoToast'
-import type { Feature, FeatureStatus, Priority, ExtensionMessage, FeatureFrontmatter, BoardViewMode } from '../shared/types'
+import type { Feature, FeatureStatus, Priority, ExtensionMessage, FeatureFrontmatter, BoardViewMode, ColumnWidthMode } from '../shared/types'
 import { getTitleFromContent } from '../shared/types'
 import { vscode } from './vscodeApi'
 import { initLocale, t } from './lib/i18n'
@@ -27,6 +27,7 @@ function App(): React.JSX.Element {
     boardViewMode,
     setBoardViewMode,
     setFeatureTypes,
+    setColumnWidthMode,
     setLocale
   } = useStore()
 
@@ -274,6 +275,7 @@ function App(): React.JSX.Element {
           setCollapsedColumns(message.collapsedColumns ?? [])
           setCollapsedEpics(message.collapsedEpics ?? [])
           setBoardViewMode((message.boardViewMode ?? 'standard') as BoardViewMode)
+          setColumnWidthMode((message.columnWidthMode ?? 'fixed') as ColumnWidthMode)
           if (message.settings) {
             if (message.settings.markdownEditorMode && editingFeatureRef.current) {
               setEditingFeature(null)
@@ -312,7 +314,7 @@ function App(): React.JSX.Element {
     vscode.postMessage({ type: 'ready' })
 
     return () => window.removeEventListener('message', handleMessage)
-  }, [setFeatures, setColumns, setCardSettings, setCollapsedColumns, setCollapsedEpics, setBoardViewMode, setFeatureTypes, setLocale])
+  }, [setFeatures, setColumns, setCardSettings, setCollapsedColumns, setCollapsedEpics, setBoardViewMode, setFeatureTypes, setColumnWidthMode, setLocale])
 
   const handleFeatureClick = (feature: Feature): void => {
     // Request feature content for inline editing
