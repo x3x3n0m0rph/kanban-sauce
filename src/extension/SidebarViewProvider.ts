@@ -194,7 +194,7 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
 
     const features: SidebarFeature[] = []
 
-    // Load root-level files (non-done statuses)
+    // Load root-level feature files
     try {
       const rootEntries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(featuresDir))
       for (const [file, fileType] of rootEntries) {
@@ -210,25 +210,6 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
       }
     } catch {
       // Root directory may not exist
-    }
-
-    // Load done/ subfolder files
-    const doneDir = path.join(featuresDir, 'done')
-    try {
-      const doneEntries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(doneDir))
-      for (const [file, fileType] of doneEntries) {
-        if (fileType !== vscode.FileType.File || !file.endsWith('.md')) continue
-        const filePath = path.join(doneDir, file)
-        try {
-          const content = new TextDecoder().decode(await vscode.workspace.fs.readFile(vscode.Uri.file(filePath)))
-          const parsed = this._parseFrontmatter(content, file)
-          if (parsed) features.push(parsed)
-        } catch {
-          // Skip unreadable files
-        }
-      }
-    } catch {
-      // done/ subfolder may not exist
     }
 
     this._features = features

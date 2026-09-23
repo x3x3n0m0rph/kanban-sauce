@@ -7,28 +7,18 @@ export interface FsAdapter {
   createDirectory(uri: vscode.Uri): Thenable<void>
 }
 
-export function getFeatureFilePath(featuresDir: string, status: string, filename: string): string {
-  if (status === 'done') {
-    return path.join(featuresDir, 'done', `${filename}.md`)
-  }
+export function getFeatureFilePath(featuresDir: string, filename: string): string {
   return path.join(featuresDir, `${filename}.md`)
 }
 
-export async function ensureStatusSubfolders(featuresDir: string, fs: FsAdapter = vscode.workspace.fs): Promise<void> {
-  await fs.createDirectory(vscode.Uri.file(path.join(featuresDir, 'done')))
-}
-
+/** Move a feature file into the board root, appending -N on name collisions. */
 export async function moveFeatureFile(
   currentPath: string,
   featuresDir: string,
-  newStatus: string,
   fs: FsAdapter = vscode.workspace.fs
 ): Promise<string> {
   const filename = path.basename(currentPath)
-  const targetDir = newStatus === 'done'
-    ? path.join(featuresDir, 'done')
-    : featuresDir
-  let targetPath = path.join(targetDir, filename)
+  let targetPath = path.join(featuresDir, filename)
 
   if (currentPath === targetPath) return currentPath
 
@@ -36,23 +26,14 @@ export async function moveFeatureFile(
   const base = path.basename(filename, ext)
   let counter = 1
   while (await fileExists(targetPath, fs)) {
-    targetPath = path.join(targetDir, `${base}-${counter}${ext}`)
+    targetPath = path.join(featuresDir, `${base}-${counter}${ext}`)
     counter++
   }
 
-  await fs.createDirectory(vscode.Uri.file(targetDir))
+  await fs.createDirectory(vscode.Uri.file(featuresDir))
   await fs.rename(vscode.Uri.file(currentPath), vscode.Uri.file(targetPath))
 
   return targetPath
-}
-
-export function getStatusFromPath(filePath: string, featuresDir: string): string | null {
-  const relative = path.relative(featuresDir, filePath)
-  const parts = relative.split(path.sep)
-  if (parts.length === 2 && parts[0] === 'done') {
-    return 'done'
-  }
-  return null
 }
 
 export async function fileExists(filePath: string, fs: FsAdapter = vscode.workspace.fs): Promise<boolean> {

@@ -27,7 +27,7 @@
 
 ## Key Features
 
-- **Dynamic, Folder-Focused Boards:** Kanban Sauce isn't restricted to a single hidden folder. You can **open any folder in your workspace as an independent board**. Files are saved precisely where you want them, organized neatly into subfolders by their status or category. 
+- **Dynamic, Folder-Focused Boards:** Kanban Sauce isn't restricted to a single hidden folder. You can **open any folder in your workspace as an independent board**. Cards are saved as Markdown files in that folder; column/status lives in frontmatter, not in subfolders.
 - **Multiple Concurrent Boards & Sidebar Tracking:** Open two or more boards side-by-side in separate editor tabs. The **Available Boards** sidebar view tracks all known boards in your workspace, letting you jump between them with a single click. It automatically updates when you switch tabs and includes right-click options to safely rename or remove boards from your history.
 - **Fully Customizable, Board-Specific Columns:** Because columns are fully customizable, you can use Kanban Sauce for anything from agile development to personal note-taking or content planning. Customize column IDs, names, and colors on a per-board basis using the intuitive **Column Manager** UI.
 - **Board & Workflow:** 

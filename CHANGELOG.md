@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Completed cards no longer live under a `done/` subfolder. All feature files stay in the board root; status remains in frontmatter. Existing `done/*.md` files are moved to the root when a board is opened.
+
 ## [2.1.0] - 2023-08-11
 
 ### Added

@@ -6,7 +6,7 @@ import { SidebarViewProvider } from './SidebarViewProvider'
 import { generateFeatureFilename } from '../shared/types'
 import { serializeFeature } from '../shared/featureFrontmatter'
 import type { Feature, FeatureStatus, Priority, FilenamePattern } from '../shared/types'
-import { ensureStatusSubfolders, getFeatureFilePath } from './featureFileUtils'
+import { getFeatureFilePath } from './featureFileUtils'
 import { t, loadBundle } from './l10n'
 import { BoardsTreeProvider } from './BoardsTreeProvider'
 import { InProgressTreeProvider } from './InProgressTreeProvider'
@@ -118,7 +118,6 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
     }
   }
   await vscode.workspace.fs.createDirectory(vscode.Uri.file(featuresDir))
-  await ensureStatusSubfolders(featuresDir)
 
   const config = vscode.workspace.getConfiguration('kanban-sauce')
   const pattern = config.get<FilenamePattern>('filenamePattern', 'name-date')
@@ -145,7 +144,7 @@ async function createFeatureFromPrompts(context: vscode.ExtensionContext): Promi
     labels: [],
     order: generateKeyBetween(null, null),
     content,
-    filePath: getFeatureFilePath(featuresDir, status, filename)
+    filePath: getFeatureFilePath(featuresDir, filename)
   }
 
   const fileContent = serializeFeature(feature)

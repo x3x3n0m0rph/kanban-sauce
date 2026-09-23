@@ -13,10 +13,8 @@ import * as vscode from 'vscode'
 
 import {
   fileExists,
-  ensureStatusSubfolders,
   moveFeatureFile,
-  getFeatureFilePath,
-  getStatusFromPath
+  getFeatureFilePath
 } from '../../../src/extension/featureFileUtils'
 
 import {
@@ -111,54 +109,21 @@ suite('Integration: fileExists', () => {
 })
 
 // ---------------------------------------------------------------------------
-// Suite: ensureStatusSubfolders
+// Suite: getFeatureFilePath
 // ---------------------------------------------------------------------------
 
-suite('Integration: ensureStatusSubfolders', () => {
-  let tmpDir: string
-
-  setup(async () => { tmpDir = await createTmpDir() })
-  teardown(async () => { await deleteTmpDir(tmpDir) })
-
-  test('creates the done/ subdirectory', async () => {
-    await ensureStatusSubfolders(tmpDir)
-    assert.ok(await fileExists(path.join(tmpDir, 'done')))
-  })
-
-  test('is idempotent — calling twice does not throw', async () => {
-    await ensureStatusSubfolders(tmpDir)
-    await ensureStatusSubfolders(tmpDir)  // second call should not throw
-    assert.ok(await fileExists(path.join(tmpDir, 'done')))
-  })
-})
-
-// ---------------------------------------------------------------------------
-// Suite: getFeatureFilePath / getStatusFromPath
-// ---------------------------------------------------------------------------
-
-suite('Integration: getFeatureFilePath and getStatusFromPath', () => {
+suite('Integration: getFeatureFilePath', () => {
   const featuresDir = '/workspace/.devtool/features'
 
-  test('getFeatureFilePath routes done status to done/ subdir', () => {
-    const result = getFeatureFilePath(featuresDir, 'done', 'my-feature')
-    assert.strictEqual(result, path.join(featuresDir, 'done', 'my-feature.md'))
-  })
-
-  test('getFeatureFilePath places non-done statuses at the root', () => {
-    for (const status of ['backlog', 'todo', 'in-progress', 'review'] as const) {
-      const result = getFeatureFilePath(featuresDir, status, 'my-feature')
-      assert.strictEqual(result, path.join(featuresDir, 'my-feature.md'))
-    }
-  })
-
-  test('getStatusFromPath returns done for file inside done/', () => {
-    const filePath = path.join(featuresDir, 'done', 'completed.md')
-    assert.strictEqual(getStatusFromPath(filePath, featuresDir), 'done')
-  })
-
-  test('getStatusFromPath returns null for file at root', () => {
-    const filePath = path.join(featuresDir, 'in-progress-feature.md')
-    assert.strictEqual(getStatusFromPath(filePath, featuresDir), null)
+  test('places all features at the board root', () => {
+    assert.strictEqual(
+      getFeatureFilePath(featuresDir, 'my-feature'),
+      path.join(featuresDir, 'my-feature.md')
+    )
+    assert.strictEqual(
+      getFeatureFilePath(featuresDir, 'done-card'),
+      path.join(featuresDir, 'done-card.md')
+    )
   })
 })
 
@@ -171,35 +136,24 @@ suite('Integration: moveFeatureFile', () => {
 
   setup(async () => {
     tmpDir = await createTmpDir()
-    await ensureStatusSubfolders(tmpDir)
   })
   teardown(async () => { await deleteTmpDir(tmpDir) })
 
-  test('returns the same path when source equals the computed target', async () => {
+  test('returns the same path when source is already at board root', async () => {
     const filePath = path.join(tmpDir, 'unchanged.md')
     await writeFile(filePath, 'content')
-    const result = await moveFeatureFile(filePath, tmpDir, 'todo')
+    const result = await moveFeatureFile(filePath, tmpDir)
     assert.strictEqual(result, filePath)
     assert.ok(await fileExists(filePath), 'file should still exist')
   })
 
-  test('moves file to done/ when status changes to done', async () => {
-    const srcPath = path.join(tmpDir, 'going-to-done.md')
-    await writeFile(srcPath, 'content')
-
-    const result = await moveFeatureFile(srcPath, tmpDir, 'done')
-    const expectedPath = path.join(tmpDir, 'done', 'going-to-done.md')
-
-    assert.strictEqual(result, expectedPath)
-    assert.ok(await fileExists(expectedPath), 'file should exist at done/ path')
-    assert.strictEqual(await fileExists(srcPath), false, 'original file should be gone')
-  })
-
-  test('moves file from done/ back to root when status changes', async () => {
-    const donePath = path.join(tmpDir, 'done', 'came-from-done.md')
+  test('moves file from done/ subfolder to board root', async () => {
+    const doneDir = path.join(tmpDir, 'done')
+    await vscode.workspace.fs.createDirectory(vscode.Uri.file(doneDir))
+    const donePath = path.join(doneDir, 'came-from-done.md')
     await writeFile(donePath, 'content')
 
-    const result = await moveFeatureFile(donePath, tmpDir, 'in-progress')
+    const result = await moveFeatureFile(donePath, tmpDir)
     const expectedPath = path.join(tmpDir, 'came-from-done.md')
 
     assert.strictEqual(result, expectedPath)
@@ -207,14 +161,16 @@ suite('Integration: moveFeatureFile', () => {
     assert.strictEqual(await fileExists(donePath), false)
   })
 
-  test('appends -1 suffix when target filename already exists', async () => {
-    const srcPath = path.join(tmpDir, 'collision.md')
-    const collidePath = path.join(tmpDir, 'done', 'collision.md')
+  test('appends -1 suffix when target filename already exists at root', async () => {
+    const doneDir = path.join(tmpDir, 'done')
+    await vscode.workspace.fs.createDirectory(vscode.Uri.file(doneDir))
+    const srcPath = path.join(doneDir, 'collision.md')
+    const collidePath = path.join(tmpDir, 'collision.md')
     await writeFile(srcPath, 'src content')
     await writeFile(collidePath, 'pre-existing content')
 
-    const result = await moveFeatureFile(srcPath, tmpDir, 'done')
-    const expectedPath = path.join(tmpDir, 'done', 'collision-1.md')
+    const result = await moveFeatureFile(srcPath, tmpDir)
+    const expectedPath = path.join(tmpDir, 'collision-1.md')
 
     assert.strictEqual(result, expectedPath)
     assert.ok(await fileExists(expectedPath))
@@ -222,14 +178,16 @@ suite('Integration: moveFeatureFile', () => {
   })
 
   test('increments suffix until a free slot is found', async () => {
-    const srcPath = path.join(tmpDir, 'multi.md')
+    const doneDir = path.join(tmpDir, 'done')
+    await vscode.workspace.fs.createDirectory(vscode.Uri.file(doneDir))
+    const srcPath = path.join(doneDir, 'multi.md')
     await writeFile(srcPath, 'src')
-    await writeFile(path.join(tmpDir, 'done', 'multi.md'), 'v0')
-    await writeFile(path.join(tmpDir, 'done', 'multi-1.md'), 'v1')
+    await writeFile(path.join(tmpDir, 'multi.md'), 'v0')
+    await writeFile(path.join(tmpDir, 'multi-1.md'), 'v1')
 
-    const result = await moveFeatureFile(srcPath, tmpDir, 'done')
-    assert.strictEqual(result, path.join(tmpDir, 'done', 'multi-2.md'))
-    assert.ok(await fileExists(path.join(tmpDir, 'done', 'multi-2.md')))
+    const result = await moveFeatureFile(srcPath, tmpDir)
+    assert.strictEqual(result, path.join(tmpDir, 'multi-2.md'))
+    assert.ok(await fileExists(path.join(tmpDir, 'multi-2.md')))
   })
 })
 
