@@ -274,13 +274,21 @@
             "name-date",
             "date-name",
             "name-datetime",
-            "datetime-name"
+            "datetime-name",
+            "type-name-date",
+            "name-type-date",
+            "type-name-datetime",
+            "name-type-datetime"
           ],
           "enumDescriptions": [
             "%config.filenamePattern.nameDate%",
             "%config.filenamePattern.dateName%",
             "%config.filenamePattern.nameDatetime%",
-            "%config.filenamePattern.datetimeName%"
+            "%config.filenamePattern.datetimeName%",
+            "%config.filenamePattern.typeNameDate%",
+            "%config.filenamePattern.nameTypeDate%",
+            "%config.filenamePattern.typeNameDatetime%",
+            "%config.filenamePattern.nameTypeDatetime%"
           ],
           "description": "%config.filenamePattern.description%"
         },
@@ -397,6 +405,59 @@
           "type": "boolean",
           "default": true,
           "description": "%config.showEpic.description%"
+        },
+        "kanban-sauce.showType": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.showType.description%"
+        },
+        "kanban-sauce.featureTypes": {
+          "type": "array",
+          "default": [
+            {
+              "id": "feature",
+              "name": "Feature",
+              "shortName": "FEAT"
+            },
+            {
+              "id": "bug",
+              "name": "Bug",
+              "shortName": "BUG"
+            },
+            {
+              "id": "tech-debt",
+              "name": "TechDebt",
+              "shortName": "DEBT"
+            }
+          ],
+          "description": "%config.featureTypes.description%",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "%config.featureTypes.id.description%"
+              },
+              "name": {
+                "type": "string",
+                "description": "%config.featureTypes.name.description%"
+              },
+              "shortName": {
+                "type": "string",
+                "description": "%config.featureTypes.shortName.description%"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "shortName"
+            ]
+          }
+        },
+        "kanban-sauce.defaultFeatureType": {
+          "type": "string",
+          "default": "feature",
+          "description": "%config.defaultFeatureType.description%"
         },
         "kanban-sauce.showFileName": {
           "type": "boolean",

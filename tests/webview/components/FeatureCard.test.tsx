@@ -25,11 +25,13 @@ const defaultSettings: CardDisplaySettings = {
   showDueDate: true,
   showLabels: true,
   showEpic: true,
+  showType: true,
   showFileName: false,
   compactMode: false,
   markdownEditorMode: false,
   defaultPriority: 'medium',
-  defaultStatus: 'backlog'
+  defaultStatus: 'backlog',
+  defaultFeatureType: 'feature'
 }
 
 function setSettings(overrides: Partial<CardDisplaySettings> = {}) {
@@ -41,6 +43,7 @@ function makeFeature(overrides: Partial<Feature> = {}): Feature {
     id: 'card-1',
     status: 'todo',
     priority: 'high',
+    type: null,
     assignee: 'lucio',
     epic: null,
     dueDate: null,
@@ -182,6 +185,30 @@ describe('FeatureCard — assignee', () => {
     setSettings({ showAssignee: true })
     render(<FeatureCard feature={makeFeature({ assignee: 'John Doe' })} onClick={() => {}} />)
     expect(screen.getByText('JD')).toBeInTheDocument()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Type badge
+// ---------------------------------------------------------------------------
+
+describe('FeatureCard — type', () => {
+  it('shows short type label when showType is true', () => {
+    setSettings({ showType: true })
+    render(<FeatureCard feature={makeFeature({ type: 'bug' })} onClick={() => {}} />)
+    expect(screen.getByText('BUG')).toBeInTheDocument()
+  })
+
+  it('hides type badge when showType is false', () => {
+    setSettings({ showType: false })
+    render(<FeatureCard feature={makeFeature({ type: 'bug' })} onClick={() => {}} />)
+    expect(screen.queryByText('BUG')).not.toBeInTheDocument()
+  })
+
+  it('shows raw id for unknown type', () => {
+    setSettings({ showType: true })
+    render(<FeatureCard feature={makeFeature({ type: 'legacy' })} onClick={() => {}} />)
+    expect(screen.getByText('legacy')).toBeInTheDocument()
   })
 })
 

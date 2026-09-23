@@ -26,6 +26,7 @@ interface CreateFeatureDialogProps {
   onCreate: (data: {
     status: FeatureStatus
     priority: Priority
+    type: string | null
     content: string
     assignee: string | null
     epic: string | null
@@ -299,7 +300,7 @@ function CreateFeatureDialogContent({
   onCreate,
   initialStatus
 }: CreateFeatureDialogProps) {
-  const { cardSettings, columns } = useStore()
+  const { cardSettings, columns, featureTypes } = useStore()
   const priorityConfig = getPriorityConfig()
   const statusConfig = columns.map(c => ({
     value: c.id as FeatureStatus,
@@ -309,6 +310,7 @@ function CreateFeatureDialogContent({
   const [title, setTitle] = useState('')
   const [status, setStatus] = useState<FeatureStatus>(initialStatus ?? cardSettings.defaultStatus)
   const [priority, setPriority] = useState<Priority>(cardSettings.defaultPriority)
+  const [type, setType] = useState(cardSettings.defaultFeatureType ?? '')
   const [assignee, setAssignee] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [labels, setLabels] = useState<string[]>([])
@@ -343,6 +345,7 @@ function CreateFeatureDialogContent({
     onCreate({
       status,
       priority,
+      type: type.trim() || null,
       content,
       assignee: assignee.trim() || null,
       epic: epic.trim() || null,
@@ -440,6 +443,21 @@ function CreateFeatureDialogContent({
           {cardSettings.showAssignee && (
             <PropertyRow label={t('property.assignee')} icon={<User size={13} />}>
               <AssigneeInput value={assignee} onChange={setAssignee} />
+            </PropertyRow>
+          )}
+          {cardSettings.showType && (
+            <PropertyRow label={t('property.type')} icon={<Tag size={13} />}>
+              <Dropdown
+                value={type}
+                options={[
+                  { value: '', label: t('editor.noType') },
+                  ...featureTypes.map((featureType) => ({
+                    value: featureType.id,
+                    label: featureType.name
+                  }))
+                ]}
+                onChange={setType}
+              />
             </PropertyRow>
           )}
           {cardSettings.showEpic && (

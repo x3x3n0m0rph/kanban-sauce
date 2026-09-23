@@ -58,7 +58,7 @@ Tailor Kanban Sauce to your exact liking. Settings can be found under `kanban-sa
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `filenamePattern` | `name-date` | Filename pattern for new cards (`name-date`, `date-name`, `name-datetime`, `datetime-name`) |
+| `filenamePattern` | `name-date` | Filename pattern for new cards (`name-date`, `date-name`, `name-datetime`, `datetime-name`, `type-name-date`, `name-type-date`, `type-name-datetime`, `name-type-datetime`). Patterns with `type` include the feature type id; untyped cards use `task`. |
 | `defaultPriority` | `medium` | Default priority for new features |
 | `defaultStatus` | `backlog` | Default status for new features |
 | `columns` | *see below* | Customize column IDs, names, and colors |
@@ -68,6 +68,9 @@ Tailor Kanban Sauce to your exact liking. Settings can be found under `kanban-sa
 | `showLabels` | `true` | Show labels on cards and in editors |
 | `showFileName` | `false` | Show the source markdown filename on cards |
 | `showEpic` | `true` | Show epic (parent grouping) on cards and in editors |
+| `showType` | `true` | Show feature type on cards and in editors |
+| `featureTypes` | *see below* | Known feature types with full and short display names |
+| `defaultFeatureType` | `feature` | Default type id for new features |
 | `compactMode` | `false` | Use compact card layout |
 | `addNewCardsToTop` | `false` | Add new cards to the top of the column |
 | `markdownEditorMode` | `false` | Open files in VS Code's native text editor instead of the inline rich-text editor |
@@ -94,7 +97,19 @@ Default columns:
 ]
 ```
 
+Default feature types:
+
+```json
+[
+  { "id": "feature", "name": "Feature", "shortName": "FEAT" },
+  { "id": "bug", "name": "Bug", "shortName": "BUG" },
+  { "id": "tech-debt", "name": "TechDebt", "shortName": "DEBT" }
+]
+```
+
 You can override the columns configuration/list for a specific board easily from the Kanban board UI by clicking the **Manage Columns** button in the top toolbar. This will automatically create or update a `.kanbansauce` file (in JSON format) at the root of the board directory. This allows you to have different column configurations for different boards, and since the file lives in the board folder, it is version-controllable and easily reproducible.
+
+Per-board overrides in `.kanbansauce` can also include `types` and `defaultType`:
 
 Example `.kanbansauce` file:
 
@@ -104,7 +119,12 @@ Example `.kanbansauce` file:
     { "id": "backlog", "name": "Backlog", "color": "#6b7280" },
     { "id": "in-progress", "name": "In Progress", "color": "#f59e0b" },
     { "id": "done", "name": "Done", "color": "#22c55e" }
-  ]
+  ],
+  "types": [
+    { "id": "feature", "name": "Feature", "shortName": "FEAT" },
+    { "id": "bug", "name": "Bug", "shortName": "BUG" }
+  ],
+  "defaultType": "feature"
 }
 ```
 
@@ -117,6 +137,7 @@ Because your data is yours, a typical Kanban Sauce card looks like this on disk:
 id: "remove-ai-integration-2026-07-04"
 status: "done"
 priority: "critical"
+type: "bug"
 assignee: "peppe"
 epic: null
 dueDate: "2026-07-04"

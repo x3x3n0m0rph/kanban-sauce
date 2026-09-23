@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import * as path from 'path'
 import * as fs from 'fs'
-import { getBoardColumns, saveBoardColumns } from '../../src/extension/boardConfig'
-import { KanbanColumn } from '../../src/shared/types'
+import { getBoardColumns, getBoardFeatureTypes, getBoardDefaultFeatureType, saveBoardColumns, validateFeatureTypes } from '../../src/extension/boardConfig'
+import { DEFAULT_FEATURE_TYPES, KanbanColumn } from '../../src/shared/types'
 
 // Mock vscode
 vi.mock('vscode', () => {
@@ -41,6 +41,11 @@ describe('boardConfig', () => {
 
   const customColumns: KanbanColumn[] = [
     { id: 'custom-todo', name: 'Custom To Do', color: '#000000' }
+  ]
+
+  const customTypes = [
+    { id: 'story', name: 'Story', shortName: 'STR' },
+    { id: 'bug', name: 'Bug', shortName: 'BUG' }
   ]
 
   beforeEach(() => {
@@ -91,6 +96,51 @@ describe('boardConfig', () => {
 
       const result = getBoardColumns('/fake/path')
       expect(result).toEqual(defaultColumns)
+    })
+  })
+
+  describe('validateFeatureTypes', () => {
+    it('accepts valid types', () => {
+      expect(validateFeatureTypes(customTypes)).toEqual(customTypes)
+    })
+
+    it('rejects duplicate ids', () => {
+      expect(validateFeatureTypes([
+        { id: 'bug', name: 'Bug', shortName: 'BUG' },
+        { id: 'bug', name: 'Bug 2', shortName: 'BG2' }
+      ])).toBeNull()
+    })
+  })
+
+  describe('getBoardFeatureTypes', () => {
+    it('returns board types when .kanbansauce defines them', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ types: customTypes }))
+
+      expect(getBoardFeatureTypes('/fake/path')).toEqual(customTypes)
+    })
+
+    it('falls back to defaults when board types are invalid', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ types: [{ id: 'x' }] }))
+
+      expect(getBoardFeatureTypes('/fake/path')).toEqual(DEFAULT_FEATURE_TYPES)
+    })
+  })
+
+  describe('getBoardDefaultFeatureType', () => {
+    it('returns board defaultType when valid', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ defaultType: 'bug', types: customTypes }))
+
+      expect(getBoardDefaultFeatureType('/fake/path', customTypes)).toBe('bug')
+    })
+
+    it('falls back to workspace default when board default is invalid', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true)
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify({ defaultType: 'missing' }))
+
+      expect(getBoardDefaultFeatureType('/fake/path', DEFAULT_FEATURE_TYPES)).toBe('feature')
     })
   })
 

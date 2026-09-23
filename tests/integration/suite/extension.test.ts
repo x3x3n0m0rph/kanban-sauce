@@ -65,6 +65,7 @@ function makeFeature(overrides: Partial<Feature> = {}): Feature {
     id: 'test-id-001',
     status: 'todo',
     priority: 'high',
+    type: null,
     assignee: 'alice',
     epic: null,
     dueDate: '2026-06-01',
@@ -264,6 +265,7 @@ suite('Integration: frontmatter round-trip with vscode.workspace.fs', () => {
   test('null optional fields survive round-trip', async () => {
     const feature = makeFeature({
       priority: 'medium',
+      type: null,
       assignee: null,
       dueDate: null,
       completedAt: null,

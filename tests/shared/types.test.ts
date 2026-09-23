@@ -26,6 +26,26 @@ describe('generateFeatureFilename', () => {
       expect(generateFeatureFilename('My Feature', 'datetime-name', D)).toBe('2026-02-23-143045-my-feature')
     })
 
+    it('type-name-date produces <type>-<slug>-<date>', () => {
+      expect(generateFeatureFilename('My Feature', 'type-name-date', D, 'bug')).toBe('bug-my-feature-2026-02-23')
+    })
+
+    it('name-type-date produces <slug>-<type>-<date>', () => {
+      expect(generateFeatureFilename('My Feature', 'name-type-date', D, 'tech-debt')).toBe('my-feature-tech-debt-2026-02-23')
+    })
+
+    it('type-name-datetime produces <type>-<slug>-<date>-<time>', () => {
+      expect(generateFeatureFilename('My Feature', 'type-name-datetime', D, 'feature')).toBe('feature-my-feature-2026-02-23-143045')
+    })
+
+    it('name-type-datetime produces <slug>-<type>-<date>-<time>', () => {
+      expect(generateFeatureFilename('My Feature', 'name-type-datetime', D, 'bug')).toBe('my-feature-bug-2026-02-23-143045')
+    })
+
+    it('uses "task" when type is missing in type-based patterns', () => {
+      expect(generateFeatureFilename('My Feature', 'type-name-date', D, null)).toBe('task-my-feature-2026-02-23')
+    })
+
     it('defaults to name-date when no pattern supplied', () => {
       expect(generateFeatureFilename('My Feature', undefined, D)).toBe('my-feature-2026-02-23')
     })

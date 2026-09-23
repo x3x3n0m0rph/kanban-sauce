@@ -50,11 +50,15 @@ export function Toolbar({
     setAssigneeFilter,
     labelFilter,
     setLabelFilter,
+    typeFilter,
+    setTypeFilter,
     dueDateFilter,
     setDueDateFilter,
     clearAllFilters,
     getUniqueAssignees,
     getUniqueLabels,
+    getUnknownTypes,
+    featureTypes,
     hasActiveFilters,
     layout,
     toggleLayout,
@@ -65,6 +69,7 @@ export function Toolbar({
   const dueDateOptions = getDueDateOptions()
   const assignees = getUniqueAssignees()
   const labels = getUniqueLabels()
+  const unknownTypes = getUnknownTypes()
   const filtersActive = hasActiveFilters()
 
   const [labelManagerOpen, setLabelManagerOpen] = useState(false)
@@ -137,6 +142,32 @@ export function Toolbar({
           </optgroup>
         )}
       </select>
+      )}
+
+      {/* Type Filter */}
+      {cardSettings.showType && (
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          className={selectClassName}
+        >
+          <option value="all">{t('toolbar.allTypes')}</option>
+          <option value="untyped">{t('toolbar.untyped')}</option>
+          {featureTypes.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
+          {unknownTypes.length > 0 && (
+            <optgroup label={t('toolbar.unknownTypesGroup')}>
+              {unknownTypes.map((typeId) => (
+                <option key={typeId} value={typeId}>
+                  {typeId}
+                </option>
+              ))}
+            </optgroup>
+          )}
+        </select>
       )}
 
       {/* Due Date Filter */}
