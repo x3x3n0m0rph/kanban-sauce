@@ -84,6 +84,9 @@ Tailor Kanban Sauce to your exact liking. Settings can be found under `kanban-sa
 | `fontSizeEditorMeta` | `14px` | Font size for elements in the metadata block above the editor/preview (e.g. `14px`, `0.9rem`) |
 | `language` | `auto` | Language for the Kanban Sauce UI (`auto`, `en` - English, `es` - Español, `pt` - Português) |
 | `hideScrollbar` | `false` | Hide scrollbars in the Kanban board (scrolling still works) |
+| `mcp.enabled` | `false` | Start a localhost Streamable HTTP MCP server for external agents |
+| `mcp.port` | `3847` | MCP server port (bound to `127.0.0.1` only) |
+| `mcp.token` | `""` | Bearer token; empty = auto-generate and store in Secret Storage |
 
 Default columns:
 
@@ -127,6 +130,26 @@ Example `.kanbansauce` file:
   "defaultType": "feature"
 }
 ```
+
+## MCP server (external agents)
+
+While VS Code/Cursor is open, Kanban Sauce can expose a **Streamable HTTP** MCP endpoint on localhost so a separate agent can manage board tasks.
+
+1. Set `kanban-sauce.mcp.enabled` to `true` (default is off).
+2. Optionally set `kanban-sauce.mcp.port` / `kanban-sauce.mcp.token`, or leave the token empty to auto-generate one.
+3. Run **Kanban Sauce: Copy MCP Connection Info** and paste the URL + Bearer token into your external agent config.
+
+Endpoint: `http://127.0.0.1:3847/mcp` (port configurable). Tools: `list_boards`, `get_board`, `list_tasks`, `search_tasks`, `create_task`, `set_task_status`.
+
+The server binds to `127.0.0.1` only, requires Bearer auth, and stops when the setting is disabled or the IDE exits.
+
+### Smoke checklist
+
+1. Enable MCP, open a board, copy connection info.
+2. From an MCP client: `initialize` → `tools/list`.
+3. Call `list_tasks`, `create_task`, `set_task_status`, `search_tasks`.
+4. Confirm the card updates in the open board UI.
+5. Disable `mcp.enabled` and confirm the port no longer accepts connections; requests without a token return 401.
 
 ## File Format Example
 

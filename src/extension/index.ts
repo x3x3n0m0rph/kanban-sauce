@@ -11,8 +11,10 @@ import { t, loadBundle } from './l10n'
 import { BoardsTreeProvider } from './BoardsTreeProvider'
 import { InProgressTreeProvider } from './InProgressTreeProvider'
 import { getBoardColumns, getActiveBoardPath, getBoardFeatureTypes, getBoardDefaultFeatureType } from './boardConfig'
+import { McpLifecycle } from './mcp/mcpLifecycle'
 
 let boardsProvider: BoardsTreeProvider | undefined
+let mcpLifecycle: McpLifecycle | undefined
 
 interface StatusQuickPickItem extends vscode.QuickPickItem {
   statusValue: FeatureStatus
@@ -186,6 +188,24 @@ async function registerKnownBoard(context: vscode.ExtensionContext, boardPath: s
 
 export function activate(context: vscode.ExtensionContext) {
   loadBundle(context.extensionPath)
+
+  mcpLifecycle = new McpLifecycle(context, () => getValidKnownBoards(context))
+  void mcpLifecycle.syncFromConfig()
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration(e => {
+      if (e.affectsConfiguration('kanban-sauce.mcp')) {
+        void mcpLifecycle?.syncFromConfig()
+      }
+    }),
+    {
+      dispose: () => {
+        void mcpLifecycle?.stop()
+        mcpLifecycle = undefined
+      }
+    },
+    vscode.commands.registerCommand('kanban-sauce.mcp.copyConnectionInfo', () => mcpLifecycle?.copyConnectionInfo())
+  )
+
   // Sidebar webview in the activity bar
   const sidebarProvider = new SidebarViewProvider(context.extensionUri, context)
   context.subscriptions.push(
@@ -498,4 +518,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 }
 
-export function deactivate() {}
+export async function deactivate() {
+  await mcpLifecycle?.stop()
+  mcpLifecycle = undefined
+}
